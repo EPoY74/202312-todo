@@ -7,7 +7,6 @@ list_of_db_fields: list = ["data_of_creation", #дата создвния
                           "is_gone",  # выполнено ли задание
                           "date_of_gone", # дата исполнения
                           ]
-lisf_of_datas: list = []  # формирую пустой список, буду писать в него данные со строки в файле, потом - в БД
 
 if __name__ == "__main__":
 
