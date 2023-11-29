@@ -35,6 +35,9 @@ if __name__ == "__main__":
 
     db_connection.commit()  # Записал в БД
     db_connection.close()  # Закрыл соединение с БД
+
+
+    print("Yello")
     
     # db_connection = sqlite3.connect('ep20231119begin.db')
     # db_cursor = db_connection.cursor()  # формирую курсор, что писать и получать данные с БД
