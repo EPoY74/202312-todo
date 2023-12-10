@@ -35,38 +35,36 @@ args = parser.parse_args()
 # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
 
 def make_db():
-    global is_ok_flag
-
+    """
+    Создаем основную базу данных для работы приложения.
+    Создаем основную таблицу для работы приложения
+    """
     #создаем БД
-    print("Создаю базу данных")
-    db_connection = sql3.connect(DB_NAME)
-    db_connection.close()
-    
+    try:
+        with sql3.connect(DB_NAME) as db_connection:
+            print("База данных создана\n\n")
+        # db_connection.close()
+    except sql3.Error as err: print(f"Ошибка:\n {str(err)}")
     
     # ЗАписываем таблицу, если не создана
     try:
-        db_connection = sql3.connect(DB_NAME)
-        db_cursor = db_connection.cursor()
-        db_cursor.execute('''
-        CREATE TABLE IF NOT EXISTS my_todo_list(
-        id INTEGER PRIMARY KEY,
-        data_of_creation,
-        date_max TEXT,
-        todo_text TEXT,
-        is_gone integer,
-        date_of_gone TEXT
-        )
-        ''')
-        db_connection.close()
-    except sql3.Error as error:
-        is_ok_flag = False
-        print("Ошибка: ", error.message)  # не уверен, что отработает
-    if is_ok_flag:
-        print("Таблица создана успешно")
-
-def make_task(text_of_task:str):
-    global is_ok_flag
+        with sql3.connect(DB_NAME) as db_connection:
+            print("Создаю таблицу для ToDo заданий в Базе Даннах")
+            db_cursor = db_connection.cursor()
+            db_cursor.execute('''
+            CREATE TABLE IF NOT EXISTS my_todo_list(
+            id INTEGER PRIMARY KEY,
+            data_of_creation,
+            date_max TEXT,
+            todo_text TEXT,
+            is_gone integer,
+            date_of_gone TEXT
+            )
+            ''')
+        print("Таблица в базе данных создана успешно\n")
+    except sql3.Error as error: print(f"Ошибка:\n  {str(error)}")
    
+def make_task(text_of_task:str):
     #ввести новую задачу
     date_time_now_obj = datetime.datetime.now()  # Получаем объект дата время 
     date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')  # Преобразовываем его как нам надо
