@@ -1,7 +1,7 @@
 import argparse as ap
 import sqlite3 as sql3
 import os
-import datetime
+from datetime import datetime
 
 
 def get_db_name():
@@ -15,7 +15,6 @@ def get_db_name():
     return dbname if dbname is not None else "eo20231206sql.db"
 
 DB_NAME = get_db_name()
-# is_ok_flag: bool = True
 
 parser = ap.ArgumentParser()
 parser.description = """\nПрограма создает ToDo список дел в текстовом консольном режиме.
@@ -69,7 +68,7 @@ def make_task(text_of_task:str):
     Создаем новую задачу в таблице my_todo_list в БД
     выводим последнюю созданную запись на экран
     """
-    date_time_now_obj = datetime.datetime.now()  # Получаем объект дата время 
+    date_time_now_obj = datetime.now()  # Получаем объект дата время 
     date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')  # Преобразовываем его как нам надо
     print("Добавляю задачу в БД...")
     try:
