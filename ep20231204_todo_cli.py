@@ -15,7 +15,7 @@ def get_db_name():
     return dbname if dbname is not None else "eo20231206sql.db"
 
 DB_NAME = get_db_name()
-is_ok_flag: bool = True
+# is_ok_flag: bool = True
 
 parser = ap.ArgumentParser()
 parser.description = """\nПрограма создает ToDo список дел в текстовом консольном режиме.
