@@ -21,13 +21,13 @@ parser = ap.ArgumentParser()
 parser.description = """\nПрограма создает ToDo список дел в текстовом консольном режиме.
 \nПоддерживает команды:
 \ncreatedb - создать базу данных
-\nmaketask - создать задание
+\nmaketask или add - создать задание
 \nlist - список сохраненных заданий\n """
 parser.add_argument("command",
                      type = str,
                        help = "Команда, что необходимо сделать: ")
 #createdb
-#list, maketask
+#list, maketask or add
 parser.add_argument("--text", type = str,  help = "Описание задачи, которую заводим")
 
 args = parser.parse_args()
