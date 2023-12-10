@@ -89,10 +89,8 @@ def list_of_tasks(all_or_last: str = "all"):
     Если задан параметр all - выводим все записи по 10 шт.
     ЕСли задан параметр last - то только последнюю запись  
     """#выводим списк дел
-    if all_or_last == "last":
-         db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
-    elif all_or_last == "all":
-          db_sql_query = '''SELECT * FROM  my_todo_list'''
+    if all_or_last == "last": db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
+    elif all_or_last == "all": db_sql_query = '''SELECT * FROM  my_todo_list'''
 
     with sql3.connect(DB_NAME) as db_connection :  # Здесь надо указать именно соединение, а не курсор
         db_cursor = db_connection.cursor()
