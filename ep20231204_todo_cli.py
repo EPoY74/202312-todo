@@ -65,35 +65,30 @@ def make_db():
     except sql3.Error as error: print(f"Ошибка:\n  {str(error)}")
    
 def make_task(text_of_task:str):
-    #ввести новую задачу
+    """
+    Создаем новую задачу в таблице my_todo_list в БД
+    выводим последнюю созданную запись на экран
+    """
     date_time_now_obj = datetime.datetime.now()  # Получаем объект дата время 
     date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')  # Преобразовываем его как нам надо
-    print("Add task in list")
-    # print(type(date_time_now))
-    #Подключаюсь кБД
+    print("Добавляю задачу в БД...")
     try:
-        db_connection = sql3.connect(DB_NAME)
-        db_cursor = db_connection.cursor()
-        db_sql_query = '''INSERT INTO my_todo_list (data_of_creation, todo_text, is_gone) VALUES (?, ?, ?)'''
-        adding_datas = [date_time_now, text_of_task, 0]
-        
-        db_cursor.execute(db_sql_query, adding_datas)
-        db_connection.commit()
-    except sql3.Error as error:
-        
-        is_ok_flag = False
-        print("Ошибка: ", error.message)
+        with sql3.connect(DB_NAME) as db_connection:
+            db_cursor = db_connection.cursor()
+            db_sql_query = '''INSERT INTO my_todo_list (data_of_creation, todo_text, is_gone) VALUES (?, ?, ?)'''
+            adding_datas = [date_time_now, text_of_task, 0]
+            db_cursor.execute(db_sql_query, adding_datas)
+            db_connection.commit()
+        print("Задача в БД добавлена:")
+        list_of_tasks("last") # Выводим на экран последнюю созданную запись
+    except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
     
-    if is_ok_flag:
-        print(f"Данные \"{text_of_task}\" записаны успешно")  # вспоминаю как пользоваться f строками 
-
-    #print(sql3.Error.message)
-
-    db_connection.close()
-
-
-def lisf_of_tasks():
-    #выводим списк дел
+def list_of_tasks(all_or_last: str = "all"):
+    """
+    Выводим список дел из таблицы на экран.
+    Если задан параметр all - выводим все записи по 10 шт.
+    ЕСли задан параметр last - то только последнюю запись  
+    """#выводим списк дел
     print("Print list of tasks\n\n")
     db_connection = sql3.connect(DB_NAME)
     db_cursor = db_connection.cursor()
