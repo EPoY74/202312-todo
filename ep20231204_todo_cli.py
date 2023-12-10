@@ -4,7 +4,17 @@ import os
 import datetime
 
 
-DB_NAME  = "eo20231206sql.db"
+def get_db_name():
+    """
+    Получает имя базы из переменной окружения TODO_DB_NAME.
+    Если такой переменной нет, то имя базы будет eo20231206sql.db.
+    """
+    dbname = os.getenv("TODO_DB_NAME")
+    if dbname is not None:
+        print(f"Используем имя базы из переменной TODO_DB_NAME - {dbname}")
+    return dbname if dbname is not None else "eo20231206sql.db"
+
+DB_NAME = get_db_name()
 is_ok_flag: bool = True
 
 parser = ap.ArgumentParser()
