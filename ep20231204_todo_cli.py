@@ -2,7 +2,7 @@ import argparse as ap
 import sqlite3 as sql3
 import os
 from datetime import datetime
-
+import configparser as cfg_par
 
 def get_db_name():
     """
@@ -13,25 +13,6 @@ def get_db_name():
     if dbname is not None:
         print(f"Используем имя базы из переменной TODO_DB_NAME - {dbname}")
     return dbname if dbname is not None else "eo20231206sql.db"
-
-DB_NAME = get_db_name()
-
-parser = ap.ArgumentParser()
-parser.description = """\nПрограма создает ToDo список дел в текстовом консольном режиме.
-\nПоддерживает команды:
-\ncreatedb - создать базу данных
-\nmaketask или add - создать задание
-\nlist - список сохраненных заданий\n """
-parser.add_argument("command",
-                     type = str,
-                       help = "Команда, что необходимо сделать: ")
-#createdb
-#list, maketask or add
-parser.add_argument("--text", type = str,  help = "Описание задачи, которую заводим")
-
-args = parser.parse_args()
-
-# TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
 
 def make_db():
     """
@@ -108,11 +89,32 @@ def list_of_tasks(all_or_last: str = "all"):
                 counter += 1
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
+
 if __name__ == "__main__":
+        
+    DB_NAME = get_db_name()
+    todo_config = cfg_par.ConfigParser()  # Создаю объект парсера конфигурации
+    todo_config.read("ep20231204_todo_cli.ini")  # Читаю конфигурацию
+    print(todo_config["bd_name"]["bd_name"])
+    
+    parser = ap.ArgumentParser()
+    parser.description = """\nПрограма создает ToDo список дел в текстовом консольном режиме.
+    \nПоддерживает команды:
+    \ncreatedb - создать базу данных
+    \nmaketask или add - создать задание
+    \nlist - список сохраненных заданий\n """
+    parser.add_argument("command",
+                        type = str,
+                        help = "Команда, что необходимо сделать: ")
+    #createdb
+    #list, maketask or add
+    parser.add_argument("--text", type = str,  help = "Описание задачи, которую заводим")
+
+    args = parser.parse_args()
+
+    # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
+
     print("Привет! Я - консольное todo приложение\n")
-
-
-if __name__ == "__main__":
     if args.command == "createdb":
         make_db()
     elif args.command == "maketask" or args.command == "add":
