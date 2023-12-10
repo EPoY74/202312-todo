@@ -92,21 +92,23 @@ def list_of_tasks(all_or_last: str = "all"):
     if all_or_last == "last": db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
     elif all_or_last == "all": db_sql_query = '''SELECT * FROM  my_todo_list'''
 
-    with sql3.connect(DB_NAME) as db_connection :  # Здесь надо указать именно соединение, а не курсор
-        db_cursor = db_connection.cursor()
-        data_of_todo = db_cursor.execute(db_sql_query)
-        names_of_columns = [description[0] for description in db_cursor.description]
-        print(names_of_columns)
-        counter = 0
-        for row in data_of_todo:
-            print(row)
-            #print(row[0])
-            if counter == 10:
-                input("\nДля продолжения нажмите Enter: ")
-                print("\n",names_of_columns,"\n")
-                counter = 0 
-            counter += 1
- 
+    try:
+        with sql3.connect(DB_NAME) as db_connection :  # Здесь надо указать именно соединение, а не курсор
+            db_cursor = db_connection.cursor()
+            data_of_todo = db_cursor.execute(db_sql_query)
+            names_of_columns = [description[0] for description in db_cursor.description]
+            print(names_of_columns)
+            counter = 0
+            for row in data_of_todo:
+                print(row)
+                #print(row[0])
+                if counter == 10:
+                    input("\nДля продолжения нажмите Enter: ")
+                    print("\n",names_of_columns,"\n")
+                    counter = 0 
+                counter += 1
+    except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
+
 if __name__ == "__main__":
     print("Привет! Я - консольное todo приложение\n")
 
