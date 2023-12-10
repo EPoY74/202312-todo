@@ -64,6 +64,7 @@ def make_task(text_of_task:str):
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
     
 def list_of_tasks(all_or_last: str = "all"):
+    # TODO: добавать крачивый вывод таблиц 
     """
     Выводим список дел из таблицы на экран.
     Если задан параметр all - выводим все записи по 10 шт.
@@ -93,6 +94,7 @@ def list_of_tasks(all_or_last: str = "all"):
 if __name__ == "__main__":
         
     DB_NAME = get_db_name()
+    # TODO: разобраться до конца с файлом конфигурации и начать спрашивать название БД и делать ini если его нет 
     todo_config = cfg_par.ConfigParser()  # Создаю объект парсера конфигурации
     todo_config.read("ep20231204_todo_cli.ini")  # Читаю конфигурацию
     print(todo_config["bd_name"]["bd_name"])
