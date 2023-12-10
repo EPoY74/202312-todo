@@ -32,6 +32,8 @@ parser.add_argument("--text", type = str,  help = "Описание задачи
 
 args = parser.parse_args()
 
+# TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
+
 def make_db():
     global is_ok_flag
 
