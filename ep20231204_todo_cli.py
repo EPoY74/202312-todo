@@ -116,7 +116,7 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     if args.command == "createdb":
         make_db()
-    elif args.command == "maketask":
+    elif args.command == "maketask" or args.command == "add":
         make_task(args.text)
     elif args.command == "list":
-        lisf_of_tasks()
+        list_of_tasks()
