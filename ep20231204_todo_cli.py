@@ -4,15 +4,18 @@ import os
 from datetime import datetime
 import configparser as cfg_par
 
+# TODO  Убрать чтобы БД не плодились, если вдруг ошибка и именовании базы
+
 def get_db_name():
     """
     Получает имя базы из переменной окружения TODO_DB_NAME.
     Если такой переменной нет, то имя базы будет eo20231206sql.db.
     """
+    global todo_config
     dbname = os.getenv("TODO_DB_NAME")
     if dbname is not None:
         print(f"Используем имя базы из переменной TODO_DB_NAME - {dbname}")
-    return dbname if dbname is not None else "eo20231206sql.db"
+    return dbname if dbname is not None else str(todo_config["db_cfg"]["db_name"])
 
 def make_db():
     """
@@ -49,32 +52,36 @@ def make_task(text_of_task:str):
     Создаем новую задачу в таблице my_todo_list в БД
     выводим последнюю созданную запись на экран
     """
+    DB_NAME_RW = "file:"+DB_NAME + "?mode=rw" # Открываем БД на Read-Write. Создавать - не будем.
+    print(DB_NAME_RW)
     date_time_now_obj = datetime.now()  # Получаем объект дата время 
     date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')  # Преобразовываем его как нам надо
     print("Добавляю задачу в БД...")
     try:
-        with sql3.connect(DB_NAME) as db_connection:
+        with sql3.connect(str(DB_NAME_RW), uri=True) as db_connection:
             db_cursor = db_connection.cursor()
             db_sql_query = '''INSERT INTO my_todo_list (data_of_creation, todo_text, is_gone) VALUES (?, ?, ?)'''
             adding_datas = [date_time_now, text_of_task, 0]
             db_cursor.execute(db_sql_query, adding_datas)
             db_connection.commit()
         print("Задача в БД добавлена:")
-        list_of_tasks("last") # Выводим на экран последнюю созданную запись
+        list_of_tasks(DB_NAME, "last") # Выводим на экран последнюю созданную запись
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
     
-def list_of_tasks(all_or_last: str = "all"):
-    # TODO: добавать крачивый вывод таблиц 
+def list_of_tasks(DB_NAME: str, all_or_last: str = "all"):
+    # TODO: добавать краcивый вывод таблиц 
     """
     Выводим список дел из таблицы на экран.
     Если задан параметр all - выводим все записи по 10 шт.
     ЕСли задан параметр last - то только последнюю запись  
     """#выводим списк дел
+    DB_NAME_RW = "file:"+DB_NAME + "?mode=rw"
     if all_or_last == "last": db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
     elif all_or_last == "all": db_sql_query = '''SELECT * FROM  my_todo_list'''
 
     try:
-        with sql3.connect(DB_NAME) as db_connection :  # Здесь надо указать именно соединение, а не курсор
+        b_connection = sql3.connect(DB_NAME)
+        with sql3.connect(str(DB_NAME_RW), uri=True) as db_connection:  # Здесь надо указать именно соединение, а не курсор
             db_cursor = db_connection.cursor()
             data_of_todo = db_cursor.execute(db_sql_query)
             names_of_columns = [description[0] for description in db_cursor.description]
@@ -92,13 +99,12 @@ def list_of_tasks(all_or_last: str = "all"):
 
 
 if __name__ == "__main__":
-        
-    DB_NAME = get_db_name()
     # TODO: разобраться до конца с файлом конфигурации и начать спрашивать название БД и делать ini если его нет 
     todo_config = cfg_par.ConfigParser()  # Создаю объект парсера конфигурации
     todo_config.read("ep20231204_todo_cli.ini")  # Читаю конфигурацию
-    print(todo_config["bd_name"]["bd_name"])
-    
+    # print(todo_config["db_cfg"]["db_name"])
+    DB_NAME = get_db_name()
+    # print(DB_NAME)
     parser = ap.ArgumentParser()
     parser.description = """\nПрограма создает ToDo список дел в текстовом консольном режиме.
     \nПоддерживает команды:
@@ -122,4 +128,4 @@ if __name__ == "__main__":
     elif args.command == "maketask" or args.command == "add":
         make_task(args.text)
     elif args.command == "list":
-        list_of_tasks()
+        list_of_tasks(DB_NAME, "all")
