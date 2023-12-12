@@ -68,20 +68,21 @@ def make_task(text_of_task:str):
         list_of_tasks(DB_NAME, "last") # Выводим на экран последнюю созданную запись
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
     
-def list_of_tasks(DB_NAME: str, all_or_last: str = "all"):
+def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):
     # TODO: добавать краcивый вывод таблиц 
     """
     Выводим список дел из таблицы на экран.
-    Если задан параметр all - выводим все записи по 10 шт.
+    Если задан параметр all - выводим все записи по 10 шт, указана по умолчанию.
     ЕСли задан параметр last - то только последнюю запись  
-    """#выводим списк дел
+    Если задан переметр one  - выводим одну запись, номер задаем третьим пареметром
+    """
+    #выводим списк дел
     DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
-    print(type(DB_NAME_RW))
-    print(DB_NAME_RW)
-    print(str(DB_NAME_RW))
+
     if all_or_last == "last": db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
     elif all_or_last == "all": db_sql_query = '''SELECT * FROM  my_todo_list'''
-
+    elif all_or_last == "one": db_sql_query = '''SELECT * FROM  my_todo_list WHERE id=''' + str(id_row)
+    
     try:
         # b_connection = sql3.connect(DB_NAME)
         with sql3.connect(DB_NAME_RW, uri=True) as db_connection:  # Здесь надо указать именно соединение, а не курсор
