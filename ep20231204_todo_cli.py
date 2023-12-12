@@ -58,7 +58,7 @@ def make_task(text_of_task:str):
     date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')  # Преобразовываем его как нам надо
     print("Добавляю задачу в БД...")
     try:
-        with sql3.connect(str(DB_NAME_RW), uri=True) as db_connection:
+        with sql3.connect(DB_NAME_RW, uri=True) as db_connection:
             db_cursor = db_connection.cursor()
             db_sql_query = '''INSERT INTO my_todo_list (data_of_creation, todo_text, is_gone) VALUES (?, ?, ?)'''
             adding_datas = [date_time_now, text_of_task, 0]
@@ -75,27 +75,47 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all"):
     Если задан параметр all - выводим все записи по 10 шт.
     ЕСли задан параметр last - то только последнюю запись  
     """#выводим списк дел
-    DB_NAME_RW = "file:"+DB_NAME + "?mode=rw"
+    DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
+    print(type(DB_NAME_RW))
+    print(DB_NAME_RW)
+    print(str(DB_NAME_RW))
     if all_or_last == "last": db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
     elif all_or_last == "all": db_sql_query = '''SELECT * FROM  my_todo_list'''
 
     try:
-        b_connection = sql3.connect(DB_NAME)
-        with sql3.connect(str(DB_NAME_RW), uri=True) as db_connection:  # Здесь надо указать именно соединение, а не курсор
+        # b_connection = sql3.connect(DB_NAME)
+        with sql3.connect(DB_NAME_RW, uri=True) as db_connection:  # Здесь надо указать именно соединение, а не курсор
             db_cursor = db_connection.cursor()
             data_of_todo = db_cursor.execute(db_sql_query)
             names_of_columns = [description[0] for description in db_cursor.description]
             print(names_of_columns)
-            counter = 0
+            counter = 1
             for row in data_of_todo:
                 print(row)
                 #print(row[0])
                 if counter == 10:
                     input("\nДля продолжения нажмите Enter: ")
                     print("\n",names_of_columns,"\n")
-                    counter = 0 
+                    counter = 1 
                 counter += 1
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
+
+def delete_task(DB_NAME: str, deleting_task: int):
+    """
+    Удалаем одно задание, номер которого получаем в параметре
+    """
+    DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
+    select_id_sql = '''DELETE FROM  my_todo_list WHERE id=''' + str(deleting_task)
+    print(select_id_sql)
+    try:
+        with sql3.connect(DB_NAME_RW, uri=True) as db_connection:
+            print(f"Удаляем запись номер  {deleting_task}")
+            db_cursor = db_connection.cursor()
+            db_cursor.execute(select_id_sql)
+            db_connection.commit()  # Так как делаем изменения, необходимо закомитить
+            print(f"Запись номер {deleting_task} удалена")
+    except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
+
 
 
 if __name__ == "__main__":
@@ -110,14 +130,15 @@ if __name__ == "__main__":
     \nПоддерживает команды:
     \ncreatedb - создать базу данных
     \nmaketask или add - создать задание
-    \nlist - список сохраненных заданий\n """
+    \nlist - список сохраненных заданий\n
+    \ndelete - Удаляет запись """
     parser.add_argument("command",
                         type = str,
-                        help = "Команда, что необходимо сделать: ")
+                        help = """Команда, что необходимо сделать: delete \ncreatedb  """)
     #createdb
     #list, maketask or add
     parser.add_argument("--text", type = str,  help = "Описание задачи, которую заводим")
-
+    parser.add_argument("--id_row", type = int, help = "id записи, с которой работаем" )
     args = parser.parse_args()
 
     # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
@@ -129,3 +150,5 @@ if __name__ == "__main__":
         make_task(args.text)
     elif args.command == "list":
         list_of_tasks(DB_NAME, "all")
+    elif args.command == "delete":
+        delete_task(DB_NAME, args.id_row)
