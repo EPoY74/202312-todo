@@ -110,10 +110,19 @@ def delete_task(DB_NAME: str, deleting_task: int):
     try:
         with sql3.connect(DB_NAME_RW, uri=True) as db_connection:
             print(f"Удаляем запись номер  {deleting_task}")
-            db_cursor = db_connection.cursor()
-            db_cursor.execute(select_id_sql)
-            db_connection.commit()  # Так как делаем изменения, необходимо закомитить
-            print(f"Запись номер {deleting_task} удалена")
+            list_of_tasks(DB_NAME,"one",deleting_task)
+            try:
+                is_confirm = input("\nВы подтверждаете удаление записи? y/n: ")
+                if is_confirm == "y" or is_confirm == "Y":
+                      db_cursor = db_connection.cursor()
+                      db_cursor.execute(select_id_sql)
+                      db_connection.commit()  # Так как делаем изменения, необходимо закомитить
+                      print(f"Запись номер {deleting_task} удалена")
+                elif is_confirm == "n" or is_confirm == "N":
+                    print("Отменияем удаление записи")
+            except:
+                print('Вы ввели не корректное значение. Введите "y" или "n"!')
+           
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
 
