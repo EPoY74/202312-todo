@@ -129,22 +129,23 @@ def delete_task(DB_NAME: str, deleting_task: int):
     """
     DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
     select_id_sql = '''DELETE FROM  my_todo_list WHERE id=''' + str(deleting_task)
-    print(select_id_sql)
+    # print(select_id_sql)
     try:
         with sql3.connect(DB_NAME_RW, uri=True) as db_connection:
             print(f"Удаляем запись номер  {deleting_task}")
             list_of_tasks(DB_NAME,"one",deleting_task)
-            try:
-                is_confirm = input("\nВы подтверждаете удаление записи? y/n: ")
-                if is_confirm == "y" or is_confirm == "Y":
-                      db_cursor = db_connection.cursor()
-                      db_cursor.execute(select_id_sql)
-                      db_connection.commit()  # Так как делаем изменения, необходимо закомитить
-                      print(f"Запись номер {deleting_task} удалена")
-                elif is_confirm == "n" or is_confirm == "N":
-                    print("Отменияем удаление записи")
-            except:
+            is_confirm = input("\nВы подтверждаете удаление записи? y/n: ")
+            if is_confirm == "y" or is_confirm == "Y":
+                    db_cursor = db_connection.cursor()
+                    db_cursor.execute(select_id_sql)
+                    db_connection.commit()  # Так как делаем изменения, необходимо закомитить
+                    print(f"Запись номер {deleting_task} удалена")
+            elif is_confirm == "n" or is_confirm == "N":
+                print("Отменияем удаление записи")
+                exit(1)
+            else:
                 print('Вы ввели не корректное значение. Введите "y" или "n"!')
+                exit(1)
            
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
@@ -159,28 +160,29 @@ def task_gone(DB_NAME: str, task_gone_id: int):
     DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"  # будем открывать файл только на запись
     select_id_sql_gone = '''UPDATE my_todo_list SET is_gone = 1 WHERE id='''+str(task_gone_id)
     select_id_sql_date_gone = '''UPDATE my_todo_list SET date_of_gone=\"''' + str(date_time_now) + '''\" WHERE id='''+str(task_gone_id)
-    print(date_time_now)
-    print(select_id_sql_date_gone)
+    # print(date_time_now)
+    # print(select_id_sql_date_gone)
     
     try:
         with sql3.connect(DB_NAME_RW, uri=True) as db_connection:
-            print(f"Изменяем запись номер {task_gone_id}: ")
+            print(f"Помечаем запись номер {task_gone_id} завершенной (исполненной): ")
             list_of_tasks(DB_NAME,"one",task_gone_id)
-            try:
-                is_confirm = ""
-                is_confirm = input("\nВы подтверждаете изменение записи? y/n: ")
-                if is_confirm == "y" or is_confirm == "Y":
-                      db_cursor = db_connection.cursor()
-                      db_cursor.execute(select_id_sql_gone)
-                    # db_connection.commit()  # Так как делаем изменения, необходимо закомитить
-                      db_cursor.execute(select_id_sql_date_gone)
-                      db_connection.commit()  # Так как делаем изменения, необходимо закомитить
-                      print(f"Запись номер {task_gone_id} изменена")
-                      list_of_tasks(DB_NAME,"one",task_gone_id)
-                elif is_confirm == "n" or is_confirm == "N":
-                    print("Отменияем удаление записи")
-            except:
+            is_confirm = ""
+            is_confirm = input("\nВы подтверждаете изменение задания на \"Исполненно\"? y/n: ")
+            if is_confirm == "y" or is_confirm == "Y":
+                    db_cursor = db_connection.cursor()
+                    db_cursor.execute(select_id_sql_gone)
+                # db_connection.commit()  # Так как делаем изменения, необходимо закомитить
+                    db_cursor.execute(select_id_sql_date_gone)
+                    db_connection.commit()  # Так как делаем изменения, необходимо закомитить
+                    print(f"Запись номер {task_gone_id} изменена")
+                    list_of_tasks(DB_NAME,"one",task_gone_id)
+            elif is_confirm == "n" or is_confirm == "N":
+                print("Отменияем изменение записи")
+                exit(1)
+            else:
                 print('Вы ввели не корректное значение. Введите "y" или "n"!')
+                exit(1)
     
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
