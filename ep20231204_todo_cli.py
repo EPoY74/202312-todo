@@ -77,12 +77,18 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):
     ЕСли задан параметр last - то только последнюю запись  
     Если задан переметр one  - выводим одну запись, номер задаем третьим пареметром
     """
-    #выводим списк дел
-    DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
+    #выводим списк дел.
 
+    # Такой синтаксис для открытия БД - что бы открыть её только на чтение/запись, без создания
+    DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
+    
+    # Формирую заголовой таблицы. Таблица - с красивым выводом
     todo_table = PrettyTable()
     todo_table.field_names = ["Номер", "Дата создания", "Исполнение до", "Задание", "Исполнено", "Дата исполнения"]
-
+    todo_table._max_width = {"Задание" : 75}
+        
+    # ФОрмируем SQL запрос на одну запись, на последнюю или на все.
+    # На различный функцилнал требуются различные выводы таблицы
     if all_or_last == "last": db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
     elif all_or_last == "all": db_sql_query = '''SELECT * FROM  my_todo_list'''
     elif all_or_last == "one": db_sql_query = '''SELECT * FROM  my_todo_list WHERE id=''' + str(id_row)
