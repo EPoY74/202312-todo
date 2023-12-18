@@ -84,8 +84,8 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):
     # Формирую заголовой таблицы. Таблица - с красивым выводом
     todo_table = PrettyTable()
     todo_table.field_names = ["Номер", "Дата создания", "Исполнение до", "Задание", "Исполнено", "Дата исполнения"]
-    todo_table._max_width = {"Задание" : 75}
-    todo_table._min_width = {"Задание" : 75}
+    todo_table._max_width = {"Задание" : 60}
+    todo_table._min_width = {"Задание" : 60}
     todo_table.align["Задание"] = "l"
         
     # Формируем SQL запрос на одну запись, на последнюю или на все.
@@ -103,6 +103,14 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):
                 row_insert = [row_ins for row_ins in row]
                 if not row_insert[2]:
                     row_insert[2]   = "Отсутсвует"
+                if row_insert[5] == 0:
+                    row_insert[5]  = "Не выполнено"
+                if row_insert[4]:
+                    row_insert[4] = "Исполнено"
+                elif not row_insert[4]:
+                    row_insert[4] = "Нет"
+                else:
+                    row_insert[4] = "Странно..."
                 todo_table.add_row(row_insert)
                 if counter == 10:
                     print(todo_table)  #  тут выводим, если блок из 10 штук
@@ -140,7 +148,41 @@ def delete_task(DB_NAME: str, deleting_task: int):
            
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
-
+def task_gone(DB_NAME: str, task_gone_id: int):
+    """
+    Помечаем задание с номером ask_gone_id помеченным и исполненным.
+    Пометка осуществляется текущим временем
+    """
+    date_time_now_obj = datetime.now()  # Получаем объект дата время 
+    date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')  # Преобразовываем его как нам надо
+    
+    DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"  # будем открывать файл только на запись
+    select_id_sql_gone = '''UPDATE my_todo_list SET is_gone = 1 WHERE id='''+str(task_gone_id)
+    select_id_sql_date_gone = '''UPDATE my_todo_list SET date_of_gone=\"''' + str(date_time_now) + '''\" WHERE id='''+str(task_gone_id)
+    print(date_time_now)
+    print(select_id_sql_date_gone)
+    
+    try:
+        with sql3.connect(DB_NAME_RW, uri=True) as db_connection:
+            print(f"Изменяем запись номер {task_gone_id}: ")
+            list_of_tasks(DB_NAME,"one",task_gone_id)
+            try:
+                is_confirm = ""
+                is_confirm = input("\nВы подтверждаете изменение записи? y/n: ")
+                if is_confirm == "y" or is_confirm == "Y":
+                      db_cursor = db_connection.cursor()
+                      db_cursor.execute(select_id_sql_gone)
+                    # db_connection.commit()  # Так как делаем изменения, необходимо закомитить
+                      db_cursor.execute(select_id_sql_date_gone)
+                      db_connection.commit()  # Так как делаем изменения, необходимо закомитить
+                      print(f"Запись номер {task_gone_id} изменена")
+                      list_of_tasks(DB_NAME,"one",task_gone_id)
+                elif is_confirm == "n" or is_confirm == "N":
+                    print("Отменияем удаление записи")
+            except:
+                print('Вы ввели не корректное значение. Введите "y" или "n"!')
+    
+    except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
 if __name__ == "__main__":
     # TODO: разобраться до конца с файлом конфигурации и начать спрашивать название БД и делать ini если его нет 
@@ -165,6 +207,7 @@ if __name__ == "__main__":
     parser.add_argument("--task", type = str,  help = "Описание задачи, которую заводим")
     parser.add_argument("--task_id", type = int, help = "id записи, с которой работаем" )
     parser.add_argument("--set_date", type = str, help = "Дата в формате ДД.ММ.ГГГГ ЧЧ:ММ")
+    parser.add_argument("--gone", type = int, help = "id записи, которую мы помечаем сделанной ")
     args = parser.parse_args()
 
     # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
@@ -176,6 +219,8 @@ if __name__ == "__main__":
         make_task(args.text)
     elif args.command == "list":
         list_of_tasks(DB_NAME, "all")
+    elif args.command == "set":
+        task_gone(DB_NAME, args.gone)
     elif args.command == "delete":
         delete_task(DB_NAME, args.task_id)
     else:
