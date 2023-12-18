@@ -5,7 +5,18 @@ from datetime import datetime
 import configparser as cfg_par
 from prettytable import PrettyTable 
 
-# TODO  Убрать чтобы БД не плодились, если вдруг ошибка и именовании базы
+
+
+def table_header():  # шапка таблицы, что бы не окарать, когда меняешь переметры 
+    global todo_table
+    '''
+    Функция выводит шапку таблицы с заранее заданными переметрами
+    '''
+    todo_table.field_names = ["Номер", "Дата создания", "Исполнение до", "Задание", "Исполнено", "Дата исполнения"]
+    todo_table._max_width = {"Задание" : 60}
+    todo_table._min_width = {"Задание" : 60}
+    todo_table.align["Задание"] = "l"
+
 
 def get_db_name():
     """
@@ -69,7 +80,6 @@ def make_task(text_of_task:str):
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
     
 def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):
-    # TODO: добавать краcивый вывод таблиц 
     """
     Выводим список дел из таблицы на экран.
     Если задан параметр all - выводим все записи по 10 шт, указана по умолчанию.
@@ -82,11 +92,9 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):
     DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
     
     # Формирую заголовой таблицы. Таблица - с красивым выводом
+    global todo_table
     todo_table = PrettyTable()
-    todo_table.field_names = ["Номер", "Дата создания", "Исполнение до", "Задание", "Исполнено", "Дата исполнения"]
-    todo_table._max_width = {"Задание" : 60}
-    todo_table._min_width = {"Задание" : 60}
-    todo_table.align["Задание"] = "l"
+    table_header()
         
     # Формируем SQL запрос на одну запись, на последнюю или на все.
     # На различный функцилнал требуются различные выводы таблицы
@@ -117,8 +125,7 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):
                     todo_table.clear_rows()
                     input("\nДля продолжения нажмите Enter: ")
                     counter = 1 
-                    todo_table.field_names = ["Номер", "Дата создания", "Исполнение до", "Задание", "Исполнено", "Дата исполнения"]
-                    todo_table._max_width = {"Задание" : 75}
+                    table_header()
                 counter += 1
             print(todo_table)  # а тут выводим, если меньше 10
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
@@ -175,7 +182,7 @@ def task_gone(DB_NAME: str, task_gone_id: int):
                 # db_connection.commit()  # Так как делаем изменения, необходимо закомитить
                     db_cursor.execute(select_id_sql_date_gone)
                     db_connection.commit()  # Так как делаем изменения, необходимо закомитить
-                    print(f"Запись номер {task_gone_id} изменена")
+                    print(f"\n\nЗапись номер {task_gone_id} изменена на \"Исполенно\"")
                     list_of_tasks(DB_NAME,"one",task_gone_id)
             elif is_confirm == "n" or is_confirm == "N":
                 print("Отменияем изменение записи")
@@ -185,6 +192,7 @@ def task_gone(DB_NAME: str, task_gone_id: int):
                 exit(1)
     
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
+
 
 if __name__ == "__main__":
     # TODO: разобраться до конца с файлом конфигурации и начать спрашивать название БД и делать ini если его нет 
@@ -214,11 +222,11 @@ if __name__ == "__main__":
 
     # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
 
-    print("Привет! Я - консольное todo приложение\n")
+    print("\n\nПривет! Я - консольное todo приложение\n")
     if args.command == "createdb":
         make_db()
     elif args.command == "maketask" or args.command == "add":
-        make_task(args.text)
+        make_task(args.task)
     elif args.command == "list":
         list_of_tasks(DB_NAME, "all")
     elif args.command == "set":
