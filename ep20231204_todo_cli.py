@@ -3,6 +3,7 @@ import sqlite3 as sql3
 import os
 from datetime import datetime
 import configparser as cfg_par
+from prettytable import PrettyTable 
 
 # TODO  Убрать чтобы БД не плодились, если вдруг ошибка и именовании базы
 
@@ -79,6 +80,9 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):
     #выводим списк дел
     DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
 
+    todo_table = PrettyTable()
+    todo_table.field_names = ["Номер", "Дата создания", "Исполнение до", "Задание", "Исполнено", "Дата исполнения"]
+
     if all_or_last == "last": db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
     elif all_or_last == "all": db_sql_query = '''SELECT * FROM  my_todo_list'''
     elif all_or_last == "one": db_sql_query = '''SELECT * FROM  my_todo_list WHERE id=''' + str(id_row)
@@ -88,17 +92,21 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):
         with sql3.connect(DB_NAME_RW, uri=True) as db_connection:  # Здесь надо указать именно соединение, а не курсор
             db_cursor = db_connection.cursor()
             data_of_todo = db_cursor.execute(db_sql_query)
-            names_of_columns = [description[0] for description in db_cursor.description]
-            print(names_of_columns)
+            # names_of_columns = [description[0] for description in db_cursor.description]
+            # print(names_of_columns)
             counter = 1
             for row in data_of_todo:
-                print(row)
+                # print(row)
                 #print(row[0])
-                if counter == 10:
-                    input("\nДля продолжения нажмите Enter: ")
-                    print("\n",names_of_columns,"\n")
-                    counter = 1 
+                row_insert = [row_ins for row_ins in row]
+                # print(row_insert) 
+                todo_table.add_row(row_insert)
+                # if counter == 10:
+                #     input("\nДля продолжения нажмите Enter: ")
+                #     print("\n",names_of_columns,"\n")
+                #     counter = 1 
                 counter += 1
+            print(todo_table)
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
 def delete_task(DB_NAME: str, deleting_task: int):
