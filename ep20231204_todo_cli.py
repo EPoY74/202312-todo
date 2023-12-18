@@ -54,10 +54,9 @@ def make_task(text_of_task:str):
     выводим последнюю созданную запись на экран
     """
     DB_NAME_RW = "file:"+DB_NAME + "?mode=rw" # Открываем БД на Read-Write. Создавать - не будем.
-    print(DB_NAME_RW)
     date_time_now_obj = datetime.now()  # Получаем объект дата время 
     date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')  # Преобразовываем его как нам надо
-    print("Добавляю задачу в БД...")
+    print("Добавляю задачу в БД...\n")
     try:
         with sql3.connect(DB_NAME_RW, uri=True) as db_connection:
             db_cursor = db_connection.cursor()
@@ -65,7 +64,7 @@ def make_task(text_of_task:str):
             adding_datas = [date_time_now, text_of_task, 0]
             db_cursor.execute(db_sql_query, adding_datas)
             db_connection.commit()
-        print("Задача в БД добавлена:")
+        print("Задача в БД добавлена:\n")
         list_of_tasks(DB_NAME, "last") # Выводим на экран последнюю созданную запись
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
     
@@ -87,6 +86,7 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):
     todo_table.field_names = ["Номер", "Дата создания", "Исполнение до", "Задание", "Исполнено", "Дата исполнения"]
     todo_table._max_width = {"Задание" : 75}
     todo_table._min_width = {"Задание" : 75}
+    todo_table.align["Задание"] = "l"
         
     # Формируем SQL запрос на одну запись, на последнюю или на все.
     # На различный функцилнал требуются различные выводы таблицы
@@ -101,6 +101,8 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):
             counter = 1
             for row in data_of_todo:
                 row_insert = [row_ins for row_ins in row]
+                if not row_insert[2]:
+                    row_insert[2]   = "Отсутсвует"
                 todo_table.add_row(row_insert)
                 if counter == 10:
                     print(todo_table)  #  тут выводим, если блок из 10 штук
@@ -151,16 +153,18 @@ if __name__ == "__main__":
     parser.description = """\nПрограма создает ToDo список дел в текстовом консольном режиме.
     \nПоддерживает команды:
     \ncreatedb - создать базу данных
-    \nmaketask или add - создать задание
+    \nadd - создать задание
     \nlist - список сохраненных заданий\n
-    \ndelete - Удаляет запись """
+    \ndelete - Удаляет запись
+    \ngone - Помечает дадание выполненным """
     parser.add_argument("command",
                         type = str,
-                        help = """Команда, что необходимо сделать: delete \ncreatedb  """)
+                        help = """Команда, что необходимо сделать: delete, createdb, add, gone""")
     #createdb
-    #list, maketask or add
-    parser.add_argument("--text", type = str,  help = "Описание задачи, которую заводим")
-    parser.add_argument("--id_row", type = int, help = "id записи, с которой работаем" )
+    #list, maketask or add, delete, gone
+    parser.add_argument("--task", type = str,  help = "Описание задачи, которую заводим")
+    parser.add_argument("--task_id", type = int, help = "id записи, с которой работаем" )
+    parser.add_argument("--set_date", type = str, help = "Дата в формате ДД.ММ.ГГГГ ЧЧ:ММ")
     args = parser.parse_args()
 
     # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
@@ -173,4 +177,6 @@ if __name__ == "__main__":
     elif args.command == "list":
         list_of_tasks(DB_NAME, "all")
     elif args.command == "delete":
-        delete_task(DB_NAME, args.id_row)
+        delete_task(DB_NAME, args.task_id)
+    else:
+        print(f'Неизвестная команда "{args.command}"')
