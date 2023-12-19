@@ -209,29 +209,34 @@ if __name__ == "__main__":
     \nlist - список сохраненных заданий\n
     \ndelete - Удаляет запись
     \ngone - Помечает дадание выполненным """
-    parser.add_argument("command",
-                        type = str,
-                        help = """Команда, что необходимо сделать: delete, createdb, add, gone""")
+    # parser.add_argument("command",
+    #                     type = str,
+    #                     help = """Команда, что необходимо сделать: delete, createdb, add, gone""")
     #createdb
     #list, maketask or add, delete, gone
-    parser.add_argument("--task", type = str,  help = "Описание задачи, которую заводим")
-    parser.add_argument("--task_id", type = int, help = "id записи, с которой работаем" )
-    parser.add_argument("--set_date", type = str, help = "Дата в формате ДД.ММ.ГГГГ ЧЧ:ММ")
-    parser.add_argument("--gone", type = int, help = "id записи, которую мы помечаем сделанной ")
+    parser.add_argument("--create_db", help = "Создаем базу данных для списка задач", action="store_true")
+    parser.add_argument("--task_add", type = str,  help = """Описание задачи, которую заводим: --task_add \"Это запись\" """)
+    parser.add_argument("--task_list", help = "Выводит списаок задач", action="store_true")  # И где написано про action интересно?
+    # parser.add_argument("--gone", type = int, help = "id записи, которую мы помечаем сделанной ")
+    parser.add_argument("--task_gone_date", type = int, help = "Помечает задание с номером № завершенным: --set_gone_date №")
+    parser.add_argument("--task_del_id", type = int, help = "Удаляет запись с номером: --task_del_id №" )
+    
     args = parser.parse_args()
 
     # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
 
     print("\n\nПривет! Я - консольное todo приложение\n")
-    if args.command == "createdb":
+
+    
+    if args.create_db:
         make_db()
-    elif args.command == "maketask" or args.command == "add":
-        make_task(args.task)
-    elif args.command == "list":
+    elif args.task_add:
+        make_task(args.task_add)
+    if args.task_list:  
         list_of_tasks(DB_NAME, "all")
-    elif args.command == "set":
-        task_gone(DB_NAME, args.gone)
-    elif args.command == "delete":
-        delete_task(DB_NAME, args.task_id)
-    else:
-        print(f'Неизвестная команда "{args.command}"')
+    elif args.task_gone_date:
+        task_gone(DB_NAME, args.task_gone_date)
+    elif args.task_del_id:
+        delete_task(DB_NAME, args.task_del_id)
+    # else:
+    #     print(f'Неизвестная команда "{args.command}"')
