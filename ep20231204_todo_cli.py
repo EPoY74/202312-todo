@@ -6,8 +6,6 @@ from datetime import datetime
 import configparser as cfg_par
 from prettytable import PrettyTable 
 
-
-
 def table_header():  # шапка таблицы, что бы не окарать, когда меняешь переметры 
     global todo_table
     '''
@@ -18,7 +16,7 @@ def table_header():  # шапка таблицы, что бы не окарат�
     todo_table._min_width = {"Задание" : 60}
     todo_table.align["Задание"] = "l"
 
-def create_config_file(ini_file_name: str, DB_NAME : str):
+def create_config_file(ini_file_name: str, DB_NAME : str):  # Создаю файл конфигурации
     todo_config = cfg_par.ConfigParser()
     todo_config.add_section("db_cfg")
     cfg_record = str("db_name = " + DB_NAME)
@@ -28,7 +26,7 @@ def create_config_file(ini_file_name: str, DB_NAME : str):
         todo_config.write(cfg_file)
     exit(0)
 
-def get_db_name():
+def get_db_name():  # Беру имя БД из переменной окружения TODO_DB_NAME, если она есть
     """
     Получает имя базы из переменной окружения TODO_DB_NAME.
     Если такой переменной нет, то имя базы будет eo20231206sql.db.
@@ -40,7 +38,7 @@ def get_db_name():
         print(f"Используем имя базы из переменной TODO_DB_NAME - {dbname}")
     return dbname if dbname is not None else str(todo_config_obj["db_cfg"]["db_name"])
 
-def make_db():
+def make_db():  # Создаю БД, если её нет
     """
     Создаем основную базу данных для работы приложения.
     Создаем основную таблицу для работы приложения
@@ -70,7 +68,7 @@ def make_db():
         print("Таблица в базе данных создана успешно\n")
     except sql3.Error as error: print(f"Ошибка:\n  {str(error)}")
    
-def make_task(text_of_task:str):
+def make_task(text_of_task:str):  # Создаю таск в БД 
     """
     Создаем новую задачу в таблице my_todo_list в БД
     выводим последнюю созданную запись на экран
@@ -90,7 +88,7 @@ def make_task(text_of_task:str):
         list_of_tasks(DB_NAME, "last") # Выводим на экран последнюю созданную запись
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
     
-def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):
+def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):  # Вывод списка тасков
     """
     Выводим список дел из таблицы на экран.
     Если задан параметр all - выводим все записи по 10 шт, указана по умолчанию.
@@ -141,7 +139,7 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):
             print(todo_table)  # а тут выводим, если меньше 10
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
-def delete_task(DB_NAME: str, deleting_task: int):
+def delete_task(DB_NAME: str, deleting_task: int):  # Удаляем таск (только один)
     """
     Удалаем одно задание, номер которого получаем в параметре
     """
@@ -167,7 +165,7 @@ def delete_task(DB_NAME: str, deleting_task: int):
            
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
-def task_gone(DB_NAME: str, task_gone_id: int):
+def task_gone(DB_NAME: str, task_gone_id: int):  # Помечаем таск исполненым
     """
     Помечаем задание с номером ask_gone_id помеченным и исполненным.
     Пометка осуществляется текущим временем
@@ -210,9 +208,12 @@ if __name__ == "__main__":
     
     full_prog_name = str(sys.argv[0])  # Читаю полное имя файла
     prog_name = full_prog_name[0:full_prog_name.find(".")]  # Получаю имя скрипта без точки
-    ini_file_name = prog_name + ".ini"  # Формирую имя файла конфигурации
+    ini_file_name = str(prog_name + ".ini")  # Формирую имя файла конфигурации
+    db_file_name = str(prog_name + ".db")  # Формирую имя БД
     
-    # print((ini_file_name))
+    print(ini_file_name)
+    print(db_file_name)
+    print(os.path.isfile(db_file_name))
     
     todo_config_obj = cfg_par.ConfigParser()  # Создаю объект парсера конфигурации
     todo_config = todo_config_obj.read(ini_file_name)  # Читаю конфигурацию
@@ -222,7 +223,9 @@ if __name__ == "__main__":
     
     if len(todo_config) == 0:
         print(f"файл конфигурации {ini_file_name} не найден\n")
-        print(str(todo_config))
+        if not os.path.isfile(db_file_name):
+            print("БД не создана")
+        # print(str(todo_config))
         # raise ValueError("Не могу открыть  файл конфигурации")
         is_confirm = input(f"Создать файл конфигурации {ini_file_name}? y/n ")
         if is_confirm == "y" or is_confirm == "Y":
