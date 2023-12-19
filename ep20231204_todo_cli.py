@@ -1,6 +1,7 @@
 import argparse as ap
 import sqlite3 as sql3
 import os
+import sys
 from datetime import datetime
 import configparser as cfg_par
 from prettytable import PrettyTable 
@@ -197,8 +198,22 @@ def task_gone(DB_NAME: str, task_gone_id: int):
 if __name__ == "__main__":
     # TODO: разобраться до конца с файлом конфигурации и начать спрашивать название БД и делать ini если его нет 
     
-    todo_config = cfg_par.ConfigParser()  # Создаю объект парсера конфигурации
-    todo_config.read("ep20231204_todo_cli.ini")  # Читаю конфигурацию
+    full_prog_name = str(sys.argv[0])  # Читаю полное имя файла
+    prog_name = full_prog_name[0:full_prog_name.find(".")]  # Получаю имя скрипта без точки
+    ini_file_name = prog_name + ".ini"
+    
+    print((ini_file_name))
+    
+    todo_config_obj = cfg_par.ConfigParser()  # Создаю объект парсера конфигурации
+    todo_config = todo_config_obj.read(ini_file_name)  # Читаю конфигурацию
+    # TODO Можно зафиксить и обработать баг, если файла конфигарации нет
+    # - возвращается пустой список
+    if len(todo_config) == 0:
+        print(f"файл конфигурации {ini_file_name} не найден")
+        print(str(todo_config))
+        # raise ValueError("Не могу открыть  файл конфигурации")
+    exit(1)
+    
     
     DB_NAME = get_db_name()
     
@@ -215,7 +230,10 @@ if __name__ == "__main__":
     # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
 
     print("\n\nПривет! Я - консольное todo приложение\n")
-
+    print(sys.argv[0])
+    full_prog_name = str(sys.argv[0])
+    prog_name = full_prog_name[0:full_prog_name.find(".")]
+    print(prog_name)
     
     if args.create_db:
         make_db()
