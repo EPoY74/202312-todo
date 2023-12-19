@@ -18,17 +18,27 @@ def table_header():  # шапка таблицы, что бы не окарат�
     todo_table._min_width = {"Задание" : 60}
     todo_table.align["Задание"] = "l"
 
+def create_config_file(ini_file_name: str, DB_NAME : str):
+    todo_config = cfg_par.ConfigParser()
+    todo_config.add_section("db_cfg")
+    cfg_record = str("db_name = " + DB_NAME)
+    todo_config.set("db_cfg", "db_name", DB_NAME)
+
+    with open(ini_file_name, "w") as cfg_file:
+        todo_config.write(cfg_file)
+    exit(0)
 
 def get_db_name():
     """
     Получает имя базы из переменной окружения TODO_DB_NAME.
     Если такой переменной нет, то имя базы будет eo20231206sql.db.
     """
-    global todo_config
+    global todo_config_obj
+    #TODO Проверить, так ли я понял документацию. понгял, что todo_config - должен содержать содержимое файла конфигурации
     dbname = os.getenv("TODO_DB_NAME")
     if dbname is not None:
         print(f"Используем имя базы из переменной TODO_DB_NAME - {dbname}")
-    return dbname if dbname is not None else str(todo_config["db_cfg"]["db_name"])
+    return dbname if dbname is not None else str(todo_config_obj["db_cfg"]["db_name"])
 
 def make_db():
     """
@@ -200,19 +210,31 @@ if __name__ == "__main__":
     
     full_prog_name = str(sys.argv[0])  # Читаю полное имя файла
     prog_name = full_prog_name[0:full_prog_name.find(".")]  # Получаю имя скрипта без точки
-    ini_file_name = prog_name + ".ini"
+    ini_file_name = prog_name + ".ini"  # Формирую имя файла конфигурации
     
-    print((ini_file_name))
+    # print((ini_file_name))
     
     todo_config_obj = cfg_par.ConfigParser()  # Создаю объект парсера конфигурации
     todo_config = todo_config_obj.read(ini_file_name)  # Читаю конфигурацию
-    # TODO Можно зафиксить и обработать баг, если файла конфигарации нет
-    # - возвращается пустой список
+    # TODO Можно зафиксить и обработать баг, если файла конфигарации нет,
+    # то возвращается пустой список
+    print(todo_config)
+    
     if len(todo_config) == 0:
-        print(f"файл конфигурации {ini_file_name} не найден")
+        print(f"файл конфигурации {ini_file_name} не найден\n")
         print(str(todo_config))
         # raise ValueError("Не могу открыть  файл конфигурации")
-    exit(1)
+        is_confirm = input(f"Создать файл конфигурации {ini_file_name}? y/n ")
+        if is_confirm == "y" or is_confirm == "Y":
+            print("Создаю файл конфигурации...")
+            create_config_file(str(ini_file_name), "eo20231206sql.db")
+        elif is_confirm == "n" or is_confirm == "N":
+            print("Отменяю создание файла конфигурации")
+            exit(1)
+        else:
+            print('Вы ввели не корректное значение. Введите "y" или "n"!')
+            exit(1)
+        # exit(1)
     
     
     DB_NAME = get_db_name()
@@ -234,6 +256,7 @@ if __name__ == "__main__":
     full_prog_name = str(sys.argv[0])
     prog_name = full_prog_name[0:full_prog_name.find(".")]
     print(prog_name)
+
     
     if args.create_db:
         make_db()
