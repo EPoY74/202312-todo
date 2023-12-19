@@ -196,28 +196,17 @@ def task_gone(DB_NAME: str, task_gone_id: int):
 
 if __name__ == "__main__":
     # TODO: разобраться до конца с файлом конфигурации и начать спрашивать название БД и делать ini если его нет 
+    
     todo_config = cfg_par.ConfigParser()  # Создаю объект парсера конфигурации
     todo_config.read("ep20231204_todo_cli.ini")  # Читаю конфигурацию
-    # print(todo_config["db_cfg"]["db_name"])
+    
     DB_NAME = get_db_name()
-    # print(DB_NAME)
+    
     parser = ap.ArgumentParser()
-    parser.description = """\nПрограма создает ToDo список дел в текстовом консольном режиме.
-    \nПоддерживает команды:
-    \ncreatedb - создать базу данных
-    \nadd - создать задание
-    \nlist - список сохраненных заданий\n
-    \ndelete - Удаляет запись
-    \ngone - Помечает дадание выполненным """
-    # parser.add_argument("command",
-    #                     type = str,
-    #                     help = """Команда, что необходимо сделать: delete, createdb, add, gone""")
-    #createdb
-    #list, maketask or add, delete, gone
+    parser.description = "Програма создает ToDo список дел в текстовом консольном режиме."
     parser.add_argument("--create_db", help = "Создаем базу данных для списка задач", action="store_true")
     parser.add_argument("--task_add", type = str,  help = """Описание задачи, которую заводим: --task_add \"Это запись\" """)
     parser.add_argument("--task_list", help = "Выводит списаок задач", action="store_true")  # И где написано про action интересно?
-    # parser.add_argument("--gone", type = int, help = "id записи, которую мы помечаем сделанной ")
     parser.add_argument("--task_gone_date", type = int, help = "Помечает задание с номером № завершенным: --set_gone_date №")
     parser.add_argument("--task_del_id", type = int, help = "Удаляет запись с номером: --task_del_id №" )
     
