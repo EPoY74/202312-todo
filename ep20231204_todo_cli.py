@@ -211,7 +211,7 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
             db_cursor = db_connection.cursor()
             data_of_todo = db_cursor.execute(db_sql_query)
             counter = 1
-            for row in data_of_todo:
+            for row in data_of_todo:  # Преобразую значение в таблице в удобоваримый вид для КЛ
                 row_insert = [row_ins for row_ins in row]
                 if not row_insert[2]:
                     row_insert[2]   = "Отсутсвует"
@@ -315,7 +315,6 @@ if __name__ == "__main__":
     parser.add_argument("--task_list", help = "Выводит список задач", action="store_true")  # И где написано про action интересно?
     parser.add_argument("--task_gone_date", type = int, help = "Помечает задание с номером № завершенным: --set_gone_date номер_записи")
     parser.add_argument("--task_del_id", type = int, help = "Удаляет запись с номером: --task_del_id номер_записи" )
-    
 
     args = parser.parse_args()
 
