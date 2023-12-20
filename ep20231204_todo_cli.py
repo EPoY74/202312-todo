@@ -92,7 +92,7 @@ def make_task(text_of_task:str):  # Создаю таск в БД
         list_of_tasks(DB_NAME, "last") # Выводим на экран последнюю созданную запись
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
-def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):
+def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # Устанавливаем дату исполнения
     """
     Устанавливает сроки исполнения задания
     """
@@ -303,7 +303,7 @@ if __name__ == "__main__":
     parser.add_argument("--create_db", help = "Создаем базу данных для списка задач", action="store_true")
     parser.add_argument("--task_add", type = str,  help = """Описание задачи, которую заводим: --task_add \"Это запись\" """)
     parser.add_argument("--task_deadline", type = int, help = "Устанавлявает дату, до которой надо выполнить задание: --task_deadline номер_записи")
-    parser.add_argument("--task_list", help = "Выводит списаок задач", action="store_true")  # И где написано про action интересно?
+    parser.add_argument("--task_list", help = "Выводит список задач", action="store_true")  # И где написано про action интересно?
     parser.add_argument("--task_gone_date", type = int, help = "Помечает задание с номером № завершенным: --set_gone_date номер_записи")
     parser.add_argument("--task_del_id", type = int, help = "Удаляет запись с номером: --task_del_id номер_записи" )
     
