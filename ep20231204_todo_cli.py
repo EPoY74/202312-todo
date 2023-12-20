@@ -17,6 +17,7 @@ def table_header():  # шапка таблицы, что бы не окарат�
     todo_table.align["Задание"] = "l"
 
 def create_config_file(ini_file_name: str, DB_NAME : str):  # Создаю файл конфигурации
+    print("\n\nСоздаю файл конфигурации...")
     todo_config = cfg_par.ConfigParser()
     todo_config.add_section("db_cfg")
     cfg_record = str("db_name = " + DB_NAME)
@@ -24,6 +25,7 @@ def create_config_file(ini_file_name: str, DB_NAME : str):  # Создаю фа�
 
     with open(ini_file_name, "w") as cfg_file:
         todo_config.write(cfg_file)
+    print("Файл конфигурации создан успешно!")
     exit(0)
 
 def get_db_name():  # Беру имя БД из переменной окружения TODO_DB_NAME, если она есть
@@ -38,21 +40,22 @@ def get_db_name():  # Беру имя БД из переменной окруж�
         print(f"Используем имя базы из переменной TODO_DB_NAME - {dbname}")
     return dbname if dbname is not None else str(todo_config_obj["db_cfg"]["db_name"])
 
-def make_db():  # Создаю БД, если её нет
+def make_db(db_name_new: str):  # Создаю БД, если её нет
     """
     Создаем основную базу данных для работы приложения.
     Создаем основную таблицу для работы приложения
     """
     #создаем БД
     try:
-        with sql3.connect(DB_NAME) as db_connection:
-            print("База данных создана\n\n")
+        print("\n\nСоздаю базу данных...")
+        with sql3.connect(db_name_new) as db_connection:
+            print("База данных создана\n")
         # db_connection.close()
     except sql3.Error as err: print(f"Ошибка:\n {str(err)}")
     
     # ЗАписываем таблицу, если не создана
     try:
-        with sql3.connect(DB_NAME) as db_connection:
+        with sql3.connect(db_name_new) as db_connection:
             print("Создаю таблицу для ToDo заданий в Базе Даннах")
             db_cursor = db_connection.cursor()
             db_cursor.execute('''
@@ -66,6 +69,7 @@ def make_db():  # Создаю БД, если её нет
             )
             ''')
         print("Таблица в базе данных создана успешно\n")
+        print("База данных создана и подготовлена к работа.")
     except sql3.Error as error: print(f"Ошибка:\n  {str(error)}")
    
 def make_task(text_of_task:str):  # Создаю таск в БД 
@@ -87,7 +91,55 @@ def make_task(text_of_task:str):  # Создаю таск в БД
         print("Задача в БД добавлена:\n")
         list_of_tasks(DB_NAME, "last") # Выводим на экран последнюю созданную запись
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
+
+def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):
+    """
+    Устанавливает сроки исполнения задания
+    """
+    print("\n\nУстанавливаем крайнюю дату выполнения")
+    while True:
+        date_time_deadline = input("/nВведите дату и время завершения задания в формате ДД.ММ.ГГГГ ЧЧ:ММ: ")
+        try:
+            datetime.strptime(date_time_deadline, '%d.%m.%Y %H:%M')
+            break
+        except ValueError:
+            print("Введенно значение некорректно, введите значение в формате ДД.ММ.ГГГГ ЧЧ:ММ")
+            continue
+
+    DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"  # будем открывать файл только на запись
+    # select_id_sql_deadline = '''UPDATE my_todo_list SET is_gone = 1 WHERE id='''+str(task_gone_id)
+    select_id_sql_deadline ='''UPDATE my_todo_list SET date_max=\"''' + str(date_time_deadline) + '''\" WHERE id=''' + str(task_deadline_id)
+
+    # print(date_time_now)
+    # print(select_id_sql_date_gone)
     
+    try:
+        with sql3.connect(DB_NAME_RW, uri=True) as db_connection:
+            print(f"Устанавливаем для записи номер {task_deadline_id} дату и время исполнения: ")
+            list_of_tasks(DB_NAME,"one",task_deadline_id)
+            while True:
+                is_confirm = ""
+                is_confirm = input("\nВы подтверждаете установку срока исполнения? y/n: ")
+                if is_confirm == "y" or is_confirm == "Y":
+                        db_cursor = db_connection.cursor()
+                        db_cursor.execute(select_id_sql_deadline)
+                        # db_connection.commit()  # Так как делаем изменения, необходимо закомитить
+                        # db_cursor.execute(select_id_sql_date_dead)
+                        db_connection.commit()  # Так как делаем изменения, необходимо закомитить
+                        print(f"\n\nЗапись номер {task_deadline_id} изменена. Срок исполнения установлен")
+                        list_of_tasks(DB_NAME,"one",task_deadline_id)
+                        break
+                elif is_confirm == "n" or is_confirm == "N":
+                    print("Отменияем изменение записи")
+                    exit(1)
+                else:
+                    print('Вы ввели не корректное значение. Введите "y" или "n"!')
+                    continue
+                    exit(1)
+    
+    except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
+
+
 def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):  # Вывод списка тасков
     """
     Выводим список дел из таблицы на экран.
@@ -204,41 +256,45 @@ def task_gone(DB_NAME: str, task_gone_id: int):  # Помечаем таск и�
 
 
 if __name__ == "__main__":
-    # TODO: разобраться до конца с файлом конфигурации и начать спрашивать название БД и делать ini если его нет 
+    
+    print("""\n\nКонсольно приложение для ведения задач. \n
+    Автор: Евгений Б. Петров, p174@mail.ru""")
     
     full_prog_name = str(sys.argv[0])  # Читаю полное имя файла
     prog_name = full_prog_name[0:full_prog_name.find(".")]  # Получаю имя скрипта без точки
     ini_file_name = str(prog_name + ".ini")  # Формирую имя файла конфигурации
     db_file_name = str(prog_name + ".db")  # Формирую имя БД
     
-    print(ini_file_name)
-    print(db_file_name)
-    print(os.path.isfile(db_file_name))
-    
     todo_config_obj = cfg_par.ConfigParser()  # Создаю объект парсера конфигурации
     todo_config = todo_config_obj.read(ini_file_name)  # Читаю конфигурацию
     # TODO Можно зафиксить и обработать баг, если файла конфигарации нет,
     # то возвращается пустой список
-    print(todo_config)
     
     if len(todo_config) == 0:
-        print(f"файл конфигурации {ini_file_name} не найден\n")
         if not os.path.isfile(db_file_name):
             print("БД не создана")
-        # print(str(todo_config))
-        # raise ValueError("Не могу открыть  файл конфигурации")
+        is_confirm = input(f"Создать базу данных {db_file_name}? y/n ")
+        if is_confirm == "y" or is_confirm == "Y":
+            make_db(db_file_name)
+            
+        elif is_confirm == "n" or is_confirm == "N":
+            print("Отменяю создание базы данных")
+            exit(1)
+        else:
+            print('Вы ввели не корректное значение. Введите "y" или "n"!')
+            exit(1)
+        
+        print(f"\nфайл конфигурации {ini_file_name} не найден")
         is_confirm = input(f"Создать файл конфигурации {ini_file_name}? y/n ")
         if is_confirm == "y" or is_confirm == "Y":
-            print("Создаю файл конфигурации...")
-            create_config_file(str(ini_file_name), "eo20231206sql.db")
+            
+            create_config_file(ini_file_name, db_file_name)
         elif is_confirm == "n" or is_confirm == "N":
             print("Отменяю создание файла конфигурации")
             exit(1)
         else:
             print('Вы ввели не корректное значение. Введите "y" или "n"!')
             exit(1)
-        # exit(1)
-    
     
     DB_NAME = get_db_name()
     
@@ -246,26 +302,30 @@ if __name__ == "__main__":
     parser.description = "Програма создает ToDo список дел в текстовом консольном режиме."
     parser.add_argument("--create_db", help = "Создаем базу данных для списка задач", action="store_true")
     parser.add_argument("--task_add", type = str,  help = """Описание задачи, которую заводим: --task_add \"Это запись\" """)
+    parser.add_argument("--task_deadline", type = int, help = "Устанавлявает дату, до которой надо выполнить задание: --task_deadline номер_записи")
     parser.add_argument("--task_list", help = "Выводит списаок задач", action="store_true")  # И где написано про action интересно?
-    parser.add_argument("--task_gone_date", type = int, help = "Помечает задание с номером № завершенным: --set_gone_date №")
-    parser.add_argument("--task_del_id", type = int, help = "Удаляет запись с номером: --task_del_id №" )
+    parser.add_argument("--task_gone_date", type = int, help = "Помечает задание с номером № завершенным: --set_gone_date номер_записи")
+    parser.add_argument("--task_del_id", type = int, help = "Удаляет запись с номером: --task_del_id номер_записи" )
     
+
     args = parser.parse_args()
 
     # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
 
-    print("\n\nПривет! Я - консольное todo приложение\n")
-    print(sys.argv[0])
+    
+    # print(sys.argv[0])
     full_prog_name = str(sys.argv[0])
     prog_name = full_prog_name[0:full_prog_name.find(".")]
-    print(prog_name)
+    # print(prog_name)
 
     
     if args.create_db:
         make_db()
     elif args.task_add:
         make_task(args.task_add)
-    if args.task_list:  
+    elif args.task_deadline:
+        set_tasks_deadline(DB_NAME, args.task_deadline)
+    elif args.task_list:  
         list_of_tasks(DB_NAME, "all")
     elif args.task_gone_date:
         task_gone(DB_NAME, args.task_gone_date)
