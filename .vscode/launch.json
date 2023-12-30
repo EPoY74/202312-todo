@@ -12,7 +12,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["task_list"],
+            "args": ["--task_list"],
             "purpose": ["debug-in-terminal"]
         }
     ]
