@@ -10,7 +10,7 @@ from prettytable import PrettyTable
 
 def search_config_and_db(): # Ищем конфигурацию и БД,если нет - создаем
     """
-    Функция ищет файл конфигурации и файл БД, если отсутствует(первыйзапуск,допустим),
+    Функция ищет файл конфигурации и файл БД, если отсутствует(первый запуск,допустим),
     то создает их.
     Возвращает объект с  файлом конфигурации
     #TODO А правильно написал? Спросить у Славы
@@ -22,9 +22,7 @@ def search_config_and_db(): # Ищем конфигурацию и БД,если
     
     todo_config_obj = cfg_par.ConfigParser()  # Создаю объект парсера конфигурации
     todo_config = todo_config_obj.read(ini_file_name)  # Читаю конфигурацию
-    # TODO Можно зафиксить и обработать баг, если файла конфигарации нет,
-    # то возвращается пустой список
-    
+
     if len(todo_config) == 0:
         if not os.path.isfile(db_file_name):
             print("БД не создана")
@@ -346,7 +344,7 @@ if __name__ == "__main__":
 
     
     if args.create_db:
-        make_db()
+        make_db("test.db")
     elif args.task_add:
         make_task(DB_NAME, args.task_add)
     elif args.task_deadline:
