@@ -306,13 +306,16 @@ def rec_to_slq(DB_NAME: str, db_sql_query: str, db_sql_data: str = None ):  # Д
     """
 
     DB_NAME_RW = "file:" + DB_NAME + "?mode = rw"
-    if db_sql_data == None:
-        print("пишем один параметр")
-    elif db_sql_data != None:
-        print("Пишем оба параметра")
-    else:
-        print("Происходит что-то странное, не те параметры для записи в БД")
-
+    try:
+        if db_sql_data == None:
+            print("пишем один параметр")
+        elif db_sql_data != None:
+            print("Пишем оба параметра")
+        else:
+            print("Происходит что-то странное, не те параметры для записи в БД")
+    except sql3.Error as err: print(f"Ошибка: {err}")
+    #TODO Спросить у Славы,  а можно ли сделать так: print(f"Ошибка: \n{sql3.Error}") или проверить самому
+    
 if __name__ == "__main__":
     
     print("\n\nКонсольно приложение для ведения задач. \nАвтор: Евгений Б. Петров, p174@mail.ru")
