@@ -3,10 +3,18 @@ import sys
 
 import argparse as ap
 import sqlite3 as sql3
+import time
 from datetime import datetime
 import configparser as cfg_par
 
-from prettytable import PrettyTable 
+from prettytable import PrettyTable
+
+import logging
+
+# Конфигурирование логгера
+FORMAT = '[%(levelname)s] %(asctime)s - %(message)s'
+logging.basicConfig(format=FORMAT, level=logging.DEBUG)
+logger = logging.getLogger('todologger')
 
 def search_config_and_db(): # Ищем конфигурацию и БД,если нет - создаем
     """
@@ -90,6 +98,9 @@ def make_db(db_name_new: str):  # Создаю БД, если её нет
     Создаем основную таблицу для работы приложения
     """
     #создаем БД
+    if not db_name_new:
+        raise ValueError("Надо передать db_new_new")
+
     try:
         print("\n\nСоздаю базу данных...")
         with sql3.connect(db_name_new) as db_connection:
@@ -128,6 +139,7 @@ def make_task(DB_NAME: str, text_of_task : str):  # Создаю таск в Б�
     try:
         with sql3.connect(DB_NAME_RW, uri=True) as db_connection:
             db_cursor = db_connection.cursor()
+            # db_sql_query = f'INSERT INTO my_todo_list (data_of_creation, todo_text, is_gone) VALUES (?, {text_of_task}, ?)'
             db_sql_query = '''INSERT INTO my_todo_list (data_of_creation, todo_text, is_gone) VALUES (?, ?, ?)'''
             adding_datas = [date_time_now, text_of_task, 0]
             db_cursor.execute(db_sql_query, adding_datas)
@@ -192,6 +204,8 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
     """
     #выводим списк дел.
 
+    logging.info("выводим списк дел")
+
     # Такой синтаксис для открытия БД - что бы открыть её только на чтение/запись, без создания
     DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
     
@@ -207,8 +221,10 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
     elif all_or_last == "one": db_sql_query = '''SELECT * FROM  my_todo_list WHERE id=''' + str(id_row)
     
     try:
+        logging.debug("Подключение к базе")
         with sql3.connect(DB_NAME_RW, uri=True) as db_connection:  # Здесь надо указать именно соединение, а не курсор
             db_cursor = db_connection.cursor()
+            logging.debug("Выполнение SQL-запроса")
             data_of_todo = db_cursor.execute(db_sql_query)
             counter = 1
             for row in data_of_todo:  # Преобразую значение в таблице в удобоваримый вид для КЛ
@@ -232,7 +248,9 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
                     table_header()
                 counter += 1
             print(todo_table)  # а тут выводим, если меньше 10
-    except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
+    except sql3.Error as err:
+        logging.error("Ой!", exc_info=err)
+        print(f"Ошибка: \n{str(err)}")
 
 def delete_task(DB_NAME: str, deleting_task: int):  # Удаляем таск (только один)
     """
@@ -321,6 +339,8 @@ if __name__ == "__main__":
     todo_config_obj =  search_config_and_db()  
     
     DB_NAME = get_db_name(todo_config_obj)
+
+    logger.debug("Старт")
     
     parser = ap.ArgumentParser()
     parser.description = "Програма создает ToDo список дел в текстовом консольном режиме."
@@ -341,7 +361,6 @@ if __name__ == "__main__":
     prog_name = full_prog_name[0:full_prog_name.find(".")]
     # print(prog_name)
 
-    
     if args.create_db:
         make_db("test.db")
     elif args.task_add:
@@ -356,3 +375,8 @@ if __name__ == "__main__":
         delete_task(DB_NAME, args.task_del_id)
     # else:
     #     print(f'Неизвестная команда "{args.command}"')
+
+    while True:
+        # TODO: проверки задача в базе и рассылка почты
+        logging.debug("Проверка базы")
+        time.sleep(1)
