@@ -222,7 +222,9 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
     """
 
     # Проверяем параметры на корректность.
-    if DB_NAME == None or isinstance(DB_NAME, str) == False or DB_NAME.strip() == "":
+    # для сравнения с None лучше использовать is, а не ==
+    # см. https://stackoverflow.com/questions/3257919/what-is-the-difference-between-is-none-and-none
+    if DB_NAME is None or isinstance(DB_NAME, str) == False or DB_NAME.strip() == "":
         print("Неверно указан параметр DB_NAME")
         exit(1)
 
@@ -230,7 +232,7 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
         print("Неверно указан параметр all_or_last")
         exit(1)
 
-    if all_or_last == "one" and id_row == None:
+    if all_or_last == "one" and id_row is None:
         print("Указан параметр all_or_last='one', но не указан номер записи id_row")
 
     #выводим списк дел.
@@ -391,12 +393,15 @@ def rec_to_slq(DB_NAME: str, db_sql_query: str, db_sql_data: str = None ):  # Д
 
     DB_NAME_RW = "file:" + DB_NAME + "?mode = rw"
     try:
-        if db_sql_data == None:
+        # COMMENT: для сравнения с None лучше использовать is, а не ==
+        # см. https://stackoverflow.com/questions/3257919/what-is-the-difference-between-is-none-and-none
+        if db_sql_data is None:
             print("пишем один параметр")
-        elif db_sql_data != None:
-            print("Пишем оба параметра")
         else:
-            print("Происходит что-то странное, не те параметры для записи в БД")
+            print("Пишем оба параметра")
+        # COMMENT: это никак не могло произойти, т.к. мы проверили выше, что db_sql_data либо None, либо нет
+        # else:
+        #     print("Происходит что-то странное, не те параметры для записи в БД")
     except sql3.Error as err: print(f"Ошибка: {err}")
    
 if __name__ == "__main__":
