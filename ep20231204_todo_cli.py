@@ -272,8 +272,9 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
                 sql_params = (id_row,)
             data_of_todo = db_cursor.execute(db_sql_query, sql_params)
 
-            counter = 1
-            for row in data_of_todo:  # Преобразую значение в таблице в удобоваримый вид для КЛ
+            # COMMENT: можно использовать enumerate и вести отдельный счетчик самостоятельно
+            # counter = 1  # больше не нужен, т.к. используем enumerate
+            for counter, row in enumerate(data_of_todo):  # Преобразую значение в таблице в удобоваримый вид для КЛ
                 row_insert = [row_ins for row_ins in row]
                 if not row_insert[2]:
                     row_insert[2]   = "Отсутсвует"
@@ -286,13 +287,13 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
                 else:
                     row_insert[4] = "Странно..."
                 todo_table.add_row(row_insert)
-                if counter == 10:
+                if counter > 0 and counter % 10 == 0:
                     print(todo_table)  #  тут выводим, если блок из 10 штук
                     todo_table.clear_rows()
                     input("\nДля продолжения нажмите Enter: ")
-                    counter = 1 
+                    # counter = 1  # больше не нужен, т.к. используем enumerate
                     table_header()
-                counter += 1
+                # counter += 1  # больше не нужен, т.к. используем enumerate
             print(todo_table)  # а тут выводим, если меньше 10
     except sql3.Error as err:
         logging.error("Ой!", exc_info=err)
