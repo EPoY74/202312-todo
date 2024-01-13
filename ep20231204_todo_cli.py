@@ -253,6 +253,12 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
     try:
         logging.debug("Подключение к базе")
         with sql3.connect(DB_NAME_RW, uri=True) as db_connection:  # Здесь надо указать именно соединение, а не курсор
+            # COMMENT: row_factory - это свойство объекта соединения,
+            # присваиваем ему Row, чтобы получать результаты запроса в виде последовательности словарей,
+            # а не кортежей. Тогда можно будет обращаться к полям по имени, а не по индексу,
+            # что упростит чтение кода.
+            db_connection.row_factory = sql3.Row
+
             db_cursor = db_connection.cursor()
             logging.debug("Выполнение SQL-запроса")
             # В зависимости от параметра all_or_last - выводим разное.
@@ -275,17 +281,32 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
             # COMMENT: можно использовать enumerate и вести отдельный счетчик самостоятельно
             # counter = 1  # больше не нужен, т.к. используем enumerate
             for counter, row in enumerate(data_of_todo):  # Преобразую значение в таблице в удобоваримый вид для КЛ
-                row_insert = [row_ins for row_ins in row]
-                if not row_insert[2]:
-                    row_insert[2]   = "Отсутсвует"
-                if row_insert[5] == 0:
-                    row_insert[5]  = "Не выполнено"
-                if row_insert[4]:
-                    row_insert[4] = "Исполнено"
-                elif not row_insert[4]:
-                    row_insert[4] = "Нет"
-                else:
-                    row_insert[4] = "Странно..."
+                # COMMENT: лучше не модифицировать кортеж in-place, такой код сложно читать.
+                # COMMENT: и лучше не использовать индексы, а обращаться к полям по имени.
+                # Для этого устанавливаем row_factory = sql3.Row (см. выше)
+
+                # row_insert = [row_ins for row_ins in row]
+                # if not row_insert[2]:
+                #     row_insert[2]   = "Отсутсвует"
+                # if row_insert[5] == 0:
+                #     row_insert[5]  = "Не выполнено"
+                # if row_insert[4]:
+                #     row_insert[4] = "Исполнено"
+                # elif not row_insert[4]:
+                #     row_insert[4] = "Нет"
+                # else:
+                #     row_insert[4] = "Странно..."
+
+                # COMMENT: лучше так
+                # Создать кортеж из строки, полученной из БД, и добавить его в таблицу
+                row_insert = (
+                    row["id"],
+                    row["data_of_creation"],
+                    row["date_max"] or "Отсутсвует",
+                    row["todo_text"],
+                    "Исполнено" if row["is_gone"] else "Нет",
+                    row["date_of_gone"]
+                )
                 todo_table.add_row(row_insert)
                 if counter > 0 and counter % 10 == 0:
                     print(todo_table)  #  тут выводим, если блок из 10 штук
