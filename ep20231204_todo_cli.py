@@ -11,6 +11,21 @@ from prettytable import PrettyTable
 
 import logging
 
+# COMMENT: импортируем наш самодельный модуль, который будет содержать функции для работы с TODO-листом
+# Идея в том, чтобы перенести в него все top-level функции из этого файла,
+# и импортировать их оттуда.
+# Это сделает основной файл более коротким и понятным.
+
+# Пример
+
+import todo
+
+# потом можно будет сделать так:
+# todo.make_task(...)
+# todo.set_tasks_deadline(...)
+# todo.list_of_tasks(...)
+# ...
+
 # Конфигурирование логгера
 FORMAT = '[%(levelname)s] %(asctime)s - %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.DEBUG)
