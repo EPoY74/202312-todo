@@ -25,6 +25,13 @@ def search_config_and_db(): # Ищем конфигурацию и БД,если
     """
     full_prog_name = str(sys.argv[0])  # Читаю полное имя файла
     prog_name = full_prog_name[0:full_prog_name.find(".")]  # Получаю имя скрипта без точки
+
+    # COMMENT: # То же самое с использованием встроенных функций
+    prog_name, prog_ext = os.path.splitext(os.path.basename(sys.argv[0]))
+
+    # COMMENT: str не нужен, обе переменные и так строковые; то же самое для db_file_name
+    # ini_file_name = prog_name + ".ini"  # Так тоже сработает
+
     ini_file_name = str(prog_name + ".ini")  # Формирую имя файла конфигурации
     db_file_name = str(prog_name + ".db")  # Формирую имя БД
     
@@ -34,7 +41,14 @@ def search_config_and_db(): # Ищем конфигурацию и БД,если
     if len(todo_config) == 0:
         if not os.path.isfile(db_file_name):
             print("БД не создана")
+
         is_confirm = input(f"Создать базу данных {db_file_name}? y/n ")
+
+        # COMMENT: можно поднять регистр и использовать одно сравнение
+        # is_confirm = is_confirm.upper()
+        # if is_confirm == "Y": ...
+        # if is_confirm == "N": ...
+
         if is_confirm == "y" or is_confirm == "Y":
             make_db(db_file_name)
             
@@ -201,31 +215,63 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
     Если задан параметр all - выводим все записи по 10 шт, указана по умолчанию.
     ЕСли задан параметр last - то только последнюю запись  
     Если задан переметр one  - выводим одну запись, номер задаем третьим пареметром
+
+    :param DB_NAME: имя БД
+    :param all_or_last: что выводить - all, last, one
+    :returns: None
     """
+
+    # Проверяем параметры на корректность.
+    if DB_NAME == None or isinstance(DB_NAME, str) == False or DB_NAME.strip() == "":
+        print("Неверно указан параметр DB_NAME")
+        exit(1)
+
+    if all_or_last not in ("last", "all", "one"):
+        print("Неверно указан параметр all_or_last")
+        exit(1)
+
+    if all_or_last == "one" and id_row == None:
+        print("Указан параметр all_or_last='one', но не указан номер записи id_row")
+
     #выводим списк дел.
 
     logging.info("выводим списк дел")
 
     # Такой синтаксис для открытия БД - что бы открыть её только на чтение/запись, без создания
     DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
-    
+
     # Формирую заголовой таблицы. Таблица - с красивым выводом
     global todo_table
     todo_table = PrettyTable()
     table_header()
-        
-    # Формируем SQL запрос на одну запись, на последнюю или на все.
-    # На различный функцилнал требуются различные выводы таблицы
-    if all_or_last == "last": db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
-    elif all_or_last == "all": db_sql_query = '''SELECT * FROM  my_todo_list'''
-    elif all_or_last == "one": db_sql_query = '''SELECT * FROM  my_todo_list WHERE id=''' + str(id_row)
-    
+
+    # COMMENT: Этот код переехал вниз в то место, где мы формируем SQL-запрос
+    # if all_or_last == "last": db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
+    # elif all_or_last == "all": db_sql_query = '''SELECT * FROM  my_todo_list'''
+    # elif all_or_last == "one": db_sql_query = '''SELECT * FROM  my_todo_list WHERE id=''' + str(id_row)
+
     try:
         logging.debug("Подключение к базе")
         with sql3.connect(DB_NAME_RW, uri=True) as db_connection:  # Здесь надо указать именно соединение, а не курсор
             db_cursor = db_connection.cursor()
             logging.debug("Выполнение SQL-запроса")
-            data_of_todo = db_cursor.execute(db_sql_query)
+            # В зависимости от параметра all_or_last - выводим разное.
+            # Формируем SQL запрос на одну запись, на последнюю или на все.
+            # На различный функцилнал требуются различные выводы таблицы
+
+            # Параметры должны быть переданы только для случая `one`.
+            # Заранее готовим запрос и параметры для него, потом просто выполняем.
+            if all_or_last == "last":
+                db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
+                sql_params = ()
+            elif all_or_last == "all":
+                db_sql_query = '''SELECT * FROM  my_todo_list'''
+                sql_params = ()
+            elif all_or_last == "one":
+                db_sql_query = '''SELECT * FROM  my_todo_list WHERE id=?'''
+                sql_params = (id_row,)
+            data_of_todo = db_cursor.execute(db_sql_query, sql_params)
+
             counter = 1
             for row in data_of_todo:  # Преобразую значение в таблице в удобоваримый вид для КЛ
                 row_insert = [row_ins for row_ins in row]
