@@ -236,9 +236,11 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
     :returns: None
     """
 
-    # Проверяем параметры на корректность.
+    # COMMENT: Проверяем параметры на корректность.
     # для сравнения с None лучше использовать is, а не ==
-    # см. https://stackoverflow.com/questions/3257919/what-is-the-difference-between-is-none-and-none
+    # TODO: см. https://stackoverflow.com/questions/3257919/what-is-the-difference-between-is-none-and-none
+    # TODO: Добавить проверку алфавитныхсимволов
+
     if DB_NAME is None or isinstance(DB_NAME, str) == False or DB_NAME.strip() == "":
         print("Неверно указан параметр DB_NAME")
         exit(1)
@@ -249,8 +251,9 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
 
     if all_or_last == "one" and id_row is None:
         print("Указан параметр all_or_last='one', но не указан номер записи id_row")
+        
 
-    #выводим списк дел.
+    #  выыводим списк дел.
 
     logging.info("выводим списк дел")
 
@@ -286,13 +289,14 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
             # Заранее готовим запрос и параметры для него, потом просто выполняем.
             if all_or_last == "last":
                 db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
-                sql_params = ()
+                sql_params = ()  # Можно передавть пустой кортеж и не морочится с разным синтаксисом 
             elif all_or_last == "all":
                 db_sql_query = '''SELECT * FROM  my_todo_list'''
                 sql_params = ()
             elif all_or_last == "one":
                 db_sql_query = '''SELECT * FROM  my_todo_list WHERE id=?'''
-                sql_params = (id_row,)
+                sql_params = (id_row,)  #  Так описывается кртеж в Питон, что бы отличить от выражения в скобках, если ТОЛЬКО один элемент
+            
             data_of_todo = db_cursor.execute(db_sql_query, sql_params)
 
             # COMMENT: можно использовать enumerate и вести отдельный счетчик самостоятельно
@@ -322,7 +326,7 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
                     row["date_max"] or "Отсутсвует",
                     row["todo_text"],
                     "Исполнено" if row["is_gone"] else "Нет",
-                    row["date_of_gone"]
+                    row["date_of_gone"] or "Не установлено"
                 )
                 todo_table.add_row(row_insert)
                 if counter > 0 and counter % 10 == 0:
