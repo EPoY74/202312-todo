@@ -324,7 +324,7 @@ def task_gone(DB_NAME: str, task_gone_id: int):  # Помечаем таск и�
     
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
-def work_with_slq(DB_NAME: str, db_sql_query: str, db_sql_data: str = () ):  # Далаем запись в БД
+def work_with_slq(DB_NAME: str, db_sql_query: str, db_sql_data: tuple = () ):  # Далаем запись в БД
     """
     Пишет запрос в базуданных. Если указаана только БД и запрос - то выполняем только его
     Если укзазан БД, запрос и данные - то выполняем и данные и запрос.
@@ -347,10 +347,10 @@ def work_with_slq(DB_NAME: str, db_sql_query: str, db_sql_data: str = () ):  # �
         with sql3.connect(DB_NAME_RW, uri = True) as db_connection:
             db_connection.row_factory = sql3.Row
             logging.debug("Getting cursor (function)")
-            db_cursor = db_connection.cursor
+            db_cursor = db_connection.cursor()
             logging.debug("Executing SQL query (function)")
             db_return = db_cursor.execute(db_sql_query, db_sql_data)
-            db_cursor.commit()
+            db_connection.commit()
 
 
     except sql3.Error as err:
