@@ -128,6 +128,7 @@ def make_db(db_name_new: str):  # Создаю БД, если её нет
     except sql3.Error as error: print(f"Ошибка:\n  {str(error)}")
    
 def make_task(DB_NAME: str, text_of_task : str):  # Создаю таск в БД 
+
     """
     Создаем новую задачу в таблице my_todo_list в БД
     выводим последнюю созданную запись на экран
@@ -142,7 +143,8 @@ def make_task(DB_NAME: str, text_of_task : str):  # Создаю таск в Б�
             # db_sql_query = f'INSERT INTO my_todo_list (data_of_creation, todo_text, is_gone) VALUES (?, {text_of_task}, ?)'
             db_sql_query = '''INSERT INTO my_todo_list (data_of_creation, todo_text, is_gone) VALUES (?, ?, ?)'''
             adding_datas = [date_time_now, text_of_task, 0]
-            db_cursor.execute(db_sql_query, adding_datas)
+            test = db_cursor.execute(db_sql_query, adding_datas)
+            print(test)
             db_connection.commit()
         print("Задача в БД добавлена:\n")
         list_of_tasks(DB_NAME, "last") # Выводим на экран последнюю созданную запись
@@ -216,38 +218,45 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
         
     # Формируем SQL запрос на одну запись, на последнюю или на все.
     # На различный функцилнал требуются различные выводы таблицы
-    if all_or_last == "last": db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
-    elif all_or_last == "all": db_sql_query = '''SELECT * FROM  my_todo_list'''
-    elif all_or_last == "one": db_sql_query = '''SELECT * FROM  my_todo_list WHERE id=''' + str(id_row)
+    if all_or_last == "last":
+        db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
+    
+    elif all_or_last == "all":
+        db_sql_query = '''SELECT * FROM  my_todo_list'''
+    
+    elif all_or_last == "one":
+        db_sql_query = '''SELECT * FROM  my_todo_list WHERE id=''' + str(id_row)
     
     try:
-        logging.debug("Подключение к базе")
-        with sql3.connect(DB_NAME_RW, uri=True) as db_connection:  # Здесь надо указать именно соединение, а не курсор
-            db_cursor = db_connection.cursor()
-            logging.debug("Выполнение SQL-запроса")
-            data_of_todo = db_cursor.execute(db_sql_query)
-            counter = 1
-            for row in data_of_todo:  # Преобразую значение в таблице в удобоваримый вид для КЛ
-                row_insert = [row_ins for row_ins in row]
-                if not row_insert[2]:
-                    row_insert[2]   = "Отсутсвует"
-                if row_insert[5] == 0:
-                    row_insert[5]  = "Не выполнено"
-                if row_insert[4]:
-                    row_insert[4] = "Исполнено"
-                elif not row_insert[4]:
-                    row_insert[4] = "Нет"
-                else:
-                    row_insert[4] = "Странно..."
-                todo_table.add_row(row_insert)
-                if counter == 10:
-                    print(todo_table)  #  тут выводим, если блок из 10 штук
-                    todo_table.clear_rows()
-                    input("\nДля продолжения нажмите Enter: ")
-                    counter = 1 
-                    table_header()
-                counter += 1
-            print(todo_table)  # а тут выводим, если меньше 10
+        logging.debug("Подключение к базе.Новая функция")
+        # with sql3.connect(DB_NAME_RW, uri=True) as db_connection:  # Здесь надо указать именно соединение, а не курсор
+        # db_cursor = db_connection.cursor()
+        logging.debug("Выполнение SQL-запроса через новую функцию ")
+        data_of_todo = work_with_slq(DB_NAME, db_sql_query)  # Новая функция
+        # data_of_todo = db_cursor.execute(db_sql_query)
+        print(data_of_todo)
+        counter = 1
+        for row in data_of_todo:  # Преобразую значение в таблице в удобоваримый вид для КЛ
+            row_insert = [row_ins for row_ins in row]
+            if not row_insert[2]:
+                row_insert[2]   = "Отсутсвует"
+            if row_insert[5] == 0:
+                row_insert[5]  = "Не выполнено"
+            if row_insert[4]:
+                row_insert[4] = "Исполнено"
+            elif not row_insert[4]:
+                row_insert[4] = "Нет"
+            else:
+                row_insert[4] = "Странно..."
+            todo_table.add_row(row_insert)
+            if counter == 10:
+                print(todo_table)  #  тут выводим, если блок из 10 штук
+                todo_table.clear_rows()
+                input("\nДля продолжения нажмите Enter: ")
+                counter = 1 
+                table_header()
+            counter += 1
+        print(todo_table)  # а тут выводим, если меньше 10
     except sql3.Error as err:
         logging.error("Ой!", exc_info=err)
         print(f"Ошибка: \n{str(err)}")
@@ -315,21 +324,41 @@ def task_gone(DB_NAME: str, task_gone_id: int):  # Помечаем таск и�
     
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
-def rec_to_slq(DB_NAME: str, db_sql_query: str, db_sql_data: str = None ):  # Далаем запись в БД
+def work_with_slq(DB_NAME: str, db_sql_query: str, db_sql_data: str = () ):  # Далаем запись в БД
     """
     Пишет запрос в базуданных. Если указаана только БД и запрос - то выполняем только его
     Если укзазан БД, запрос и данные - то выполняем и данные и запрос.
+    DB_NAME - Имя базы данных
+    db_sql_query - SQL запоос к базе данных
+    db_slq_data - передаваемые параметры в SQL запрос (необязательный)
+    
+    Возвращает результат запроса
     """
 
     DB_NAME_RW = "file:" + DB_NAME + "?mode = rw"
     try:
-        if db_sql_data == None:
-            print("пишем один параметр")
-        elif db_sql_data != None:
-            print("Пишем оба параметра")
-        else:
-            print("Происходит что-то странное, не те параметры для записи в БД")
-    except sql3.Error as err: print(f"Ошибка: {err}")
+        # if db_sql_data == None:
+        #     print("пишем один параметр")
+        # elif db_sql_data != None:
+        #     print("Пишем оба параметра")
+        # else:
+        #     print("Происходит что-то странное, не те параметры для записи в БД")
+        logging.debug("Подключаюсь к БД (функция)")
+        with sql3.connect(DB_NAME_RW, uri = True) as db_connection:
+            db_connection.row_factory = sql3.Row
+            logging.debug("Getting cursor (function)")
+            db_cursor = db_connection.cursor
+            logging.debug("Executing SQL query (function)")
+            db_return = db_cursor.execute(db_sql_query, db_sql_data)
+            db_cursor.commit()
+
+
+    except sql3.Error as err:
+        print(f"Ошибка: {err}")
+        logging.error("Omg!!!", exc_info=err)
+
+    return db_return
+
    
 if __name__ == "__main__":
     
@@ -376,7 +405,7 @@ if __name__ == "__main__":
     # else:
     #     print(f'Неизвестная команда "{args.command}"')
 
-    while True:
-        # TODO: проверки задача в базе и рассылка почты
-        logging.debug("Проверка базы")
-        time.sleep(1)
+    # while True:
+    #     # TODO: проверки задача в базе и рассылка почты
+    #     logging.debug("Проверка базы")
+    #     time.sleep(1)
