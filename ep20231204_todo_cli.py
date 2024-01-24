@@ -35,10 +35,10 @@ def search_config_and_db(): # Ищем конфигурацию и БД,если
         if not os.path.isfile(db_file_name):
             print("БД не создана")
         is_confirm = input(f"Создать базу данных {db_file_name}? y/n ")
-        if is_confirm == "y" or is_confirm == "Y":
+        if is_confirm.upper() == "Y":
             make_db(db_file_name)
             
-        elif is_confirm == "n" or is_confirm == "N":
+        elif is_confirm.upper() == "N":
             print("Отменяю создание базы данных")
             exit(1)
         else:
@@ -47,10 +47,10 @@ def search_config_and_db(): # Ищем конфигурацию и БД,если
         
         print(f"\nфайл конфигурации {ini_file_name} не найден")
         is_confirm = input(f"Создать файл конфигурации {ini_file_name}? y/n ")
-        if is_confirm == "y" or is_confirm == "Y":
+        if is_confirm.upper() == "y" or is_confirm == "Y":
             
             create_config_file(ini_file_name, db_file_name)
-        elif is_confirm == "n" or is_confirm == "N":
+        elif is_confirm.upper() == "n":
             print("Отменяю создание файла конфигурации")
             exit(1)
         else:
@@ -359,7 +359,29 @@ def work_with_slq(DB_NAME: str, db_sql_query: str, db_sql_data: tuple = () ):  #
 
     return db_return
 
-   
+def confirm_action(confirm_text : str = "---Текст---", other_text : str = None):
+    """
+    Автор: Евгений Петров, Челябинск
+    Функция выполняет запрос подтверждения какой-либо операции у пользователя.
+    Возвращает True если подтвердил, False, если не подтвердил  
+    """
+    #TODO Прикрутить везде работу с БД через функцию и прикрутить подтверждение операции 
+    logging.debug(f"ФУНКЦИЯ: Подтверждение операции: {confirm_text}")
+    while True:
+        is_confirm = input(f"Выполнить операцию: {confirm_text} {other_text}? y/n ")
+        if is_confirm.upper() == "Y":
+            print(f"Выполняю операцию {confirm_text}")
+            return_value = True
+            break               
+        elif is_confirm.upper() == "N":
+            print(f"Отменяю выполнение операции {confirm_text}!")
+            return_value = False
+            break
+        else:
+            print('Вы ввели не корректное значение. Введите "y" или "n"!')
+    return return_value
+
+
 if __name__ == "__main__":
     
     print("\n\nКонсольно приложение для ведения задач. \nАвтор: Евгений Б. Петров, p174@mail.ru")
