@@ -158,16 +158,17 @@ def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # Устанав
     Устанавливает сроки исполнения задания
     """
     print("\n\nУстанавливаем крайнюю дату выполнения")
-    logging.debug("Запуск функции set_tasks_deadline")
+    logging.debug("set_tasks_deadline(): запуск")
 
     while True:
         date_time_deadline = input("\nВведите дату и время завершения задания в формате ДД.ММ.ГГГГ ЧЧ:ММ: ")
         try:
             datetime.strptime(date_time_deadline, '%d.%m.%Y %H:%M')
+            logging.debug("set_tasks_deadline(): Позьзователь ввел корректное значение")
             break
         except ValueError:
             print("Введенно значение некорректно, введите значение в формате ДД.ММ.ГГГГ ЧЧ:ММ")
-            logging.error("Пользователь ввел некорректное знначение даты и времени")
+            logging.error("set_tasks_deadline(): Пользователь ввел некорректное знначение даты и времени")
             continue
 
     # DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"  # будем открывать файл только на запись
@@ -183,11 +184,13 @@ def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # Устанав
     list_of_tasks(DB_NAME,"one",task_deadline_id)
     
     if confirm_action("установка срока исполнения задания", task_deadline_id):
+        logging.debug("set_tasks_deadline(): Запись значения в БД, Пользователь подтвердил")
         work_with_slq(DB_NAME, select_id_sql_deadline)
         print(f"\n\nЗапись номер {task_deadline_id} изменена. Срок исполнения установлен")
         list_of_tasks(DB_NAME,"one",task_deadline_id)
     else:
         print("Отменияем изменение записи")
+        logging.debug("set_tasks_deadline(): Не изменяем запись, пользлватель не подтвердил ")
         exit(1)
         
     
