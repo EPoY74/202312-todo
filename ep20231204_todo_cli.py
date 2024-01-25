@@ -154,11 +154,12 @@ def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # Устанав
     #TODO Сделать проверку установлена ли крайняя дата выполнения и если установлена уточнить, меняем или нет
     #TODO Сделать проверку, больше ли вводимая дата текущего числа
     #TODO Думаю, надо сукнуть на почту, если кто-то попытается поменяять дату исполнения на прошедшую (а надо щи стучать?)
+    #TODO Сделать проверку на наличие записи вообще
     """
     Устанавливает сроки исполнения задания
     """
     print("\n\nУстанавливаем крайнюю дату выполнения")
-    logging.debug("set_tasks_deadline(): запуск")
+    logging.info("set_tasks_deadline(): запуск")
 
     while True:
         date_time_deadline = input("\nВведите дату и время завершения задания в формате ДД.ММ.ГГГГ ЧЧ:ММ: ")
@@ -194,7 +195,7 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
     """
     #выводим списк дел.
 
-    logging.info("Запуск процедуры list_of_tasks")
+    logging.info("list_of_tasks(): Запуск")
 
     # Такой синтаксис для открытия БД - что бы открыть её только на чтение/запись, без создания
     DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
@@ -216,12 +217,9 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
         db_sql_query = '''SELECT * FROM  my_todo_list WHERE id=''' + str(id_row)
     
     try:
-        logging.debug("Подключение к базе list_of_tasks.Новая функция")
-        # with sql3.connect(DB_NAME_RW, uri=True) as db_connection:  # Здесь надо указать именно соединение, а не курсор
-        # db_cursor = db_connection.cursor()
-        logging.debug("Выполнение SQL-запроса через новую функцию ")
+        logging.debug("list_of_tasks(): Подключение к БД через work_with_slq")
+        logging.debug("list_of_tasks(): Выполнение SQL-запроса через work_with_slq()")
         data_of_todo = work_with_slq(DB_NAME, db_sql_query)  # Новая функция
-        # data_of_todo = db_cursor.execute(db_sql_query)
         print(data_of_todo)
         counter = 1
         for row in data_of_todo:  # Преобразую значение в таблице в удобоваримый вид для КЛ
@@ -322,7 +320,7 @@ def work_with_slq(DB_NAME: str, db_sql_query: str, db_sql_data: tuple = () ):  #
     
     Возвращает результат запроса
     """
-    logging.debug("work_with_slq(): Запуск")
+    logging.info("work_with_slq(): Запуск")
     DB_NAME_RW = "file:" + DB_NAME + "?mode = rw"
     try:
         logging.debug("work_with_slq(): Подключаюсь к БД")
@@ -349,7 +347,7 @@ def confirm_action(confirm_text : str = "---Текст---", other_text : str = N
     confirm_text  - Описание операции, которую надо подьвердить
     other_text  - возможность добавить какой-то текст, проме описания операции(например номер позиции)
     """
-    logging.debug("confirm_action(): Запуск")
+    logging.info("confirm_action(): Запуск")
     #TODO Прикрутить везде работу с БД через функцию и прикрутить подтверждение операции 
     logging.debug(f"confirm_action(): Запрос подтверждение операции: {confirm_text} у пользователя")
     while True:
@@ -366,7 +364,7 @@ def confirm_action(confirm_text : str = "---Текст---", other_text : str = N
             break
         else:
             print('Вы ввели не корректное значение. Введите "y" или "n"!')
-            logging.error("confirm_action(): Пользователь ввел некорректное значение. Можно тольео Y,y или N,n ")
+            logging.error("confirm_action(): Пользователь ввел некорректное значение. Можно только Y,y или N,n ")
     return return_value
 
 
