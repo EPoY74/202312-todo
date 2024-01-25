@@ -150,52 +150,69 @@ def make_task(DB_NAME: str, text_of_task : str):  # Создаю таск в Б�
         list_of_tasks(DB_NAME, "last") # Выводим на экран последнюю созданную запись
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
-def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # Устанавливаем дату исполнения
+def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # Устанавливаем дату исполнения 
+    #TODO Сделать проверку установлена ли крайняя дата выполнения и если установлена уточнить, меняем или нет
+    #TODO Сделать проверку, больше ли вводимая дата текущего числа
+    #TODO Думаю, надо сукнуть на почту, если кто-то попытается поменяять дату исполнения на прошедшую (а надо щи стучать?)
     """
     Устанавливает сроки исполнения задания
     """
     print("\n\nУстанавливаем крайнюю дату выполнения")
+    logging.debug("Запуск функции set_tasks_deadline")
+
     while True:
-        date_time_deadline = input("/nВведите дату и время завершения задания в формате ДД.ММ.ГГГГ ЧЧ:ММ: ")
+        date_time_deadline = input("\nВведите дату и время завершения задания в формате ДД.ММ.ГГГГ ЧЧ:ММ: ")
         try:
             datetime.strptime(date_time_deadline, '%d.%m.%Y %H:%M')
             break
         except ValueError:
             print("Введенно значение некорректно, введите значение в формате ДД.ММ.ГГГГ ЧЧ:ММ")
+            logging.error("Пользователь ввел некорректное знначение даты и времени")
             continue
 
-    DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"  # будем открывать файл только на запись
+    # DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"  # будем открывать файл только на запись
     # select_id_sql_deadline = '''UPDATE my_todo_list SET is_gone = 1 WHERE id='''+str(task_gone_id)
     select_id_sql_deadline ='''UPDATE my_todo_list SET date_max=\"''' + str(date_time_deadline) + '''\" WHERE id=''' + str(task_deadline_id)
 
     # print(date_time_now)
     # print(select_id_sql_date_gone)
     
-    try:
-        with sql3.connect(DB_NAME_RW, uri=True) as db_connection:
-            print(f"Устанавливаем для записи номер {task_deadline_id} дату и время исполнения: ")
-            list_of_tasks(DB_NAME,"one",task_deadline_id)
-            while True:
-                is_confirm = ""
-                is_confirm = input("\nВы подтверждаете установку срока исполнения? y/n: ")
-                if is_confirm == "y" or is_confirm == "Y":
-                        db_cursor = db_connection.cursor()
-                        db_cursor.execute(select_id_sql_deadline)
-                        # db_connection.commit()  # Так как делаем изменения, необходимо закомитить
-                        # db_cursor.execute(select_id_sql_date_dead)
-                        db_connection.commit()  # Так как делаем изменения, необходимо закомитить
-                        print(f"\n\nЗапись номер {task_deadline_id} изменена. Срок исполнения установлен")
-                        list_of_tasks(DB_NAME,"one",task_deadline_id)
-                        break
-                elif is_confirm == "n" or is_confirm == "N":
-                    print("Отменияем изменение записи")
-                    exit(1)
-                else:
-                    print('Вы ввели не корректное значение. Введите "y" или "n"!')
-                    continue
-                    exit(1)
+    # try:
+        # with sql3.connect(DB_NAME_RW, uri=True) as db_connection:
+    print(f"Устанавливаем для записи номер {task_deadline_id} дату и время исполнения: ")
+    list_of_tasks(DB_NAME,"one",task_deadline_id)
     
-    except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
+    if confirm_action("установка срока исполнения задания", task_deadline_id):
+        work_with_slq(DB_NAME, select_id_sql_deadline)
+        print(f"\n\nЗапись номер {task_deadline_id} изменена. Срок исполнения установлен")
+        list_of_tasks(DB_NAME,"one",task_deadline_id)
+    else:
+        print("Отменияем изменение записи")
+        exit(1)
+        
+    
+    # while True:
+    #     is_confirm = ""
+    #     is_confirm = input("\nВы подтверждаете установку срока исполнения? y/n: ")
+    #     if is_confirm == "y" or is_confirm == "Y":
+    #             work_with_slq(DB_NAME, select_id_sql_deadline)
+    #             # db_cursor = db_connection.cursor()
+    #             # db_cursor.execute(select_id_sql_deadline)
+    #             # db_connection.commit()  # Так как делаем изменения, необходимо закомитить
+    #             # db_cursor.execute(select_id_sql_date_dead)
+    #             # db_connection.commit()  # Так как делаем изменения, необходимо закомитить
+    #             print(f"\n\nЗапись номер {task_deadline_id} изменена. Срок исполнения установлен")
+    #             list_of_tasks(DB_NAME,"one",task_deadline_id)
+    #             break
+    #     elif is_confirm == "n" or is_confirm == "N":
+    #         print("Отменияем изменение записи")
+    #         exit(1)
+    #     else:
+    #         print('Вы ввели не корректное значение. Введите "y" или "n"!')
+    #         continue
+    #         exit(1)
+
+    # except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
 def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):  # Вывод списка тасков
     """
@@ -206,7 +223,7 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
     """
     #выводим списк дел.
 
-    logging.info("выводим списк дел")
+    logging.info("Запуск процедуры list_of_tasks")
 
     # Такой синтаксис для открытия БД - что бы открыть её только на чтение/запись, без создания
     DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
@@ -228,7 +245,7 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
         db_sql_query = '''SELECT * FROM  my_todo_list WHERE id=''' + str(id_row)
     
     try:
-        logging.debug("Подключение к базе.Новая функция")
+        logging.debug("Подключение к базе list_of_tasks.Новая функция")
         # with sql3.connect(DB_NAME_RW, uri=True) as db_connection:  # Здесь надо указать именно соединение, а не курсор
         # db_cursor = db_connection.cursor()
         logging.debug("Выполнение SQL-запроса через новую функцию ")
@@ -343,12 +360,12 @@ def work_with_slq(DB_NAME: str, db_sql_query: str, db_sql_data: tuple = () ):  #
         #     print("Пишем оба параметра")
         # else:
         #     print("Происходит что-то странное, не те параметры для записи в БД")
-        logging.debug("Подключаюсь к БД (функция)")
+        logging.debug("Подключаюсь к БД (функция work_with_slq)")
         with sql3.connect(DB_NAME_RW, uri = True) as db_connection:
             db_connection.row_factory = sql3.Row
-            logging.debug("Getting cursor (function)")
+            logging.debug("Getting cursor (function work_with_slq)")
             db_cursor = db_connection.cursor()
-            logging.debug("Executing SQL query (function)")
+            logging.debug("Executing SQL query (function work_with_slq)")
             db_return = db_cursor.execute(db_sql_query, db_sql_data)
             db_connection.commit()
 
@@ -361,24 +378,30 @@ def work_with_slq(DB_NAME: str, db_sql_query: str, db_sql_data: tuple = () ):  #
 
 def confirm_action(confirm_text : str = "---Текст---", other_text : str = None):
     """
-    Автор: Евгений Петров, Челябинск
+    Автор: Евгений Петров, Челябинск, p174@mail.ru
     Функция выполняет запрос подтверждения какой-либо операции у пользователя.
     Возвращает True если подтвердил, False, если не подтвердил  
+    confirm_text  - Описание операции, которую надо подьвердить
+    other_text  - возможность добавить какой-то текст, проме описания операции(например номер позиции)
     """
+    logging.debug("confirm_action(): Запуск")
     #TODO Прикрутить везде работу с БД через функцию и прикрутить подтверждение операции 
-    logging.debug(f"ФУНКЦИЯ: Подтверждение операции: {confirm_text}")
+    logging.debug(f"confirm_action(): Запрос подтверждение операции: {confirm_text} у пользлвателя")
     while True:
         is_confirm = input(f"Выполнить операцию: {confirm_text} {other_text}? y/n ")
         if is_confirm.upper() == "Y":
             print(f"Выполняю операцию {confirm_text}")
             return_value = True
+            logging.debug("confirm_action(): Пользователь подтвердил операцию")
             break               
         elif is_confirm.upper() == "N":
             print(f"Отменяю выполнение операции {confirm_text}!")
             return_value = False
+            logging.debug("confirm_action(): Пользователь не подтвердил операцию.")
             break
         else:
             print('Вы ввели не корректное значение. Введите "y" или "n"!')
+            logging.error("Пользователь ввел некорректное значение. Можно тольео Y,y или N,n ")
     return return_value
 
 
