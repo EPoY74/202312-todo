@@ -153,14 +153,19 @@ def make_task(DB_NAME: str, text_of_task : str):  # Создаю таск в Б�
 def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # Устанавливаем дату исполнения 
     #TODO Сделать проверку установлена ли крайняя дата выполнения и если установлена уточнить, меняем или нет
     #TODO Сделать проверку, больше ли вводимая дата текущего числа
-    #TODO Думаю, надо сукнуть на почту, если кто-то попытается поменяять дату исполнения на прошедшую (а надо щи стучать?)
+    #TODO Думаю, надо стукнуть на почту, если кто-то попытается поменяять дату исполнения на прошедшую (а надо щи стучать?)
     #TODO Сделать проверку на наличие записи вообще
     """
     Устанавливает сроки исполнения задания
     """
     print("\n\nУстанавливаем крайнюю дату выполнения")
     logging.info("set_tasks_deadline(): запуск")
+
+    # Делаем инфрмирование до запроса даты, что бы проверить наличие записи в БД
     # что бы пользователь не вводил дишние данные.  
+    list_of_tasks(DB_NAME,"one",task_deadline_id)
+    print(f"Устанавливаем для записи номер {task_deadline_id} дату и время исполнения: ")
+        
     while True:
         date_time_deadline = input("\nВведите дату и время завершения задания в формате ДД.ММ.ГГГГ ЧЧ:ММ: ")
         try:
@@ -173,9 +178,7 @@ def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # Устанав
             continue
 
     select_id_sql_deadline ='''UPDATE my_todo_list SET date_max=\"''' + str(date_time_deadline) + '''\" WHERE id=''' + str(task_deadline_id)
-    print(f"Устанавливаем для записи номер {task_deadline_id} дату и время исполнения: ")
-    list_of_tasks(DB_NAME,"one",task_deadline_id)
-    
+        
     if confirm_action("установка срока исполнения задания", task_deadline_id):
         logging.debug("set_tasks_deadline(): Запись значения в БД, Пользователь подтвердил")
         work_with_slq(DB_NAME, select_id_sql_deadline)
@@ -253,7 +256,6 @@ def delete_task(DB_NAME: str, deleting_task: int):  # Удаляем таск (�
     """
     DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
     select_id_sql = '''DELETE FROM  my_todo_list WHERE id=''' + str(deleting_task)
-    # print(select_id_sql)
     try:
         with sql3.connect(DB_NAME_RW, uri=True) as db_connection:
             print(f"Удаляем запись номер  {deleting_task}")
@@ -293,7 +295,7 @@ def task_gone(DB_NAME: str, task_gone_id: int):  # Помечаем таск и�
     select_id_sql_date_gone = '''UPDATE my_todo_list SET date_of_gone=\"''' + str(date_time_now) + '''\" WHERE id='''+str(task_gone_id)
     
     id_and_date = "# " + str(task_gone_id) + ", дата выполнения " + date_time_now 
-    list_of_tasks(DB_NAME,"one",task_gone_id)  # Показываеи запись жо ихменения
+    list_of_tasks(DB_NAME,"one",task_gone_id)  # Показываеи запись до их изменения
     
     if confirm_action("пометить исполненным задание ", id_and_date):
         logging.debug("task_gone(): Записываем пометку исполнения задания в БД")
@@ -319,14 +321,21 @@ def work_with_slq(DB_NAME: str, db_sql_query: str, db_sql_data: tuple = () ):  #
     """
     logging.info("work_with_slq(): Запуск")
     DB_NAME_RW = "file:" + DB_NAME + "?mode = rw"
+    logging.debug(f"work_with_slq(): Имя БД: {DB_NAME_RW}")
+    logging.debug(f"work_with_slq(): SQL запрос: {db_sql_query}")
+    logging.debug(f"work_with_slq(): SQL данные: {db_sql_data}")
     try:
         logging.debug("work_with_slq(): Подключаюсь к БД")
         with sql3.connect(DB_NAME_RW, uri = True) as db_connection:
             db_connection.row_factory = sql3.Row
-            logging.debug("work_with_slq(): Getting cursor")
+            logging.debug("work_with_slq(): Получаю курсор")
             db_cursor = db_connection.cursor()
-            logging.debug("work_with_slq(): Executing SQL query")
+            logging.debug("work_with_slq(): Выполняю SQL запрос ")
             db_return = db_cursor.execute(db_sql_query, db_sql_data)
+            if db_return.fetchone() is None:
+                print("Запись с таким номером в БД отсутсвует.")
+                logging.error("work_with_slq(): Запись с таким номером в БД отсутствует.")
+                exit(1)
             db_connection.commit()
 
 
@@ -364,7 +373,7 @@ def confirm_action(confirm_text : str = "---Текст---", other_text : str = N
             logging.error("confirm_action(): Пользователь ввел некорректное значение. Можно только Y,y или N,n ")
     return return_value
 
-def main_body():
+def main_body():  # Основная логика программы (выбор действия с заданиями)
     parser = ap.ArgumentParser()
     parser.description = "Програма создает ToDo список дел в текстовом консольном режиме."
     parser.add_argument("--create_db", help = "Создаем базу данных для списка задач", action="store_true")
