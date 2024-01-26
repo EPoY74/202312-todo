@@ -150,7 +150,8 @@ def make_task(DB_NAME: str, text_of_task : str):  # Создаю таск в Б�
         list_of_tasks(DB_NAME, "last") # Выводим на экран последнюю созданную запись
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
-def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # Устанавливаем дату исполнения 
+def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # isGone Устанавливаем дату исполнения 
+    
     #TODO Сделать проверку установлена ли крайняя дата выполнения и если установлена уточнить, меняем или нет
     #TODO Сделать проверку, больше ли вводимая дата текущего числа
     #TODO Думаю, надо стукнуть на почту, если кто-то попытается поменяять дату исполнения на прошедшую (а надо щи стучать?)
@@ -181,7 +182,7 @@ def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # Устанав
         
     if confirm_action("установка срока исполнения задания", task_deadline_id):
         logging.debug("set_tasks_deadline(): Запись значения в БД, Пользователь подтвердил")
-        work_with_slq(DB_NAME, select_id_sql_deadline)
+        work_with_slq(DB_NAME, "write", select_id_sql_deadline)
         print(f"\n\nЗапись номер {task_deadline_id} изменена. Срок исполнения установлен")
         list_of_tasks(DB_NAME,"one",task_deadline_id)
     else:
@@ -189,7 +190,7 @@ def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # Устанав
         logging.debug("set_tasks_deadline(): Не изменяем запись, пользлватель не подтвердил ")
         exit(1)
 
-def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):  # Вывод списка тасков
+def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):  # isGone Вывод списка тасков
     """
     Выводим список дел из таблицы на экран.
     Если задан параметр all - выводим все записи по 10 шт, указана по умолчанию.
@@ -222,7 +223,7 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
     try:
         logging.debug("list_of_tasks(): Подключение к БД через work_with_slq")
         logging.debug("list_of_tasks(): Выполнение SQL-запроса через work_with_slq()")
-        data_of_todo = work_with_slq(DB_NAME, db_sql_query)  # Новая функция
+        data_of_todo = work_with_slq(DB_NAME, "read", db_sql_query)  # Новая функция
         print(data_of_todo)
         counter = 1
         for row in data_of_todo:  # Преобразую значение в таблице в удобоваримый вид для КЛ
@@ -252,37 +253,54 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
 
 def delete_task(DB_NAME: str, deleting_task: int):  # Удаляем таск (только один)
     """
+    Автор: Евгений Петров, Челябинск, p174@mail.ru
     Удаляем одно задание, номер которого получаем в параметре
+    DB_NAME - имя БД, с которой работаем
+    deleting_task - id удаляемой записи
     """
-    DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
-    select_id_sql = '''DELETE FROM  my_todo_list WHERE id=''' + str(deleting_task)
-    try:
-        with sql3.connect(DB_NAME_RW, uri=True) as db_connection:
-            print(f"Удаляем запись номер  {deleting_task}")
-            list_of_tasks(DB_NAME,"one",deleting_task)
-            is_confirm = input("\nВы подтверждаете удаление записи? y/n: ")
-            if is_confirm == "y" or is_confirm == "Y":
-                    db_cursor = db_connection.cursor()
-                    db_cursor.execute(select_id_sql)
-                    db_connection.commit()  # Так как делаем изменения, необходимо закомитить
-                    print(f"Запись номер {deleting_task} удалена")
-            elif is_confirm == "n" or is_confirm == "N":
-                print("Отменияем удаление записи")
-                exit(1)
-            else:
-                print('Вы ввели не корректное значение. Введите "y" или "n"!')
-                exit(1)
-           
-    except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
-def task_gone(DB_NAME: str, task_gone_id: int):  # Помечаем таск исполненым
+    logging.info("delete_task(): Запуск процедуры")
+    # DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
+    select_id_sql = '''DELETE FROM  my_todo_list WHERE id=''' + str(deleting_task)
+    
+    list_of_tasks(DB_NAME,"one",deleting_task)
+    print("Вы хотите удалить данную запись.\n")
+
+    if confirm_action(" удаление записи #", deleting_task):
+        logging.debug(f"delete_task(): Пользователь подтвердил удаление записи #{deleting_task}")
+        work_with_slq(DB_NAME, "write", select_id_sql)
+    else:
+        logging.debug(f"delete_task(): Пользователь не подтвердил удаление записи №{deleting_task}")
+        exit(1)       
+
+    # try:
+    #     with sql3.connect(DB_NAME_RW, uri=True) as db_connection:
+    #         print(f"Удаляем запись номер  {deleting_task}")
+    #         list_of_tasks(DB_NAME,"one",deleting_task)
+    #         is_confirm = input("\nВы подтверждаете удаление записи? y/n: ")
+    #         if is_confirm == "y" or is_confirm == "Y":
+    #                 db_cursor = db_connection.cursor()
+    #                 db_cursor.execute(select_id_sql)
+    #                 db_connection.commit()  # Так как делаем изменения, необходимо закомитить
+    #                 print(f"Запись номер {deleting_task} удалена")
+    #         elif is_confirm == "n" or is_confirm == "N":
+    #             print("Отменияем удаление записи")
+    #             exit(1)
+    #         else:
+    #             print('Вы ввели не корректное значение. Введите "y" или "n"!')
+    #             exit(1)
+           
+    # except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
+
+def task_gone(DB_NAME: str, task_gone_id: int)   -> None:  # isGone Помечаем таск исполненым
     """
-    Автор: ЕВгений Петров, Челябинск, p174@mail.ru
+    Автор: Евгений Петров, Челябинск, p174@mail.ru
     Помечаем задание с номером ask_gone_id помеченным и исполненным.
     Пометка осуществляется текущим временем
     DB_NAME - имя БД, с которой работаем
     task_gone_id - id записи, с которой работаем
     """
+
     #TODO GONE Сделать вывод таблицы до и после пометки
     logging.info("task_gone(): запуск")
     date_time_now_obj = datetime.now()  # Получаем объект дата время 
@@ -299,7 +317,7 @@ def task_gone(DB_NAME: str, task_gone_id: int):  # Помечаем таск и�
     
     if confirm_action("пометить исполненным задание ", id_and_date):
         logging.debug("task_gone(): Записываем пометку исполнения задания в БД")
-        work_with_slq(DB_NAME, select_id_sql_gone)  # Помечаем запись выполненой
+        work_with_slq(DB_NAME, "write", select_id_sql_gone)  # Помечаем запись выполненой
         logging.debug("task_gone(): Записываем дату исполнения задания в БД")
         work_with_slq(DB_NAME,select_id_sql_date_gone)
         list_of_tasks(DB_NAME,"one",task_gone_id)  # Показываем запись с изменениями
@@ -309,13 +327,15 @@ def task_gone(DB_NAME: str, task_gone_id: int):  # Помечаем таск и�
         logging.debug("task_gone(): Пользователь не подтвердил изменение записи на исполнено")
         exit(1)
     
-def work_with_slq(DB_NAME: str, db_sql_query: str, db_sql_data: tuple = () ):  # Далаем запись в БД
+def work_with_slq(DB_NAME: str, type_of_SQL: str ,db_sql_query: str, db_sql_data: tuple = () ):  # isGone Далаем запись в БД
     """
     Пишет запрос в базуданных. Если указаана только БД и запрос - то выполняем только его
     Если укзазан БД, запрос и данные - то выполняем и данные и запрос.
+    Если записи не существует - то выводим сообщение
     DB_NAME - Имя базы данных
     db_sql_query - SQL запоос к базе данных
     db_slq_data - передаваемые параметры в SQL запрос (необязательный)
+    type_of_SQL - тип SQL ,запись или чтение (read, write), если нужно закомитить в БД,то выбирть write
     
     Возвращает результат запроса
     """
@@ -335,8 +355,10 @@ def work_with_slq(DB_NAME: str, db_sql_query: str, db_sql_data: tuple = () ):  #
             if db_return.fetchone() is None:
                 print("Запись с таким номером в БД отсутсвует.")
                 logging.error("work_with_slq(): Запись с таким номером в БД отсутствует.")
+                db_return = -1
                 exit(1)
-            db_connection.commit()
+            
+            if type_of_SQL == "write": db_connection.commit()
 
 
     except sql3.Error as err:
@@ -345,7 +367,7 @@ def work_with_slq(DB_NAME: str, db_sql_query: str, db_sql_data: tuple = () ):  #
 
     return db_return
 
-def confirm_action(confirm_text : str = "---Текст---", other_text : str = None):
+def confirm_action(confirm_text : str = "---Текст---", other_text : str = None):  # isGone Проверяет  выполнение операции
     """
     Автор: Евгений Петров, Челябинск, p174@mail.ru
     Функция выполняет запрос подтверждения какой-либо операции у пользователя.
@@ -373,7 +395,7 @@ def confirm_action(confirm_text : str = "---Текст---", other_text : str = N
             logging.error("confirm_action(): Пользователь ввел некорректное значение. Можно только Y,y или N,n ")
     return return_value
 
-def main_body():  # Основная логика программы (выбор действия с заданиями)
+def main_body():  # isGone Основная логика программы (выбор действия с заданиями)
     parser = ap.ArgumentParser()
     parser.description = "Програма создает ToDo список дел в текстовом консольном режиме."
     parser.add_argument("--create_db", help = "Создаем базу данных для списка задач", action="store_true")
