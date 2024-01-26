@@ -364,18 +364,7 @@ def confirm_action(confirm_text : str = "---Текст---", other_text : str = N
             logging.error("confirm_action(): Пользователь ввел некорректное значение. Можно только Y,y или N,n ")
     return return_value
 
-
-if __name__ == "__main__":
-    
-    print("""\nКонсольное приложение для ведения задач. \nАвтор: Евгений Б. Петров, p174@mail.ru""")
-    
-    #  Принимаю объект с файлом конфигурации, что бы избавится от глобальной переменной
-    todo_config_obj =  search_config_and_db()  
-    
-    DB_NAME = get_db_name(todo_config_obj)
-
-    logger.debug("Старт")
-    
+def main_body():
     parser = ap.ArgumentParser()
     parser.description = "Програма создает ToDo список дел в текстовом консольном режиме."
     parser.add_argument("--create_db", help = "Создаем базу данных для списка задач", action="store_true")
@@ -386,15 +375,7 @@ if __name__ == "__main__":
     parser.add_argument("--task_del_id", type = int, help = "Удаляет запись с номером: --task_del_id номер_записи" )
 
     args = parser.parse_args()
-
-    # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
-
     
-    # print(sys.argv[0])
-    full_prog_name = str(sys.argv[0])
-    prog_name = full_prog_name[0:full_prog_name.find(".")]
-    # print(prog_name)
-
     if args.create_db:
         make_db("test.db")
     elif args.task_add:
@@ -407,8 +388,30 @@ if __name__ == "__main__":
         task_gone(DB_NAME, args.task_gone_date)
     elif args.task_del_id:
         delete_task(DB_NAME, args.task_del_id)
-    # else:
-    #     print(f'Неизвестная команда "{args.command}"')
+    
+
+
+
+if __name__ == "__main__":
+    
+    print("""\nКонсольное приложение для ведения задач. \nАвтор: Евгений Б. Петров, p174@mail.ru""")
+    
+    #  Принимаю объект с файлом конфигурации, что бы избавится от глобальной переменной
+    todo_config_obj =  search_config_and_db()  
+    
+    DB_NAME = get_db_name(todo_config_obj)
+
+    logger.debug("Старт")
+    
+    main_body()    
+    
+    # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
+
+    
+    # print(sys.argv[0])
+    full_prog_name = str(sys.argv[0])
+    prog_name = full_prog_name[0:full_prog_name.find(".")]
+    # print(prog_name)
 
     # while True:
     #     # TODO: проверки задача в базе и рассылка почты
