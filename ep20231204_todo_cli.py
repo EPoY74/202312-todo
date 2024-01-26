@@ -160,7 +160,7 @@ def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # Устанав
     """
     print("\n\nУстанавливаем крайнюю дату выполнения")
     logging.info("set_tasks_deadline(): запуск")
-
+    # что бы пользователь не вводил дишние данные.  
     while True:
         date_time_deadline = input("\nВведите дату и время завершения задания в формате ДД.ММ.ГГГГ ЧЧ:ММ: ")
         try:
