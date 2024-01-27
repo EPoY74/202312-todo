@@ -203,6 +203,8 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
 
     # Такой синтаксис для открытия БД - что бы открыть её только на чтение/запись, без создания
     DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
+    row = None
+    row_insert = None
     
     # Формирую заголовой таблицы. Таблица - с красивым выводом
     global todo_table
@@ -211,20 +213,29 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
         
     # Формируем SQL запрос на одну запись, на последнюю или на все.
     # На различный функцилнал требуются различные выводы таблицы
-    if all_or_last == "last":
-        db_sql_query = '''SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1'''
-    
-    elif all_or_last == "all":
-        db_sql_query = '''SELECT * FROM  my_todo_list'''
-    
-    elif all_or_last == "one":
-        db_sql_query = '''SELECT * FROM  my_todo_list WHERE id=''' + str(id_row)
+   
     
     try:
+        
         logging.debug("list_of_tasks(): Подключение к БД через work_with_slq")
         logging.debug("list_of_tasks(): Выполнение SQL-запроса через work_with_slq()")
-        data_of_todo = work_with_slq(DB_NAME, "read", db_sql_query)  # Новая функция
-        print(data_of_todo)
+        
+        if all_or_last == "last":
+            db_sql_query = "SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1"
+            data_of_todo = work_with_slq(DB_NAME, "read", "one", db_sql_query)  # Новая функция
+        
+        elif all_or_last == "all":
+            db_sql_query = "SELECT * FROM  my_todo_list"
+            data_of_todo = work_with_slq(DB_NAME, "read", "many", db_sql_query)  # Новая функция  
+        
+        elif all_or_last == "one":
+            db_sql_query = "SELECT * FROM  my_todo_list WHERE id=" + str(id_row)
+            data_of_todo = work_with_slq(DB_NAME, "read", "one", db_sql_query)  # Новая функция
+
+        # data_of_todo = work_with_slq(DB_NAME, "read", db_sql_query)  # Новая функция
+        
+        # print(data_of_todo)
+        
         counter = 1
         for row in data_of_todo:  # Преобразую значение в таблице в удобоваримый вид для КЛ
             row_insert = [row_ins for row_ins in row]
@@ -270,7 +281,7 @@ def delete_task(DB_NAME: str, deleting_task: int):  # Удаляем таск (�
         logging.debug(f"delete_task(): Пользователь подтвердил удаление записи #{deleting_task}")
         work_with_slq(DB_NAME, "write", select_id_sql)
     else:
-        logging.debug(f"delete_task(): Пользователь не подтвердил удаление записи №{deleting_task}")
+        logging.debug(f"delete_task(): Пользователь не подтвердил удаление записи #{deleting_task}")
         exit(1)       
 
     # try:
@@ -302,7 +313,9 @@ def task_gone(DB_NAME: str, task_gone_id: int)   -> None:  # isGone Помеча
     """
 
     #TODO GONE Сделать вывод таблицы до и после пометки
+    
     logging.info("task_gone(): запуск")
+    
     date_time_now_obj = datetime.now()  # Получаем объект дата время 
     date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')  # Преобразовываем его как нам надо
     
@@ -316,10 +329,13 @@ def task_gone(DB_NAME: str, task_gone_id: int)   -> None:  # isGone Помеча
     list_of_tasks(DB_NAME,"one",task_gone_id)  # Показываеи запись до их изменения
     
     if confirm_action("пометить исполненным задание ", id_and_date):
+        
         logging.debug("task_gone(): Записываем пометку исполнения задания в БД")
-        work_with_slq(DB_NAME, "write", select_id_sql_gone)  # Помечаем запись выполненой
+        work_with_slq(DB_NAME, "write", "one", select_id_sql_gone)  # Помечаем запись выполненой
+        
         logging.debug("task_gone(): Записываем дату исполнения задания в БД")
-        work_with_slq(DB_NAME,select_id_sql_date_gone)
+        work_with_slq(DB_NAME, "write", "one", select_id_sql_date_gone)
+        
         list_of_tasks(DB_NAME,"one",task_gone_id)  # Показываем запись с изменениями
         print(f"\n\nЗапись номер {task_gone_id} изменена на \"Исполенно\"")
     else:
@@ -327,7 +343,7 @@ def task_gone(DB_NAME: str, task_gone_id: int)   -> None:  # isGone Помеча
         logging.debug("task_gone(): Пользователь не подтвердил изменение записи на исполнено")
         exit(1)
     
-def work_with_slq(DB_NAME: str, type_of_SQL: str ,db_sql_query: str, db_sql_data: tuple = () ):  # isGone Далаем запись в БД
+def work_with_slq(DB_NAME: str, type_of_SQL: str, is_one: str, db_sql_query: str, db_sql_data: tuple = () ):  # isGone Далаем запись в БД
     """
     Пишет запрос в базуданных. Если указаана только БД и запрос - то выполняем только его
     Если укзазан БД, запрос и данные - то выполняем и данные и запрос.
@@ -340,25 +356,46 @@ def work_with_slq(DB_NAME: str, type_of_SQL: str ,db_sql_query: str, db_sql_data
     Возвращает результат запроса
     """
     logging.info("work_with_slq(): Запуск")
+   
     DB_NAME_RW = "file:" + DB_NAME + "?mode = rw"
+    
     logging.debug(f"work_with_slq(): Имя БД: {DB_NAME_RW}")
     logging.debug(f"work_with_slq(): SQL запрос: {db_sql_query}")
     logging.debug(f"work_with_slq(): SQL данные: {db_sql_data}")
+    
     try:
+        
         logging.debug("work_with_slq(): Подключаюсь к БД")
+        
         with sql3.connect(DB_NAME_RW, uri = True) as db_connection:
             db_connection.row_factory = sql3.Row
+            
             logging.debug("work_with_slq(): Получаю курсор")
             db_cursor = db_connection.cursor()
-            logging.debug("work_with_slq(): Выполняю SQL запрос ")
-            db_return = db_cursor.execute(db_sql_query, db_sql_data)
-            if db_return.fetchone() is None:
-                print("Запись с таким номером в БД отсутсвует.")
-                logging.error("work_with_slq(): Запись с таким номером в БД отсутствует.")
-                db_return = -1
-                exit(1)
             
-            if type_of_SQL == "write": db_connection.commit()
+            logging.debug("work_with_slq(): Выполняю SQL запрос ")
+            db_return_temp = db_cursor.execute(db_sql_query, db_sql_data)
+
+            if is_one == "one":
+                db_return = db_return_temp.fetchone()
+                # if db_return == None:
+                #     print("Запись с таким номером в БД отсутсвует.")
+                #     logging.error("work_with_slq(): Запись с таким номером в БД отсутствует.")
+                #     db_return = -1
+                #     exit(1)
+            if is_one == "many":
+                db_return = db_return_temp.fetchall()
+            
+            # if db_return_temp.fetchall() == None:
+            #     print("Запись с таким номером в БД отсутсвует.")
+            #     logging.error("work_with_slq(): Запись с таким номером в БД отсутствует.")
+            #     db_return = -1
+            #     exit(1)
+            
+            if type_of_SQL == "write":
+                db_connection.commit()
+           # else:
+
 
 
     except sql3.Error as err:
