@@ -7,6 +7,7 @@ import sqlite3 as sql3
 import time
 from datetime import datetime
 import configparser as cfg_par
+import data_access.json as data  # TODO: finish DAL and start using it
 
 from prettytable import PrettyTable
 
