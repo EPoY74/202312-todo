@@ -15,6 +15,7 @@ import logging
 FORMAT = '[%(levelname)s] %(asctime)s - %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.DEBUG)
 logger = logging.getLogger('todologger')
+# TODO: логировать в файл, а не в консоль
 
 def search_config_and_db(): # Ищем конфигурацию и БД,если нет - создаем
     """
