@@ -219,8 +219,15 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
         
     # Формируем SQL запрос на одну запись, на последнюю или на все.
     # На различный функцилнал требуются различные выводы таблицы
-   
-    
+
+   # check all_or_last for valid value
+    if all_or_last != "all" and all_or_last != "last" and all_or_last != "one":
+        logging.error("list_of_tasks(): Передан некорректный параметр all_or_last")
+        print("Передан некорректный параметр all_or_last")
+        exit(1)
+
+    data_of_todo: List[sql3.Row] = []
+
     try:
         
         logging.debug("list_of_tasks(): Подключение к БД через work_with_slq")
