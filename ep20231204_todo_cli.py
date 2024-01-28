@@ -226,16 +226,13 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
         logging.debug("list_of_tasks(): Выполнение SQL-запроса через work_with_slq()")
         
         if all_or_last == "last":
-            db_sql_query = "SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1"
-            data_of_todo = work_with_slq(DB_NAME, "read", "many", db_sql_query)  # Новая функция
-        
+            data_of_todo = get_last_record(DB_NAME)
+
         elif all_or_last == "all":
-            db_sql_query = "SELECT * FROM  my_todo_list"
-            data_of_todo = work_with_slq(DB_NAME, "read", "many", db_sql_query)  # Новая функция  
-        
+            data_of_todo = get_all_records(DB_NAME)
+
         elif all_or_last == "one":
-            db_sql_query = "SELECT * FROM  my_todo_list WHERE id=" + str(id_row)
-            data_of_todo = work_with_slq(DB_NAME, "read", "many", db_sql_query)  # Новая функция
+            data_of_todo = get_record_by_id(DB_NAME, id_row)
 
         # data_of_todo = work_with_slq(DB_NAME, "read", db_sql_query)  # Новая функция
         
@@ -266,6 +263,37 @@ def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None): 
     except sql3.Error as err:
         logging.error("Ой!", exc_info=err)
         print(f"Ошибка: \n{str(err)}")
+
+
+def get_last_record(DB_NAME):
+    """
+    Автор: Евгений Петров, Челябинск,
+    Возвращает последнюю запись из БД
+    """
+    db_sql_query = "SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1"
+    data_of_todo = work_with_slq(DB_NAME, "read", "many", db_sql_query)  # Новая функция
+    return data_of_todo
+
+
+def get_all_records(DB_NAME):
+    """
+    Автор: Евгений Петров, Челябинск,
+    Возвращает все записи из БД
+    """
+    db_sql_query = "SELECT * FROM  my_todo_list"
+    data_of_todo = work_with_slq(DB_NAME, "read", "many", db_sql_query)  # Новая функция
+    return data_of_todo
+
+
+def get_record_by_id(DB_NAME, id_row):
+    """
+    Автор: Евгений Петров, Челябинск,
+    Возвращает запись с номером id_row из БД
+    """
+    db_sql_query = "SELECT * FROM  my_todo_list WHERE id=" + str(id_row)
+    data_of_todo = work_with_slq(DB_NAME, "read", "many", db_sql_query)  # Новая функция
+    return data_of_todo
+
 
 def delete_task(DB_NAME: str, deleting_task: int):  # Удаляем таск (только один)
     """
