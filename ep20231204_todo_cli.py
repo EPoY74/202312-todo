@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import List  # TODO: read about type hints
 
 import argparse as ap
 import sqlite3 as sql3
@@ -375,8 +376,8 @@ def task_gone(DB_NAME: str, task_gone_id: int)   -> None:  # isGone Помеча
         print(f"\n\nОтменяем изменение статуса задания № {task_gone_id}  на \"Исполенно\"")
         logging.debug("task_gone(): Пользователь не подтвердил изменение записи на исполнено")
         exit(1)
-    
-def work_with_slq(DB_NAME: str, type_of_SQL: str, is_one: str, db_sql_query: str, db_sql_data: tuple = () ):  # isGone Далаем запись в БД
+
+def work_with_slq(DB_NAME: str, type_of_SQL: str, is_one: str, db_sql_query: str, db_sql_data: tuple = () ) -> List[sql3.Row]:  # isGone Далаем запись в БД
     """
     Выполняе запрос в базу данных. Если указаана только БД и запрос - то выполняем только его
     Если укзазан БД, запрос и данные - то выполняем и данные и запрос.
@@ -418,9 +419,8 @@ def work_with_slq(DB_NAME: str, type_of_SQL: str, is_one: str, db_sql_query: str
             if type_of_SQL == "read" and len(db_return) == 0: 
                 print("Запись с таким номером в БД отсутсвует.")
                 logging.error("work_with_slq(): Запись с таким номером в БД отсутствует.")
-                db_return = -1
-                exit(1)
-            
+                return []
+
             if type_of_SQL == "write":
                 db_connection.commit()
            # else:
