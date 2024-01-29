@@ -32,7 +32,8 @@ def search_config_and_db(): # Ищем конфигурацию и БД,если
     ini_file_name = str(prog_name + ".ini")  # Формирую имя файла конфигурации
     db_file_name = str(prog_name + ".db")  # Формирую имя БД
     
-    todo_config_obj = cfg_par.ConfigParser()  # Создаю объект парсера конфигурации
+    todo_config_obj = cfg_par.ConfigParser()  # Сот
+    # здаю объект парсера конфигурации
     todo_config = todo_config_obj.read(ini_file_name)  # Читаю конфигурацию
 
     if len(todo_config) == 0:
