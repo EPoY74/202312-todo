@@ -27,6 +27,7 @@ def search_config_and_db(): # Ищем конфигурацию и БД,если
     #TODO А правильно написал? Спросить у Славы
     """
     full_prog_name = str(sys.argv[0])  # Читаю полное имя файла
+    prog_name = full_prog_name[0:full_prog_name.rfind(".")]  # Получаю имя скрипта без точки
     prog_name = full_prog_name[0:full_prog_name.find(".")]  # Получаю имя скрипта без точки
     ini_file_name = str(prog_name + ".ini")  # Формирую имя файла конфигурации
     db_file_name = str(prog_name + ".db")  # Формирую имя БД
