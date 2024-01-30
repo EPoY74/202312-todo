@@ -37,10 +37,9 @@ def make_task(text_of_task: str):  # Создаю таск в БД
     date_time_now = get_now_time()
 
     print("Добавляю задачу в БД...\n")
-    db_sql_query = '''INSERT INTO my_todo_list
-                 (data_of_creation, todo_text, is_gone) VALUES (?, ?, ?)'''
-    adding_datas = [date_time_now, text_of_task, 0]
-    data.work_with_data("write", "one", db_sql_query, tuple(adding_datas))
+    db_query = data.query_for_data('make_task')
+    adding_datas = tuple([date_time_now, text_of_task, 0])
+    data.work_with_data("write", "one", db_query, adding_datas)
     print("Задача в БД добавлена:\n")
     list_of_tasks("last")
 
@@ -78,12 +77,15 @@ def set_tasks_deadline(task_deadline_id: int):  # isGone Устанавлива�
             logging.error("set_tasks_deadline(): Пользователь ввел некорректное значение даты и времени")
             continue
 
-    select_id_sql_deadline = '''UPDATE my_todo_list SET date_max=\"''' + str(
-        date_time_deadline) + '''\" WHERE id=''' + str(task_deadline_id)
+    # select_id_sql_deadline = '''UPDATE my_todo_list SET date_max=\"''' + str(
+    #     date_time_deadline) + '''\" WHERE id=''' + str(task_deadline_id)
+    set_deadline = data.query_for_data("set_tasks_deadline")
+    adding_data = tuple([date_time_deadline, task_deadline_id])
 
     if confirm_action("установка срока исполнения задания", str(task_deadline_id)):
         logging.debug("set_tasks_deadline(): Запись значения в БД, Пользователь подтвердил")
-        data.work_with_data("write", "many", select_id_sql_deadline)
+
+        data.work_with_data("write", "many", set_deadline, adding_data)
         print(f"\n\nЗапись номер {task_deadline_id} изменена. Срок исполнения установлен")
         list_of_tasks("one", task_deadline_id)
     else:
@@ -198,14 +200,15 @@ def delete_task(deleting_task: int):  # Удаляем таск (только о
     """
 
     logging.info("delete_task(): Запуск процедуры")
-    select_id_sql = '''DELETE FROM  my_todo_list WHERE id=''' + str(deleting_task)
+    data.query_for_data('delete_task')
+    select_id = data.query_for_data('delete_task') + str(deleting_task)
 
     list_of_tasks("one", deleting_task)
     print("Вы хотите удалить данную запись.\n")
 
     if confirm_action(" удаление записи #", str(deleting_task)):
         logging.debug(f"delete_task(): Пользователь подтвердил удаление записи #{deleting_task}")
-        data.work_with_data("write", "one", select_id_sql)
+        data.work_with_data("write", "one", select_id)
     else:
         logging.debug(f"delete_task(): Пользователь не подтвердил удаление записи #{deleting_task}")
         exit(1)
@@ -314,9 +317,9 @@ def main_body():  # isGone Основная логика программы (в�
                         help="Устанавливает дату, до которой надо выполнить задание: --task_deadline номер_записи")
     parser.add_argument("--task_list", help="Выводит список задач",
                         action="store_true")  # И где написано про action интересно?
-    parser.add_argument("--task_gone_date", type=int,
+    parser.add_argument("--task_gone", type=int,
                         help="Помечает задание с номером № завершенным: --set_gone_date номер_записи")
-    parser.add_argument("--task_del_id", type=int, help="Удаляет запись с номером: --task_del_id номер_записи")
+    parser.add_argument("--task_delete", type=int, help="Удаляет запись с номером: --task_del_id номер_записи")
 
     args = parser.parse_args()
 
@@ -328,10 +331,10 @@ def main_body():  # isGone Основная логика программы (в�
         set_tasks_deadline(args.task_deadline)
     elif args.task_list:
         list_of_tasks("all")
-    elif args.task_gone_date:
+    elif args.task_gone:
         task_gone(args.task_gone_date)
-    elif args.task_del_id:
-        delete_task(args.task_del_id)
+    elif args.task_delete:
+        delete_task(args.task_delete)
 
 
 def print_help_info():
@@ -346,8 +349,8 @@ def print_help_info():
     print("--task_add: Описание задачи, которую заводим: --task_add \"Это запись\" ")
     print("--task_deadline: Устанавливает дату, до которой надо выполнить задание: --task_deadline номер_записи")
     print("--task_list: Выводит список задач")
-    print("--task_gone_date: Помечает задание с номером № завершенным: --set_gone_date номер_записи")
-    print("--task_del_id: Удаляет запись с номером: --task_del_id номер_записи\n")
+    print("--task_gone: Помечает задание с номером № завершенным: --set_gone_date номер_записи")
+    print("--task_delete: Удаляет запись с номером: --task_del_id номер_записи\n")
 
 
 def get_now_time() -> str:
