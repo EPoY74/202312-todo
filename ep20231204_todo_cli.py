@@ -142,23 +142,34 @@ def make_task(text_of_task: str):  # Создаю таск в БД
     Создаем новую задачу в таблице my_todo_list в БД
     выводим последнюю созданную запись на экран
     """
-    db_name_rw = "file:" + DB_NAME + "?mode=rw"  # Открываем БД на Read-Write. Создавать - не будем.
+    logger.info("make_task(): Запуск")
+
     date_time_now_obj = datetime.now()  # Получаем объект дата время
     date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')  # Преобразовываем его как нам надо
+
+
     print("Добавляю задачу в БД...\n")
-    try:
-        with sql3.connect(db_name_rw, uri=True) as db_connection:
-            db_cursor = db_connection.cursor()
-            db_sql_query = '''INSERT INTO my_todo_list
-             (data_of_creation, todo_text, is_gone) VALUES (?, ?, ?)'''
-            adding_datas = [date_time_now, text_of_task, 0]
-            test = db_cursor.execute(db_sql_query, adding_datas)
-            print(test)
-            db_connection.commit()
-        print("Задача в БД добавлена:\n")
-        list_of_tasks("last")  # Выводим на экран последнюю созданную запись
-    except sql3.Error as err:
-        print(f"Ошибка: \n{str(err)}")
+    db_sql_query = '''INSERT INTO my_todo_list
+                 (data_of_creation, todo_text, is_gone) VALUES (?, ?, ?)'''
+    adding_datas = [date_time_now, text_of_task, 0]
+    data.work_with_data("write", "one", db_sql_query, tuple(adding_datas))
+    print("Задача в БД добавлена:\n")
+    list_of_tasks("last")
+
+    #
+    # try:
+    #     with sql3.connect(db_name_rw, uri=True) as db_connection:
+    #         db_cursor = db_connection.cursor()
+    #         db_sql_query = '''INSERT INTO my_todo_list
+    #          (data_of_creation, todo_text, is_gone) VALUES (?, ?, ?)'''
+    #         adding_datas = [date_time_now, text_of_task, 0]
+    #         test = db_cursor.execute(db_sql_query, adding_datas)
+    #         print(test)
+    #         db_connection.commit()
+    #     print("Задача в БД добавлена:\n")
+    #     list_of_tasks("last")  # Выводим на экран последнюю созданную запись
+    # except sql3.Error as err:
+    #     print(f"Ошибка: \n{str(err)}")
 
 
 def set_tasks_deadline(task_deadline_id: int):  # isGone Устанавливаем дату исполнения
@@ -220,9 +231,9 @@ def list_of_tasks(all_or_last: str = "all", id_row: int = None):  # isGone Вы�
     logging.info("list_of_tasks(): Запуск")
 
     # Такой синтаксис для открытия БД - что бы открыть её только на чтение/запись, без создания
-    db_name_rw = "file:" + DB_NAME + "?mode=rw"
-    row = None
-    row_insert = None
+    # db_name_rw = "file:" + DB_NAME + "?mode=rw"
+    # row = None
+    # row_insert = None
 
     # Формирую заголовок таблицы. Таблица - с красивым выводом
     global todo_table
@@ -332,10 +343,13 @@ def delete_task(deleting_task: int):  # Удаляем таск (только о
 
     if confirm_action(" удаление записи #", str(deleting_task)):
         logging.debug(f"delete_task(): Пользователь подтвердил удаление записи #{deleting_task}")
-        data.work_with_data("write", select_id_sql)
+        data.work_with_data("write", "one",  select_id_sql)
     else:
         logging.debug(f"delete_task(): Пользователь не подтвердил удаление записи #{deleting_task}")
         exit(1)
+    print(f"Запись #{deleting_task} удалена")
+    print(f"Проверяю удаление записи #{deleting_task} в БД")
+    list_of_tasks("one", deleting_task)
 
 
 def task_gone(task_gone_id: int) -> None:  # isGone Помечаем таск исполненным
