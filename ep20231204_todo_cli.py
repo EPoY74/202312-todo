@@ -10,6 +10,8 @@ from logging_config import *  # переместил настройки логи
 
 from prettytable import PrettyTable
 
+todo_table = None
+
 
 # TODO: логировать в файл, а не в консоль
 
