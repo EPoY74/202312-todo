@@ -175,7 +175,22 @@ def work_with_data(type_of_sql: str, is_one: str, db_sql_query: str, db_sql_data
     return db_return
 
 
-#if __name__ == "__main__":
+def query_for_data(name_of_foo: str) -> str:
+    print(name_of_foo)
+    if name_of_foo == 'delete_task':
+        return '''DELETE FROM  my_todo_list WHERE id='''
+    elif name_of_foo == 'make_task':
+        # Этот вариант рабочий
+        # return '''INSERT INTO my_todo_list (data_of_creation, todo_text, is_gone) VALUES (?, ?, ?)'''
+        return '''UPDATE my_todo_list SET data_of_creation=?, todo_text=?, is_gone=?;'''
+    elif name_of_foo == "set_tasks_deadline":
+        return '''UPDATE my_todo_list SET date_max=? WHERE id=?'''
+    else:
+        print("Запрос не может быть сформирован")
+        exit(1)
+
+
+
 # Это одна из немногих, переменных, которые будут глобальными. Мог бы сделать без нее, считывая
 # каждый раз имя БД с конфигурации, но, что бы избежать подмены - решил сделать одну переменную глобальной
 DB_NAME = get_db_name(search_config_and_db())
