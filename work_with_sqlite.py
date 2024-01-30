@@ -182,6 +182,8 @@ def query_for_data(name_of_foo: str) -> str:
     elif name_of_foo == 'make_task':
         # Этот вариант рабочий
         # return '''INSERT INTO my_todo_list (data_of_creation, todo_text, is_gone) VALUES (?, ?, ?)'''
+
+        # Просто я решил попробовать так - и взлетело
         return '''UPDATE my_todo_list SET data_of_creation=?, todo_text=?, is_gone=?;'''
     elif name_of_foo == "set_tasks_deadline":
         return '''UPDATE my_todo_list SET date_max=? WHERE id=?'''
