@@ -125,13 +125,13 @@ def list_of_tasks(all_or_last: str = "all", id_row: int = None):  # isGone Вы�
         logging.debug("list_of_tasks(): Выполнение SQL-запроса через work_with_slq()")
 
         if all_or_last == "last":
-            data_of_todo = get_last_record()
+            data_of_todo = get_query_last_record()
 
         elif all_or_last == "all":
-            data_of_todo = get_all_records()
+            data_of_todo = get_query_all_records()
 
         elif all_or_last == "one":
-            data_of_todo = get_record_by_id(id_row)
+            data_of_todo = get_query_record_by_id(id_row)
 
         counter = 1
         for row in data_of_todo:  # Преобразую значение в таблице в удобоваримый вид для КЛ
@@ -160,10 +160,10 @@ def list_of_tasks(all_or_last: str = "all", id_row: int = None):  # isGone Вы�
         print(f"Ошибка: \n{str(err)}")
 
 
-def get_last_record():
+def get_query_last_record():
     """
         Автор: Евгений Петров, Челябинск, p174@mail.ru
-        Возвращает последнюю запись из БД
+        Подготавливает запрос и  возвращает последнюю запись из БД
     """
 
     db_sql_query = "SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1"
@@ -171,20 +171,20 @@ def get_last_record():
     return data_of_todo
 
 
-def get_all_records():
+def get_query_all_records():
     """
     Автор: Евгений Петров, Челябинск, p174@mail.ru
-    Возвращает все записи из БД
+    Подготавливает запрос и возвращает все записи из БД
     """
     db_sql_query = "SELECT * FROM  my_todo_list"
     data_of_todo = data.work_with_data("read", "many", db_sql_query)  # Новая функция
     return data_of_todo
 
 
-def get_record_by_id(id_row):
+def get_query_record_by_id(id_row):
     """
     Автор: Евгений Петров, Челябинск, p174@mail.ru
-    Возвращает запись с номером id_row из БД
+    Подготавливает запрос и возвращает запись с номером id_row из БД
     """
     db_sql_query = "SELECT * FROM  my_todo_list WHERE id=" + str(id_row)
     data_of_todo = data.work_with_data("read", "many", db_sql_query)  # Новая функция
