@@ -1,0 +1,22 @@
+INFO:todologger:Старт консольного ToDo приложения.
+INFO:root:print_help_info(): Запуск
+INFO:root:list_of_tasks(): Запуск
+DEBUG:root:list_of_tasks(): Подключение к БД через work_with_slq
+DEBUG:root:list_of_tasks(): Выполнение SQL-запроса через work_with_slq()
+INFO:root:work_with_slq(): Запуск
+DEBUG:root:work_with_slq(): Имя БД: file:ep20231204_todo_cli.db?mode = rw
+DEBUG:root:work_with_slq(): SQL запрос: SELECT * FROM  my_todo_list
+DEBUG:root:work_with_slq(): SQL данные: ()
+DEBUG:root:work_with_slq(): Подключился к БД, Получил курсор, Выполняю SQL запрос 
+INFO:todologger:Конец выполнения консольного ToDo приложения.
+[INFO] 2024-01-30 23:46:34,423 - Старт консольного ToDo приложения.
+[INFO] 2024-01-30 23:46:34,423 - print_help_info(): Запуск
+[INFO] 2024-01-30 23:46:34,425 - list_of_tasks(): Запуск
+[DEBUG] 2024-01-30 23:46:34,425 - list_of_tasks(): Подключение к БД через work_with_slq
+[DEBUG] 2024-01-30 23:46:34,425 - list_of_tasks(): Выполнение SQL-запроса через work_with_slq()
+[INFO] 2024-01-30 23:46:34,425 - work_with_slq(): Запуск
+[DEBUG] 2024-01-30 23:46:34,426 - work_with_slq(): Имя БД: file:ep20231204_todo_cli.db?mode = rw
+[DEBUG] 2024-01-30 23:46:34,426 - work_with_slq(): SQL запрос: SELECT * FROM  my_todo_list
+[DEBUG] 2024-01-30 23:46:34,426 - work_with_slq(): SQL данные: ()
+[DEBUG] 2024-01-30 23:46:34,426 - work_with_slq(): Подключился к БД, Получил курсор, Выполняю SQL запрос 
+[INFO] 2024-01-30 23:46:35,632 - Конец выполнения консольного ToDo приложения.
