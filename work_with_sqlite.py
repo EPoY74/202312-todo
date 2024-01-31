@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 import sqlite3 as sql3
@@ -129,9 +130,8 @@ def work_with_data(type_of_sql: str, is_one: str, db_sql_query: str, db_sql_data
     db_slq_data - передаваемые параметры в SQL запрос (необязательный)
     type_of_sql - тип SQL ,запись или чтение (read, write), если нужно закомитить в БД,то выбирать write
 
-    Возвращает результат запроса, если он есть
-    Если запись отсутствует,то выход с кодом один и return -1
-    #TODO Уточнить у Славы, кмк за такое, что разные типы возвращает, дают по рукам :))
+    Возвращает результат запроса
+    #TODO -GONE- Уточнить у Славы, кмк за такое, что разные типы возвращает, дают по рукам :))
 
 
     Возвращает результат запроса
@@ -176,21 +176,27 @@ def work_with_data(type_of_sql: str, is_one: str, db_sql_query: str, db_sql_data
 
 
 def query_for_data(name_of_foo: str) -> str:
-    print(name_of_foo)
+    logging.info("query_for_data(): Запуск")
+
     if name_of_foo == 'delete_task':
         return '''DELETE FROM  my_todo_list WHERE id='''
+
+    elif name_of_foo == 'is_can_edit':
+        return '''SELECT is_gone, date_of_gone FROM  my_todo_list WHERE id=?'''
+
     elif name_of_foo == 'make_task':
         # Этот вариант рабочий
         # return '''INSERT INTO my_todo_list (data_of_creation, todo_text, is_gone) VALUES (?, ?, ?)'''
-
         # Просто я решил попробовать так - и взлетело
         return '''UPDATE my_todo_list SET data_of_creation=?, todo_text=?, is_gone=?;'''
+
     elif name_of_foo == "set_tasks_deadline":
         return '''UPDATE my_todo_list SET date_max=? WHERE id=?'''
+
+
     else:
         print("Запрос не может быть сформирован")
         exit(1)
-
 
 
 # Это одна из немногих, переменных, которые будут глобальными. Мог бы сделать без нее, считывая

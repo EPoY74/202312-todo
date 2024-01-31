@@ -34,14 +34,14 @@ def make_task(text_of_task: str):  # isGONE Создаю таск в БД
     """
     logger.info("make_task(): Запуск")
 
-    date_time_now = get_now_time()
+    date_time_now = get_now_time()  # TODO GONE Спросить у Славы, а нужно ли плодить переменные
 
     print("Добавляю задачу в БД...\n")
     db_query = data.query_for_data('make_task')
     adding_datas = tuple([date_time_now, text_of_task, 0])
     data.work_with_data("write", "one", db_query, adding_datas)
     print("Задача в БД добавлена:\n")
-    list_of_tasks("last")
+    show_last_task()
 
 
 def set_tasks_deadline(task_deadline_id: int):  # isGone Устанавливаем дату исполнения
@@ -252,7 +252,7 @@ def task_gone(task_gone_id_int: int) -> None:  # isGone Помечаем тас�
         logging.debug("task_gone(): Записываем дату исполнения задания в БД")
         data.work_with_data("write", "one", select_id_sql_date_gone)
 
-        list_of_tasks("one", task_gone_id)  # Показываем запись с изменениями
+        list_of_tasks("one", task_gone_id_int)  # Показываем запись с изменениями
         print(f"\n\nЗапись номер {task_gone_id} изменена на \"Исполнено\"")
     else:
         print(f"\n\nОтменяем изменение статуса задания № {task_gone_id}  на \"Исполнено\"")
@@ -299,6 +299,9 @@ def is_can_edit(task_id) -> bool:
         false - если нельзя
 
     """
+    query = data.query_for_data("is_can_edit")
+    data_of_task = data.work_with_data("read",'one', query, tuple([task_id]))
+
     raise NotImplementedError()
 
 
@@ -362,6 +365,16 @@ def get_now_time() -> str:
     date_time_now_obj = datetime.now()  # Получаем объект дата время
     date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')  # Преобразовываем его как нам надо
     return str(date_time_now)
+
+
+def show_last_task() -> None:
+    """
+    Автор: Евгений Петров, Челяьинск, p174@mail.ru
+    Функция выводит последнюю запись из БД
+    Ничего не возвращает
+    """
+    list_of_tasks("last")
+
 
 if __name__ == "__main__":
     print("""\nКонсольное приложение для ведения задач. \nАвтор: Евгений Б. Петров, p174@mail.ru\n""")
