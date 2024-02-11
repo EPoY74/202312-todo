@@ -1,4 +1,3 @@
-import logging
 import os
 import sys
 import sqlite3 as sql3
@@ -6,10 +5,11 @@ from typing import List
 
 import configparser as cfg_par
 
-from logging_config import *  # переместил настройки логирования в отдельный файл
+from logging_config import logger  # переместил настройки логирования в отдельный файл
 
 
 def search_config_and_db():  # Ищем конфигурацию и БД,если нет - создаем
+    logger.info("search_config_and_db(): Запуск")
     """
     Функция ищет файл конфигурации и файл БД, если отсутствует(первый запуск,допустим),
     то создает их.
@@ -22,8 +22,10 @@ def search_config_and_db():  # Ищем конфигурацию и БД,есл�
     ini_file_name = str(prog_name + ".ini")  # Формирую имя файла конфигурации
     db_file_name = str(prog_name + ".db")  # Формирую имя БД
 
-    todo_config_obj = cfg_par.ConfigParser()  # Сот
-    # здаю объект парсера конфигурации
+    # TODO Done Проверить, так ли я понял документацию. понял, что todo_config_obj - должен содержать файл конфигурации
+    # todo_config_obj - ничего не знает о файле, им мы ему передаем отдельно
+
+    todo_config_obj = cfg_par.ConfigParser()  # Сoздаю объект класса парсера конфигурации
     todo_config = todo_config_obj.read(ini_file_name)  # Читаю конфигурацию
 
     if len(todo_config) == 0:
@@ -85,7 +87,7 @@ def make_db(db_name_new: str):  # Создаю БД, если её нет
     except sql3.Error as err:
         print(f"Ошибка:\n {str(err)}")
 
-    # ЗАписываем таблицу, если не создана
+    # Записываем таблицу, если не создана
     try:
         with sql3.connect(db_name_new) as db_connection:
             print("Создаю таблицу для ToDo заданий в Базе Даннах")
@@ -111,8 +113,7 @@ def get_db_name(config_obj):  # Беру имя БД из переменной �
     Получает имя базы из переменной окружения TODO_DB_NAME.
     Если такой переменной нет, то имя базы будет eo20231206sql.db.
     """
-    # TODO Проверить, так ли я понял документацию. понял, что todo_config
-    #  - должен содержать содержимое файла конфигурации
+
     dbname = os.getenv("TODO_DB_NAME")
     if dbname is not None:
         print(f"Используем имя базы из переменной TODO_DB_NAME - {dbname}")
@@ -138,20 +139,20 @@ def work_with_data(type_of_sql: str, is_one: str, db_sql_query: str, db_sql_data
     """
     global DB_NAME
 
-    logging.info("work_with_slq(): Запуск")
+    logger.info("work_with_slq(): Запуск")
 
     db_name_rw = "file:" + DB_NAME + "?mode = rw"
 
-    logging.debug(f"work_with_slq(): Имя БД: {db_name_rw}")
-    logging.debug(f"work_with_slq(): SQL запрос: {db_sql_query}")
-    logging.debug(f"work_with_slq(): SQL данные: {db_sql_data}")
+    logger.debug(f"work_with_slq(): Имя БД: {db_name_rw}")
+    logger.debug(f"work_with_slq(): SQL запрос: {db_sql_query}")
+    logger.debug(f"work_with_slq(): SQL данные: {db_sql_data}")
 
     try:
         with sql3.connect(db_name_rw, uri=True) as db_connection:
             db_connection.row_factory = sql3.Row
             db_cursor = db_connection.cursor()
 
-            logging.debug("work_with_slq(): Подключился к БД, Получил курсор, Выполняю SQL запрос ")
+            logger.debug("work_with_slq(): Подключился к БД, Получил курсор, Выполняю SQL запрос ")
             db_return_temp = db_cursor.execute(db_sql_query, db_sql_data)
 
             if is_one == "one":
@@ -162,7 +163,7 @@ def work_with_data(type_of_sql: str, is_one: str, db_sql_query: str, db_sql_data
 
             if type_of_sql == "read" and len(db_return) == 0:
                 print("Запись с таким номером в БД отсутствует.")
-                logging.error("work_with_slq(): Запись с таким номером в БД отсутствует.")
+                logger.error("work_with_slq(): Запись с таким номером в БД отсутствует.")
                 return []
 
             if type_of_sql == "write":
@@ -170,13 +171,13 @@ def work_with_data(type_of_sql: str, is_one: str, db_sql_query: str, db_sql_data
         # else:
     except sql3.Error as err:
         print(f"Ошибка: {err}")
-        logging.error("work_with_slq(): Упс!!!", exc_info=err)
+        logger.error("work_with_slq(): Упс!!!", exc_info=err)
 
     return db_return
 
 
 def query_for_data(name_of_foo: str) -> str:
-    logging.info("query_for_data(): Запуск")
+    logger.info("query_for_data(): Запуск")
 
     if name_of_foo == 'delete_task':
         return '''DELETE FROM  my_todo_list WHERE id='''
@@ -191,7 +192,6 @@ def query_for_data(name_of_foo: str) -> str:
 
     elif name_of_foo == "set_tasks_deadline":
         return '''UPDATE my_todo_list SET date_max=? WHERE id=?'''
-
 
     else:
         print("Запрос не может быть сформирован")

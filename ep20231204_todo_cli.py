@@ -1,14 +1,15 @@
 import sys
 from typing import List  # TODO: read about type hints
+# import logging
 
 import argparse as ap
 import sqlite3 as sql3
 from datetime import datetime
 # import data_access.json as data  # TODO: finish DAL and start using it
-import work_with_sqlite as data
-from logging_config import *  # переместил настройки логирования в отдельный файл
-
 from prettytable import PrettyTable
+
+import work_with_sqlite as data
+from logging_config import logger  # переместил настройки логирования в отдельный файл
 
 todo_table = None
 
@@ -48,8 +49,9 @@ def set_tasks_deadline(task_deadline_id: int):  # isGone Устанавлива�
 
     # TODO Сделать проверку установлена ли крайняя дата выполнения и если установлена уточнить, меняем или нет
     # TODO Сделать проверку, больше ли вводимая дата текущего числа
-    # TODO Думаю, надо стукнуть на почту, если кто-то попытается поменять
-    #  дату исполнения на прошедшую (а надо щи стучать?)
+
+    # TODO Думаю, надо стукнуть на почту, если кто-то попытается поменять дату исполнения
+    #  на прошедшую (а надо щи стучать?)
     # TODO Gone Сделать проверку на наличие записи вообще
     # TODO Проверить на завершенность - если завершено, то любые изменения запрещены
     """
@@ -59,7 +61,7 @@ def set_tasks_deadline(task_deadline_id: int):  # isGone Устанавлива�
     task_deadline_id - номер записи, которую мы изменяем
     """
     print("\nУстанавливаем крайнюю дату исполнения  задания")
-    logging.info("set_tasks_deadline(): запуск")
+    logger.info("set_tasks_deadline(): запуск")
 
     # Делаем информирование до запроса даты, что бы проверить наличие записи в БД,
     # что бы пользователь не вводил лишние данные.
@@ -70,11 +72,11 @@ def set_tasks_deadline(task_deadline_id: int):  # isGone Устанавлива�
         date_time_deadline = input("\nВведите дату и время завершения задания в формате ДД.ММ.ГГГГ ЧЧ:ММ: ")
         try:
             datetime.strptime(date_time_deadline, '%d.%m.%Y %H:%M')
-            logging.debug("set_tasks_deadline(): Пользователь ввел корректное значение")
+            logger.debug("set_tasks_deadline(): Пользователь ввел корректное значение")
             break
         except ValueError:
             print("Введено значение некорректно, введите значение в формате ДД.ММ.ГГГГ ЧЧ:ММ")
-            logging.error("set_tasks_deadline(): Пользователь ввел некорректное значение даты и времени")
+            logger.error("set_tasks_deadline(): Пользователь ввел некорректное значение даты и времени")
             continue
 
     # select_id_sql_deadline = '''UPDATE my_todo_list SET date_max=\"''' + str(
@@ -83,14 +85,14 @@ def set_tasks_deadline(task_deadline_id: int):  # isGone Устанавлива�
     adding_data = tuple([date_time_deadline, task_deadline_id])
 
     if confirm_action("установка срока исполнения задания", str(task_deadline_id)):
-        logging.debug("set_tasks_deadline(): Запись значения в БД, Пользователь подтвердил")
+        logger.debug("set_tasks_deadline(): Запись значения в БД, Пользователь подтвердил")
 
         data.work_with_data("write", "many", set_deadline, adding_data)
         print(f"\n\nЗапись номер {task_deadline_id} изменена. Срок исполнения установлен")
         list_of_tasks("one", task_deadline_id)
     else:
         print("Отменяем изменение записи")
-        logging.debug("set_tasks_deadline(): Не изменяем запись, пользователь не подтвердил ")
+        logger.debug("set_tasks_deadline(): Не изменяем запись, пользователь не подтвердил ")
         exit(1)
 
 
@@ -102,7 +104,7 @@ def list_of_tasks(all_or_last: str = "all", id_row: int = None):  # isGone Вы�
     Если задан периметр one - выводим одну запись, номер задаем третьим параметром
     """
     # выводим список дел.
-    logging.info("list_of_tasks(): Запуск")
+    logger.info("list_of_tasks(): Запуск")
 
     # Формирую заголовок таблицы. Таблица - с красивым выводом
     global todo_table
@@ -114,15 +116,15 @@ def list_of_tasks(all_or_last: str = "all", id_row: int = None):  # isGone Вы�
 
     # check all_or_last for valid value
     if all_or_last != "all" and all_or_last != "last" and all_or_last != "one":
-        logging.error("list_of_tasks(): Передан некорректный параметр all_or_last")
+        logger.error("list_of_tasks(): Передан некорректный параметр all_or_last")
         print("Передан некорректный параметр all_or_last")
         exit(1)
 
     data_of_todo: List[sql3.Row] = []
 
     try:
-        logging.debug("list_of_tasks(): Подключение к БД через work_with_slq")
-        logging.debug("list_of_tasks(): Выполнение SQL-запроса через work_with_slq()")
+        logger.debug("list_of_tasks(): Подключение к БД через work_with_slq")
+        logger.debug("list_of_tasks(): Выполнение SQL-запроса через work_with_slq()")
 
         if all_or_last == "last":
             data_of_todo = get_query_last_record()
@@ -156,14 +158,14 @@ def list_of_tasks(all_or_last: str = "all", id_row: int = None):  # isGone Вы�
             counter += 1
         print(todo_table)  # а тут выводим, если меньше 10
     except sql3.Error as err:
-        logging.error("Ой!", exc_info=err)
+        logger.error("Ой!", exc_info=err)
         print(f"Ошибка: \n{str(err)}")
 
 
 def get_query_last_record():
     """
         Автор: Евгений Петров, Челябинск, p174@mail.ru
-        Подготавливает запрос и  возвращает последнюю запись из БД
+        Подготавливает запрос и возвращает последнюю запись из БД
     """
 
     db_sql_query = "SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1"
@@ -199,7 +201,7 @@ def delete_task(deleting_task: int):  # Удаляем таск (только о
     deleting_task - id удаляемой записи
     """
 
-    logging.info("delete_task(): Запуск процедуры")
+    logger.info("delete_task(): Запуск процедуры")
     data.query_for_data('delete_task')
     select_id = data.query_for_data('delete_task') + str(deleting_task)
 
@@ -207,10 +209,10 @@ def delete_task(deleting_task: int):  # Удаляем таск (только о
     print("Вы хотите удалить данную запись.\n")
 
     if confirm_action(" удаление записи #", str(deleting_task)):
-        logging.debug(f"delete_task(): Пользователь подтвердил удаление записи #{deleting_task}")
+        logger.debug(f"delete_task(): Пользователь подтвердил удаление записи #{deleting_task}")
         data.work_with_data("write", "one", select_id)
     else:
-        logging.debug(f"delete_task(): Пользователь не подтвердил удаление записи #{deleting_task}")
+        logger.debug(f"delete_task(): Пользователь не подтвердил удаление записи #{deleting_task}")
         exit(1)
 
     print(f"Запись #{deleting_task} удалена")
@@ -229,7 +231,7 @@ def task_gone(task_gone_id_int: int) -> None:  # isGone Помечаем тас�
 
     # TODO GONE Сделать вывод таблицы до и после пометки
 
-    logging.info("task_gone(): запуск")
+    logger.info("task_gone(): запуск")
 
     date_time_now = get_now_time()
     task_gone_id = str(task_gone_id_int)
@@ -246,17 +248,17 @@ def task_gone(task_gone_id_int: int) -> None:  # isGone Помечаем тас�
 
     if confirm_action("пометить исполненным задание ", id_and_date):
 
-        logging.debug("task_gone(): Записываем пометку исполнения задания в БД")
+        logger.debug("task_gone(): Записываем пометку исполнения задания в БД")
         data.work_with_data("write", "one", select_id_sql_gone)  # Помечаем запись выполненной
 
-        logging.debug("task_gone(): Записываем дату исполнения задания в БД")
+        logger.debug("task_gone(): Записываем дату исполнения задания в БД")
         data.work_with_data("write", "one", select_id_sql_date_gone)
 
         list_of_tasks("one", task_gone_id_int)  # Показываем запись с изменениями
         print(f"\n\nЗапись номер {task_gone_id} изменена на \"Исполнено\"")
     else:
         print(f"\n\nОтменяем изменение статуса задания № {task_gone_id}  на \"Исполнено\"")
-        logging.debug("task_gone(): Пользователь не подтвердил изменение записи на исполнено")
+        logger.debug("task_gone(): Пользователь не подтвердил изменение записи на исполнено")
         exit(1)
 
 
@@ -268,24 +270,24 @@ def confirm_action(confirm_text: str = "---Текст---", other_text: str = Non
     confirm_text - Описание операции, которую надо подтвердить
     other_text - возможность добавить какой-то текст, кроме описания операции(например номер позиции)
     """
-    logging.info("confirm_action(): Запуск")
+    logger.info("confirm_action(): Запуск")
     # TODO Прикрутить везде работу с БД через функцию и прикрутить подтверждение операции
-    logging.debug(f"confirm_action(): Запрос подтверждение операции: {confirm_text} у пользователя")
+    logger.debug(f"confirm_action(): Запрос подтверждение операции: {confirm_text} у пользователя")
     while True:
         is_confirm = input(f"Выполнить операцию: {confirm_text} {other_text}? y/n ")
         if is_confirm.upper() == "Y":
             print(f"Выполняю операцию: {confirm_text}")
             return_value = True
-            logging.debug("confirm_action(): ПОДТВЕРЖДЕНИЕ Пользователь подтвердил операцию")
+            logger.debug("confirm_action(): ПОДТВЕРЖДЕНИЕ Пользователь подтвердил операцию")
             break
         elif is_confirm.upper() == "N":
             print(f"Отменяю выполнение операции: {confirm_text}!")
             return_value = False
-            logging.debug("confirm_action(): ОТМЕНА Пользователь не подтвердил операцию.")
+            logger.debug("confirm_action(): ОТМЕНА Пользователь не подтвердил операцию.")
             break
         else:
             print('Вы ввели не корректное значение. Введите "y" или "n"!')
-            logging.error("confirm_action(): Пользователь ввел некорректное значение. Можно только Y,y или N,n ")
+            logger.error("confirm_action(): Пользователь ввел некорректное значение. Можно только Y,y или N,n ")
     return return_value
 
 
@@ -300,7 +302,7 @@ def is_can_edit(task_id) -> bool:
 
     """
     query = data.query_for_data("is_can_edit")
-    data_of_task = data.work_with_data("read",'one', query, tuple([task_id]))
+    data_of_task = data.work_with_data("read", 'one', query, tuple([task_id]))
 
     raise NotImplementedError()
 
@@ -346,7 +348,7 @@ def print_help_info():
     Выводит основные команды работы с консольным приложением
     """
 
-    logging.info("print_help_info(): Запуск")
+    logger.info("print_help_info(): Запуск")
     print("Основные команды консольного ToDo приложения:")
     print("--create_db: Создаем базу данных для списка задач")
     print("--task_add: Описание задачи, которую заводим: --task_add \"Это запись\" ")
@@ -369,7 +371,7 @@ def get_now_time() -> str:
 
 def show_last_task() -> None:
     """
-    Автор: Евгений Петров, Челяьинск, p174@mail.ru
+    Автор: Евгений Петров, Челябинск, p174@mail.ru
     Функция выводит последнюю запись из БД
     Ничего не возвращает
     """
