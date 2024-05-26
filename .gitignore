@@ -1,3 +1,6 @@
 #20240527
 #Virtual environtment folder
 todo_venv/
+
+#cash temp folder
+__pycache__/
