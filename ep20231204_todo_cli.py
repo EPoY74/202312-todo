@@ -4,7 +4,7 @@ from typing import List  # TODO: read about type hints
 
 import argparse as ap
 import sqlite3 as sql3
-import time
+# import time
 from datetime import datetime
 import configparser as cfg_par
 # import data_access.json as data  # TODO: finish DAL and start using it
@@ -19,29 +19,40 @@ logging.basicConfig(format=FORMAT, level=logging.DEBUG)
 logger = logging.getLogger('todologger')
 # TODO: логировать в файл, а не в консоль
 
-def search_config_and_db(): # Ищем конфигурацию и БД,если нет - создаем
+
+def search_config_and_db():  # Ищем конфигурацию и БД,если нет - создаем
     """
     Функция ищет файл конфигурации и файл БД, если отсутствует(первый запуск,допустим),
     то создает их.
     Возвращает объект с  файлом конфигурации
     #TODO А правильно написал? Спросить у Славы
     """
-    full_prog_name = str(sys.argv[0])  # Читаю полное имя файла
-    prog_name = full_prog_name[0:full_prog_name.rfind(".")]  # Получаю имя скрипта без точки
-    prog_name = full_prog_name[0:full_prog_name.find(".")]  # Получаю имя скрипта без точки
-    ini_file_name = str(prog_name + ".ini")  # Формирую имя файла конфигурации
-    db_file_name = str(prog_name + ".db")  # Формирую имя БД
+
+    inner_for_search_full_prog_name: str = str(sys.argv[0])  # Читаю полное имя файла
+
+    # Получаю имя скрипта без точки
+    inner_for_search_prog_name: str = inner_for_search_full_prog_name[0:inner_for_search_full_prog_name.rfind(".")]
+
+    # Получаю имя скрипта без точки
+    # inner_for_search_prog_name = inner_for_search_full_prog_name[0:inner_for_search_full_prog_name.find(".")]
+
+    # Формирую имя файла конфигурации
+    inner_for_search_ini_file_name = str(inner_for_search_prog_name + ".ini")
+
+    # Формирую имя БД
+    inner_for_search_db_file_name = str(inner_for_search_prog_name + ".db")
     
-    todo_config_obj = cfg_par.ConfigParser()  # Сот
-    # здаю объект парсера конфигурации
-    todo_config = todo_config_obj.read(ini_file_name)  # Читаю конфигурацию
+    inner_for_search_todo_config_obj = cfg_par.ConfigParser()  # Сот
+
+    # задаю объект парсера конфигурации
+    todo_config = inner_for_search_todo_config_obj.read(inner_for_search_ini_file_name)  # Читаю конфигурацию
 
     if len(todo_config) == 0:
-        if not os.path.isfile(db_file_name):
+        if not os.path.isfile(inner_for_search_db_file_name):
             print("БД не создана")
-        is_confirm = input(f"Создать базу данных {db_file_name}? y/n ")
+        is_confirm = input(f"Создать базу данных {inner_for_search_db_file_name}? y/n ")
         if is_confirm.upper() == "Y":
-            make_db(db_file_name)
+            make_db(inner_for_search_db_file_name)
             
         elif is_confirm.upper() == "N":
             print("Отменяю создание базы данных")
@@ -50,36 +61,38 @@ def search_config_and_db(): # Ищем конфигурацию и БД,если
             print('Вы ввели не корректное значение. Введите "y" или "n"!')
             exit(1)
         
-        print(f"\nфайл конфигурации {ini_file_name} не найден")
-        is_confirm = input(f"Создать файл конфигурации {ini_file_name}? y/n ")
+        print(f"\nфайл конфигурации {inner_for_search_ini_file_name} не найден")
+        is_confirm = input(f"Создать файл конфигурации {inner_for_search_ini_file_name}? y/n ")
         if is_confirm.upper() == "y" or is_confirm == "Y":
             
-            create_config_file(ini_file_name, db_file_name)
+            create_config_file(inner_for_search_ini_file_name, inner_for_search_db_file_name)
         elif is_confirm.upper() == "n":
             print("Отменяю создание файла конфигурации")
             exit(1)
         else:
             print('Вы ввели не корректное значение. Введите "y" или "n"!')
             exit(1)
-    return todo_config_obj
+    return inner_for_search_todo_config_obj
     
-def table_header():  # шапка таблицы, что бы не окарать, когда меняешь пареметры 
+
+def table_header():  # шапка таблицы, что бы не окарать, когда меняешь пареметры
     global todo_table
     '''
-    Функция выводит шапку таблицы с заранее заданными переметрами
+    Функция выводит шапку таблицы с заранее заданными пареметрами
     '''
     todo_table.field_names = ["Номер", "Дата создания", "Исполнение до", "Задание", "Исполнено", "Дата исполнения"]
     todo_table._max_width = {"Задание" : 60}
     todo_table._min_width = {"Задание" : 60, "Исполнение до" : 16, "Исполнено" : 16, "Дата исполнения" : 16}
     todo_table.align["Задание"] = "l"
 
-def create_config_file(ini_file_name: str, DB_NAME : str):  # Создаю файл конфигурации
+
+def create_config_file(ini_file_name: str, db_name_for_create_config: str):  # Создаю файл конфигурации
 
     print("\n\nСоздаю файл конфигурации...")
     todo_config = cfg_par.ConfigParser()
     todo_config.add_section("db_cfg")
-    cfg_record = str("db_name = " + DB_NAME)
-    todo_config.set("db_cfg", "db_name", DB_NAME)
+    # cfg_record = str("db_name = " + db_name_for_create_config) #Проверить, как записывает
+    todo_config.set("db_cfg", "db_name", db_name_for_create_config)
 
     with open(ini_file_name, "w") as cfg_file:
         todo_config.write(cfg_file)
@@ -155,7 +168,7 @@ def make_task(DB_NAME: str, text_of_task : str):  # Создаю таск в Б�
         list_of_tasks(DB_NAME, "last") # Выводим на экран последнюю созданную запись
     except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
-def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # isGone Устанавливаем дату исполнения 
+def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # isDone Устанавливаем дату исполнения
     
     #TODO Сделать проверку установлена ли крайняя дата выполнения и если установлена уточнить, меняем или нет
     #TODO Сделать проверку, больше ли вводимая дата текущего числа
@@ -189,7 +202,7 @@ def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # isGone Уст�
 
     select_id_sql_deadline ='''UPDATE my_todo_list SET date_max=\"''' + str(date_time_deadline) + '''\" WHERE id=''' + str(task_deadline_id)
         
-    if confirm_action("установка срока исполнения задания", task_deadline_id):
+    if confirm_action("установка срока исполнения задания", str(task_deadline_id)):
         logging.debug("set_tasks_deadline(): Запись значения в БД, Пользователь подтвердил")
         work_with_slq(DB_NAME, "write", "many", select_id_sql_deadline)
         print(f"\n\nЗапись номер {task_deadline_id} изменена. Срок исполнения установлен")
@@ -199,7 +212,7 @@ def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # isGone Уст�
         logging.debug("set_tasks_deadline(): Не изменяем запись, пользлватель не подтвердил ")
         exit(1)
 
-def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):  # isGone Вывод списка тасков
+def list_of_tasks(DB_NAME: str, all_or_last: str = "all", id_row : int = None):  # isDone Вывод списка тасков
     """
     Выводим список дел из таблицы на экран.
     Если задан параметр all - выводим все записи по 10 шт, указана по умолчанию.
@@ -306,7 +319,7 @@ def get_record_by_id(DB_NAME, id_row):
     return data_of_todo
 
 
-def delete_task(DB_NAME: str, deleting_task: int):  # Удаляем таск (только один)
+def delete_task(db_name_for_delete_task: str, deleting_task: int):  # Удаляем таск (только один)
     """
     Автор: Евгений Петров, Челябинск, p174@mail.ru
     Удаляем одно задание, номер которого получаем в параметре
@@ -315,15 +328,15 @@ def delete_task(DB_NAME: str, deleting_task: int):  # Удаляем таск (�
     """
 
     logging.info("delete_task(): Запуск процедуры")
-    # DB_NAME_RW = "file:" + DB_NAME + "?mode=rw"
-    select_id_sql = '''DELETE FROM  my_todo_list WHERE id=''' + str(deleting_task)
+    # DB_NAME_RW = "file:" + db_name_for_delete_task + "?mode=rw"
+    select_id_sql_for_delete_task: str = '''DELETE FROM  my_todo_list WHERE id=''' + str(deleting_task)
     
-    list_of_tasks(DB_NAME,"one",deleting_task)
+    list_of_tasks(db_name_for_delete_task,"one", deleting_task)
     print("Вы хотите удалить данную запись.\n")
 
-    if confirm_action(" удаление записи #", deleting_task):
+    if confirm_action(" удаление записи #", str(deleting_task)):
         logging.debug(f"delete_task(): Пользователь подтвердил удаление записи #{deleting_task}")
-        work_with_slq(DB_NAME, "write", select_id_sql)
+        work_with_slq(db_name_for_delete_task, "write", select_id_sql_for_delete_task)
     else:
         logging.debug(f"delete_task(): Пользователь не подтвердил удаление записи #{deleting_task}")
         exit(1)       
@@ -347,7 +360,7 @@ def delete_task(DB_NAME: str, deleting_task: int):  # Удаляем таск (�
            
     # except sql3.Error as err: print(f"Ошибка: \n{str(err)}")
 
-def task_gone(DB_NAME: str, task_gone_id: int)   -> None:  # isGone Помечаем таск исполненым
+def task_gone(DB_NAME: str, task_gone_id: int)   -> None:  # isDone Помечаем таск исполненым
     """
     Автор: Евгений Петров, Челябинск, p174@mail.ru
     Помечаем задание с номером ask_gone_id помеченным и исполненным.
@@ -387,7 +400,7 @@ def task_gone(DB_NAME: str, task_gone_id: int)   -> None:  # isGone Помеча
         logging.debug("task_gone(): Пользователь не подтвердил изменение записи на исполнено")
         exit(1)
 
-def work_with_slq(DB_NAME: str, type_of_SQL: str, is_one: str, db_sql_query: str, db_sql_data: tuple = () ) -> List[sql3.Row]:  # isGone Далаем запись в БД
+def work_with_slq(DB_NAME: str, type_of_SQL: str, is_one: str, db_sql_query: str, db_sql_data: tuple = () ) -> List[sql3.Row]:  # isDone Далаем запись в БД
     """
     Выполняе запрос в базу данных. Если указаана только БД и запрос - то выполняем только его
     Если укзазан БД, запрос и данные - то выполняем и данные и запрос.
@@ -443,7 +456,7 @@ def work_with_slq(DB_NAME: str, type_of_SQL: str, is_one: str, db_sql_query: str
 
     return db_return
 
-def confirm_action(confirm_text : str = "---Текст---", other_text : str = None):  # isGone Проверяет  выполнение операции
+def confirm_action(confirm_text : str = "---Текст---", other_text : str = None):  # isDone Проверяет  выполнение операции
     """
     Автор: Евгений Петров, Челябинск, p174@mail.ru
     Функция выполняет запрос подтверждения какой-либо операции у пользователя.
@@ -471,7 +484,7 @@ def confirm_action(confirm_text : str = "---Текст---", other_text : str = N
             logging.error("confirm_action(): Пользователь ввел некорректное значение. Можно только Y,y или N,n ")
     return return_value
 
-def main_body():  # isGone Основная логика программы (выбор действия с заданиями)
+def main_body():  # isDone Основная логика программы (выбор действия с заданиями)
     """
     Автор: Евгений Б. Петров, Челячбинск, p174@mail.ru
     Выполняет основную логику консольного приложения: считывает паре==аметры из командной строки
