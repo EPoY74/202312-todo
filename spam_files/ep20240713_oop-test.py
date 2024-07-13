@@ -3,27 +3,63 @@
 Дата: 13 июля 2024 года
 Автор: Евгений Петров
 Почта: p174@mail.ru
-Сайт урока:  https://www.youtube.com/watch?v=-Zdu4ntX_DU&list=PLNi5HdK6QEmX9fxp3_IBFx1O5tiTmKlYm&index=2
+Сайт урока: https://www.youtube.com/watch?v=-Zdu4ntX_DU&list=PLNi5HdK6QEmX9fxp3_IBFx1O5tiTmKlYm&index=2
 Объект - единица информации в памяти
 Класс - инструкция по созданию объектов определенного типа
 Экземпляр - конкретный объект какого-то класса
 Метод - функция в классе для воздействия на объект
-В параметр self передаетя имя переменной в которой запущен класс
+В параметр self передаётся имя переменной в которой запущен класс
 """
 
 
 # Создаю класс Purse
 class Purse:
 
-    def show(self, name = "SomeBody"):
-        print("Hello " + name)
-        # print(str(self))
-        #Хотел вывести название переменной, но не получиось.
-        # Вывел то, что это разные экземпляры одного объекта
-        #   <__main__.Purse object at 0x000001B84B89C7A0> -  как то так
+    def __init__(self, valuta="RUR", name="Unknown"):
+        """
+        Это конструктор объекта
+        Код внутри этого метода выполняется тогда, когда создается экземпляр класса
+        Это нужно для того, что бы при создании класса сразу передать какие-либо значения, т.е. свойства
+        Переменные в классе называют полями или свойствами.
+        Атрибутами называют все ине=мена в классе методов и переменных
+        Что бы различать, когда будет создано несколько экземпляров - обязательно писать self
+        """
 
-# Объявляю экземпляр класса
-x = Purse()
-y = Purse()
-x.show()
-y.show("John")
+        # Так как есть self, то это свойство конкретного экземпляра
+        self.__money = 0.00
+        self.valuta = valuta
+        self.name = name
+
+    def top_up_balance(self, howmany):
+        # Пополнение кошелька, на сколько мы его пополнили. Пополнение суммируется с доступным остатком
+        self.__money = self.__money + howmany
+
+    def top_down_balance(self, howmanydown):
+        # Расходы с кошелька - сколько потратили. Уменьшает доступный остаток.
+        if self.money < howmanydown:
+            print("Недостаточно средств. пополните, пожалуйста, кошелек")
+            raise ValueError("Недостаточно средств")  # Исключение, что бы ошибку можно было обработать
+        self.__money = self.__money - howmanydown
+
+    def info(self):
+        # Возвращает количество денег в конкретном кошельке
+        return f"{self.__money} {self.valuta}"
+
+    def __del__(self):
+        # Деструктор, выполняется во время удаления, всегда
+        print("Кошелек удален")
+        return self.___money
+
+
+x = Purse("USD")
+y = Purse("GBP", "Ann")
+print(x.info())
+x.money = 150
+print(x.info())
+print(y.info())
+x.top_up_balance(300)
+print(x.info())
+x.top_down_balance(100)
+print(x.info())
+x.top_down_balance(351.1)
+print(x.info())
