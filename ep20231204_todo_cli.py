@@ -12,7 +12,6 @@ from prettytable import PrettyTable
 import work_with_sqlite as data
 from logging_config import logger  # переместил настройки логирования в отдельный файл
 
-# todo_table = None
 # TODO: DONE логировать в файл, а не в консоль
 
 
@@ -35,7 +34,7 @@ def make_task(text_of_task: str):  # isGONE Создаю таск в БД
     """
     logger.info("make_task(): Запуск")
 
-    date_time_now = get_now_time()  # TODO GONE Спросить у Славы, а нужно ли плодить переменные
+    date_time_now = get_now_time()  # TODO DONE Спросить у Славы, а нужно ли плодить переменные
 
     print("Добавляю задачу в БД...\n")
     db_query = data.query_for_data('make_task')

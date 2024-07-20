@@ -14,7 +14,6 @@
 
 # Создаю класс Purse
 class Purse:
-
     def __init__(self, valuta, name="Unknown"):
         """
         Это конструктор объекта
@@ -35,11 +34,17 @@ class Purse:
         self.name = name
 
     def top_up_balance(self, howmany):
+        """
+
+        # @param howmany:
+        @return:
+        """
         # Пополнение кошелька, на сколько мы его пополнили. Пополнение суммируется с доступным остатком
         self.__money = self.__money + howmany
         return howmany # возвращаю значение, что бы можно было осуществить перевод (тут до кучи)
 
     def top_down_balance(self, howmanydown):
+
         # Расходы с кошелька - сколько потратили. Уменьшает доступный остаток.
         if self.__money < howmanydown:
             print("Недостаточно средств. пополните, пожалуйста, кошелек")
