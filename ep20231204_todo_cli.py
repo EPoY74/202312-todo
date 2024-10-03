@@ -106,12 +106,12 @@ def table_header():
                               "Дата исполнения"]
     # todo_table._max_width = {"Задание": 60}
     todo_table.max_width["Задание"] = 35
-    
+
     todo_table.min_width["Задание"] = 35
     todo_table.min_width["Исполнение до"]  =  16
     todo_table.min_width["Исполнено"] = 16
     todo_table.min_width["Дата исполнения"] =  16
-    
+
     todo_table.align["Задание"] = "l"
 
 def create_config_file(ini_file_name: str,
