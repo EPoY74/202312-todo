@@ -15,13 +15,15 @@ from typing import List  # TODO: read about type hints
 
 import argparse as ap
 import sqlite3 as sql3
-import dotenv
+
 
 # import time
 from datetime import datetime
 import configparser as cfg_par
 # import data_access.json as data  # TODO: finish DAL and start using it
 
+
+import dotenv
 from prettytable import PrettyTable
 
 
@@ -102,13 +104,15 @@ def table_header():
                               "Задание",
                               "Исполнено",
                               "Дата исполнения"]
-    todo_table._max_width = {"Задание" : 60}
-    todo_table._min_width = {"Задание" : 60,
-                             "Исполнение до" : 16,
-                             "Исполнено" : 16,
-                             "Дата исполнения" : 16}
+    # todo_table._max_width = {"Задание": 60}
+    todo_table.max_width["Задание"] = 35
+    
+    todo_table.min_width["Задание"] = 35
+    todo_table.min_width["Исполнение до"]  =  16
+    todo_table.min_width["Исполнено"] = 16
+    todo_table.min_width["Дата исполнения"] =  16
+    
     todo_table.align["Задание"] = "l"
-
 
 def create_config_file(ini_file_name: str,
                        db_name_for_create_config: str):  # Создаю файл конфигурации
