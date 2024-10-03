@@ -1,10 +1,6 @@
-#20240713
-.venv/
+
+data_access/__pycache__/json.cpython-311.pyc
+
+#20240810
 .idea/
-
-#20240527
-#Virtual environtment folder
-todo_venv/
-
-#cash temp folder
 __pycache__/
