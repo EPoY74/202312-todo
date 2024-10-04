@@ -9,6 +9,7 @@ import os
 import sys
 
 import configparser as cfg_par
+from db_working import make_db
 
 
 def search_config_and_db():  # Ищем конфигурацию и БД,если нет - создаем
@@ -70,7 +71,7 @@ def search_config_and_db():  # Ищем конфигурацию и БД,есл�
 
 def create_config_file(ini_file_name: str,
                        db_name_for_create_config: str):  # Создаю файл конфигурации
-    """_summary_Создает файл конфигурации
+    """Создает файл конфигурации
 
     Args:
         ini_file_name (str): Имя файла конфигурации??? Сам забыл уже
@@ -82,8 +83,7 @@ def create_config_file(ini_file_name: str,
     todo_config.add_section("db_cfg")
     todo_config.set("db_cfg", "db_name", db_name_for_create_config)
 
-    with open(ini_file_name, "w") as cfg_file:
+    with open(ini_file_name, "w", encoding="utf-8") as cfg_file:
         todo_config.write(cfg_file)
     print("Файл конфигурации создан успешно!")
     exit(0)
-
