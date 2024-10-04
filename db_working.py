@@ -234,7 +234,11 @@ def get_last_record(db_name):
     Автор: Евгений Петров, Челябинск,
     Возвращает последнюю запись из БД
     """
-    db_sql_query = "SELECT * FROM  my_todo_list ORDER BY id DESC LIMIT 1"
+    db_sql_query = """SELECT *
+                      FROM  my_todo_list
+                      ORDER BY id 
+                      DESC LIMIT 1
+                    """
     data_of_todo = work_with_slq(db_name, "read", "many", db_sql_query)  # Новая функция
     return data_of_todo
 
