@@ -8,7 +8,6 @@ Returns:
 """
 
 import os
-import logging
 
 import sys
 from typing import List  # TODO: read about type hints
@@ -27,12 +26,7 @@ import dotenv
 from prettytable import PrettyTable
 
 
-
-# Конфигурирование логгера
-FORMAT = '[%(levelname)s] %(asctime)s - %(message)s'
-logging.basicConfig(format=FORMAT, level=logging.DEBUG)
-logger = logging.getLogger('todologger')
-# TODO: логировать в файл, а не в консоль
+from logging_cfg import logger
 
 
 def search_config_and_db():  # Ищем конфигурацию и БД,если нет - создаем
@@ -233,10 +227,10 @@ def set_tasks_deadline(db_name : str,
     task_deadline_id - номер записи, которую мы изменяем
     """
     print("\nУстанавливаем крайнюю дату исполнения  задания")
-    logging.info("set_tasks_deadline(): запуск")
+    logger.info("set_tasks_deadline(): запуск")
 
     # Делаем инфрмирование до запроса даты, что бы проверить наличие записи в БД
-    # что бы пользователь не вводил дишние данные.  
+    # что бы пользователь не вводил дишние данные.
     list_of_tasks(db_name,"one",task_deadline_id)
     print(f"Устанавливаем для записи номер {task_deadline_id} дату и время исполнения: ")
 
@@ -245,12 +239,12 @@ def set_tasks_deadline(db_name : str,
                                    в формате ДД.ММ.ГГГГ ЧЧ:ММ: """)
         try:
             datetime.strptime(date_time_deadline, '%d.%m.%Y %H:%M')
-            logging.debug("set_tasks_deadline(): Позьзователь ввел корректное значение")
+            logger.debug("set_tasks_deadline(): Позьзователь ввел корректное значение")
             break
         except ValueError:
             print("""Введенно значение некорректно,
                   введите значение в формате ДД.ММ.ГГГГ ЧЧ:ММ""")
-            logging.error("""set_tasks_deadline():
+            logger.error("""set_tasks_deadline():
                           Пользователь ввел некорректное знначение даты и времени""")
             continue
 
@@ -259,17 +253,17 @@ def set_tasks_deadline(db_name : str,
                                WHERE id=''' + str(task_deadline_id)
 
     if confirm_action("установка срока исполнения задания", str(task_deadline_id)):
-        logging.debug("set_tasks_deadline(): Запись значения в БД, Пользователь подтвердил")
+        logger.debug("set_tasks_deadline(): Запись значения в БД, Пользователь подтвердил")
         work_with_slq(db_name, "write", "many", select_id_sql_deadline)
         print(f"\n\nЗапись номер {task_deadline_id} изменена. Срок исполнения установлен")
         list_of_tasks(db_name,"one",task_deadline_id)
     else:
         print("Отменияем изменение записи")
-        logging.debug("set_tasks_deadline(): Не изменяем запись, пользлватель не подтвердил ")
+        logger.debug("set_tasks_deadline(): Не изменяем запись, пользлватель не подтвердил ")
         exit(1)
 
 
-def list_of_tasks(db_name: str, 
+def list_of_tasks(db_name: str,
                   all_or_last: str = "all",
                   id_row : int = None):  # isDone Вывод списка тасков
     """
@@ -280,7 +274,7 @@ def list_of_tasks(db_name: str,
     """
 
     #выводим списк дел.
-    logging.info("list_of_tasks(): Запуск")
+    logger.info("list_of_tasks(): Запуск")
 
     # Такой синтаксис для открытия БД - что бы открыть её только на чтение/запись, без создания
     # говорит, что не используется db_name_rw = "file:" + db_name + "?mode=rw"
@@ -297,7 +291,7 @@ def list_of_tasks(db_name: str,
 
    # check all_or_last for valid value
     if all_or_last != "all" and all_or_last != "last" and all_or_last != "one":
-        logging.error("list_of_tasks(): Передан некорректный параметр all_or_last")
+        logger.error("list_of_tasks(): Передан некорректный параметр all_or_last")
         print("Передан некорректный параметр all_or_last")
         exit(1)
 
@@ -305,8 +299,8 @@ def list_of_tasks(db_name: str,
 
     try:
 
-        logging.debug("list_of_tasks(): Подключение к БД через work_with_slq")
-        logging.debug("list_of_tasks(): Выполнение SQL-запроса через work_with_slq()")
+        logger.debug("list_of_tasks(): Подключение к БД через work_with_slq")
+        logger.debug("list_of_tasks(): Выполнение SQL-запроса через work_with_slq()")
 
 
         if all_or_last == "last":
@@ -336,12 +330,12 @@ def list_of_tasks(db_name: str,
                 print(todo_table)  #  тут выводим, если блок из 10 штук
                 todo_table.clear_rows()
                 input("\nДля продолжения нажмите Enter: ")
-                counter = 1 
+                counter = 1
                 table_header()
             counter += 1
         print(todo_table)  # а тут выводим, если меньше 10
     except sql3.Error as err:
-        logging.error("Ой!", exc_info=err)
+        logger.error("Ой!", exc_info=err)
         print(f"Ошибка: \n{str(err)}")
 
 
@@ -365,13 +359,13 @@ def get_all_records(db_name):
     return data_of_todo
 
 
-def get_record_by_id(DB_NAME, id_row):
+def get_record_by_id(db_name, id_row):
     """
     Автор: Евгений Петров, Челябинск,
     Возвращает запись с номером id_row из БД
     """
     db_sql_query = "SELECT * FROM  my_todo_list WHERE id=" + str(id_row)
-    data_of_todo = work_with_slq(DB_NAME, "read", "many", db_sql_query)  # Новая функция
+    data_of_todo = work_with_slq(db_name, "read", "many", db_sql_query)  # Новая функция
     return data_of_todo
 
 
@@ -383,25 +377,25 @@ def delete_task(db_name_for_delete_task: str, deleting_task: int):  # Удаля
     deleting_task - id удаляемой записи
     """
 
-    logging.info("delete_task(): Запуск процедуры")
+    logger.info("delete_task(): Запуск процедуры")
     # DB_NAME_RW = "file:" + db_name_for_delete_task + "?mode=rw"
-    select_id_sql_for_delete_task: str = '''DELETE FROM  my_todo_list 
+    select_id_sql_for_delete_task: str = '''DELETE FROM  my_todo_list
     WHERE id=''' + str(deleting_task)
 
-    list_of_tasks(db_name_for_delete_task, 
+    list_of_tasks(db_name_for_delete_task,
                   "one", 
                   deleting_task)
     print("Вы хотите удалить данную запись.\n")
 
     if confirm_action(" удаление записи #", str(deleting_task)):
-        logging.debug("""delete_task():
+        logger.debug("""delete_task():
                       Пользователь подтвердил удаление записи #{deleting_task}""")
-        work_with_slq(db_name_for_delete_task, 
+        work_with_slq(db_name_for_delete_task,
                       "write", 
                       "one", 
                       select_id_sql_for_delete_task)
     else:
-        logging.debug("""delete_task():
+        logger.debug("""delete_task():
                       Пользователь не подтвердил удаление записи #{deleting_task}""")
         exit(1)
 
@@ -417,9 +411,9 @@ def task_done(db_name: str,
     """
 
 
-    logging.info("task_done(): запуск")
+    logger.info("task_done(): запуск")
 
-    date_time_now_obj = datetime.now()  # Получаем объект дата время 
+    date_time_now_obj = datetime.now()  # Получаем объект дата время
     date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')  # Преобразовываем его как нам надо
 
     # Формирую sql запрос на пометку задания исполненным
@@ -431,21 +425,21 @@ def task_done(db_name: str,
     select_id_sql_date_gone = '''UPDATE my_todo_list
     SET date_of_gone=\"''' + str(date_time_now) + '''\" WHERE id=''' + str(task_gone_id)
 
-    id_and_date = "# " + str(task_gone_id) + ", дата выполнения " + date_time_now 
+    id_and_date = "# " + str(task_gone_id) + ", дата выполнения " + date_time_now
     list_of_tasks(db_name,"one",task_gone_id)  # Показываеи запись до их изменения
 
     if confirm_action("пометить исполненным задание ", id_and_date):
 
-        logging.debug("task_gone(): Записываем пометку исполнения задания в БД")
+        logger.debug("task_gone(): Записываем пометку исполнения задания в БД")
         work_with_slq(db_name, "write", "one", select_id_sql_gone)  # Помечаем запись выполненой
 
-        logging.debug("task_gone(): Записываем дату исполнения задания в БД")
+        logger.debug("task_gone(): Записываем дату исполнения задания в БД")
         work_with_slq(db_name, "write", "one", select_id_sql_date_gone)
         list_of_tasks(db_name,"one",task_gone_id)  # Показываем запись с изменениями
         print(f"\n\nЗапись номер {task_gone_id} изменена на \"Исполенно\"")
     else:
         print(f"\n\nОтменяем изменение статуса задания № {task_gone_id}  на \"Исполенно\"")
-        logging.debug("task_gone(): Пользователь не подтвердил изменение записи на исполнено")
+        logger.debug("task_gone(): Пользователь не подтвердил изменение записи на исполнено")
         exit(1)
 
 
@@ -470,20 +464,20 @@ def work_with_slq(db_name_def_worrk_with_sql: str,
     Возвращает результат запроса
     """
 
-    logging.info("work_with_slq(): Запуск")
+    logger.info("work_with_slq(): Запуск")
 
-    DB_NAME_RW = "file:" + db_name_def_worrk_with_sql + "?mode = rw"
+    db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode = rw"
 
-    logging.debug("work_with_slq(): Имя БД: {DB_NAME_RW}")
-    logging.debug("work_with_slq(): SQL запрос: {db_sql_query}")
-    logging.debug("work_with_slq(): SQL данные: {db_sql_data}")
+    logger.debug("work_with_slq(): Имя БД: {DB_NAME_RW}")
+    logger.debug("work_with_slq(): SQL запрос: {db_sql_query}")
+    logger.debug("work_with_slq(): SQL данные: {db_sql_data}")
 
     try:
-        with sql3.connect(DB_NAME_RW, uri = True) as db_connection:
+        with sql3.connect(db_name_rw, uri = True) as db_connection:
             db_connection.row_factory = sql3.Row
             db_cursor = db_connection.cursor()
 
-            logging.debug("""work_with_slq(): Подключился к БД,
+            logger.debug("""work_with_slq(): Подключился к БД,
                           Получил курсор, Выполняю SQL запрос""")
             db_return_temp = db_cursor.execute(db_sql_query, db_sql_data)
 
@@ -493,9 +487,9 @@ def work_with_slq(db_name_def_worrk_with_sql: str,
             if is_one == "many":
                 db_return = db_return_temp.fetchall()
 
-            if type_of_sql == "read" and len(db_return) == 0: 
+            if type_of_sql == "read" and len(db_return) == 0:
                 print("Запись с таким номером в БД отсутсвует.")
-                logging.error("work_with_slq(): Запись с таким номером в БД отсутствует.")
+                logger.error("work_with_slq(): Запись с таким номером в БД отсутствует.")
                 return []
 
             if type_of_sql == "write":
@@ -506,7 +500,7 @@ def work_with_slq(db_name_def_worrk_with_sql: str,
 
     except sql3.Error as err:
         print(f"Ошибка: {err}")
-        logging.error("work_with_slq(): Упс!!!", exc_info=err)
+        logger.error("work_with_slq(): Упс!!!", exc_info=err)
 
     return db_return
 
@@ -521,10 +515,10 @@ def confirm_action(confirm_text : str = "---Текст---", other_text : str = N
     операции(например номер позиции)
     """
 
-    logging.info("confirm_action(): Запуск")
+    logger.info("confirm_action(): Запуск")
 
     #TODO Прикрутить везде работу с БД через функцию и прикрутить подтверждение операции
-    logging.debug("""confirm_action(): Запрос подтверждение операции:
+    logger.debug("""confirm_action(): Запрос подтверждение операции:
                   {confirm_text} у пользователя""")
 
     while True:
@@ -532,16 +526,16 @@ def confirm_action(confirm_text : str = "---Текст---", other_text : str = N
         if is_confirm.upper() == "Y":
             print(f"Выполняю операцию: {confirm_text}")
             return_value = True
-            logging.debug("confirm_action(): ПОДТВЕРЖДЕНИЕ Пользователь подтвердил операцию")
-            break               
+            logger.debug("confirm_action(): ПОДТВЕРЖДЕНИЕ Пользователь подтвердил операцию")
+            break
         elif is_confirm.upper() == "N":
             print(f"Отменяю выполнение операции: {confirm_text}!")
             return_value = False
-            logging.debug("confirm_action(): ОТМЕНА Пользователь не подтвердил операцию.")
+            logger.debug("confirm_action(): ОТМЕНА Пользователь не подтвердил операцию.")
             break
         else:
             print('Вы ввели не корректное значение. Введите "y" или "n"!')
-            logging.error("""confirm_action(): 
+            logger.error("""confirm_action():
                           Пользователь ввел некорректное значение. Можно только Y,y или N,n """)
     return return_value
 
@@ -621,10 +615,10 @@ if __name__ == "__main__":
     logger.info("Старт консольного ToDo приложения.")
     printing_help()
     main_body(db_name_main_read)
-    
+
     # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
     # print(sys.argv[0])
-    
+
     FULL_PROG_NAME = str(sys.argv[0])
     PROG_NAME = FULL_PROG_NAME[0:FULL_PROG_NAME.find(".")]
     logger.info("Конец выполнения консольного ToDo приложения.")
