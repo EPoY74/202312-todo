@@ -9,5 +9,6 @@
 #Virtual environtment folder
 todo_venv/
 
-#cash temp folder
+#20241004 cash temp folder
 __pycache__/
+todo_cli.log
