@@ -11,6 +11,5 @@ import logging
 
 # Конфигурирование логгера
 FORMAT = '[%(levelname)s] %(asctime)s - %(message)s'
-logging.basicConfig(format=FORMAT, level=logging.DEBUG)
+logging.basicConfig(format=FORMAT, level=logging.DEBUG,  filename="todo_cli.log",filemode="w")
 logger = logging.getLogger('todologger')
-# TODO: логировать в файл, а не в консоль
