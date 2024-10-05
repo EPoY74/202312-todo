@@ -101,7 +101,6 @@ if __name__ == "__main__":
     main_body(db_name_main_read)
 
     # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
-    # print(sys.argv[0])
 
     FULL_PROG_NAME = str(sys.argv[0])
     PROG_NAME = FULL_PROG_NAME[0:FULL_PROG_NAME.find(".")]
