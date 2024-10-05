@@ -30,10 +30,10 @@ def search_config_and_db(name_exicting_db: str = None ):
     prog_name: str = full_prog_name[0:full_prog_name.rfind(".")]
 
     # Формирую имя файла конфигурации
-   
+
     # старая версия
     # inner_for_search_ini_file_name = str(prog_name + ".ini")
-    
+
     #Новая версия - жесткое имя конфгурационного файла
     inner_for_search_ini_file_name = "todo_config.ini"
 

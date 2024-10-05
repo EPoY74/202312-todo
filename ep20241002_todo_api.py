@@ -32,7 +32,7 @@ async def root_async():
         _type_: _description_
     """
     logger.info("API: Обращние с API по роуту '/'")
-    
+
     return {"mеssage" : "This is API for EPoY's todo app. Since 2023."}
 
 @app_todo.get("/all")
@@ -40,7 +40,7 @@ async def show_all_tasks_async():
     """Выводит все записи, которые есть в БД
     """
     logger.info("API: Обращение с API по роуту '/all'")
-    
+
     return db_working_api.list_of_tasks_json(db_name)
 
 @app_todo.get("/last")

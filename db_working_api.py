@@ -128,7 +128,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
         print(f"Ошибка: {err}")
         logger.error("API: work_with_slq(): Упс!!!", exc_info=err)
 
-    # Этот вариант тоже рабочий, но он выводитвозвращает не отформатированный код 
+    # Этот вариант тоже рабочий, но он выводитвозвращает не отформатированный код
     # return JSONResponse(content=data)
 
     # Преобразовываем все дело в json.
@@ -162,7 +162,7 @@ def get_all_records_api(db_name):
 
     """
     db_sql_query = "SELECT * FROM  my_todo_list"
-    executed_sql_query = work_with_slq_api(db_name, "read", "many", db_sql_query)    
+    executed_sql_query = work_with_slq_api(db_name, "read", "many", db_sql_query)
     return executed_sql_query
 
 
