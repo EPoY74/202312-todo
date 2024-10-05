@@ -8,7 +8,7 @@
 
 from datetime import datetime
 import os
-import sqlite3 as sql3
+import sqlite3
 from typing import List
 
 from prettytable import PrettyTable
@@ -41,14 +41,14 @@ def make_db(db_name_new: str):
 
     try:
         print("\n\nСоздаю базу данных...")
-        with sql3.connect(db_name_new) as db_connection:
+        with sqlite3.connect(db_name_new) as db_connection:
             print("База данных создана\n")
-    except sql3.Error as err:
+    except sqlite3.Error as err:
         print(f"Ошибка:\n {str(err)}")
 
     # Записываем таблицу, если не создана
     try:
-        with sql3.connect(db_name_new) as db_connection:
+        with sqlite3.connect(db_name_new) as db_connection:
             print("Создаю таблицу для ToDo заданий в Базе Даннах")
             db_cursor = db_connection.cursor()
             db_cursor.execute('''
@@ -63,7 +63,7 @@ def make_db(db_name_new: str):
             ''')
         print("Таблица в базе данных создана успешно\n")
         print("База данных создана и подготовлена к работа.")
-    except sql3.Error as error:
+    except sqlite3.Error as error:
         print(f"Ошибка:\n  {str(error)}")
 
 
@@ -85,7 +85,7 @@ def make_task(db_name: str,
     date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')
     print("Добавляю задачу в БД...\n")
     try:
-        with sql3.connect(db_name_rw, uri=True) as db_connection:
+        with sqlite3.connect(db_name_rw, uri=True) as db_connection:
             db_cursor = db_connection.cursor()
             db_sql_query = '''INSERT INTO my_todo_list (data_of_creation, todo_text, is_gone)
                               VALUES (?, ?, ?)'''
@@ -95,7 +95,7 @@ def make_task(db_name: str,
             db_connection.commit()
         print("Задача в БД добавлена:\n")
         list_of_tasks(db_name, "last") # Выводим на экран последнюю созданную запись
-    except sql3.Error as err:
+    except sqlite3.Error as err:
         print(f"Ошибка: \n{str(err)}")
 
 
@@ -184,7 +184,7 @@ def list_of_tasks(db_name: str,
         print("Передан некорректный параметр all_or_last")
         exit(1)
 
-    data_of_todo: List[sql3.Row] = []
+    data_of_todo: List[sqlite3.Row] = []
 
     try:
 
@@ -224,7 +224,7 @@ def list_of_tasks(db_name: str,
                 table_header(todo_table)
             counter += 1
         print(todo_table)  # а тут выводим, если меньше 10
-    except sql3.Error as err:
+    except sqlite3.Error as err:
         logger.error("Ой!", exc_info=err)
         print(f"Ошибка: \n{str(err)}")
 
@@ -249,8 +249,8 @@ def get_all_records(db_name):
     Возвращает все записи из БД
     """
     db_sql_query = "SELECT * FROM  my_todo_list"
-    data_of_todo = work_with_slq(db_name, "read", "many", db_sql_query)  # Новая функция
-    return data_of_todo
+    data_from_bd = work_with_slq(db_name, "read", "many", db_sql_query)
+    return data_from_bd
 
 
 def get_record_by_id(db_name, id_row):
@@ -259,11 +259,11 @@ def get_record_by_id(db_name, id_row):
     Возвращает запись с номером id_row из БД
     """
     db_sql_query = "SELECT * FROM  my_todo_list WHERE id=" + str(id_row)
-    data_of_todo = work_with_slq(db_name, "read", "many", db_sql_query)  # Новая функция
+    data_of_todo = work_with_slq(db_name, "read", "many", db_sql_query)
     return data_of_todo
 
 
-def delete_task(db_name_for_delete_task: str, deleting_task: int):  # Удаляем таск (только один)
+def delete_task(db_name_for_delete_task: str, deleting_task: int):
     """
     Автор: Евгений Петров, Челябинск, p174@mail.ru
     Удаляем одно задание, номер которого получаем в параметре
@@ -341,7 +341,7 @@ def work_with_slq(db_name_def_worrk_with_sql: str,
                   type_of_sql: str,
                   is_one: str,
                   db_sql_query: str,
-                  db_sql_data: tuple = () ) -> List[sql3.Row]:  # isDone Далаем запись в БД
+                  db_sql_data: tuple = () ) -> List[sqlite3.Row]:  # isDone Далаем запись в БД
     """
     Выполняе запрос в базу данных. Если указаана только БД 
     и запрос - то выполняем только его
@@ -367,8 +367,8 @@ def work_with_slq(db_name_def_worrk_with_sql: str,
     logger.debug("work_with_slq(): SQL данные: {db_sql_data}")
 
     try:
-        with sql3.connect(db_name_rw, uri = True) as db_connection:
-            db_connection.row_factory = sql3.Row
+        with sqlite3.connect(db_name_rw, uri = True) as db_connection:
+            db_connection.row_factory = sqlite3.Row
             db_cursor = db_connection.cursor()
 
             logger.debug("""work_with_slq(): Подключился к БД,
@@ -392,7 +392,7 @@ def work_with_slq(db_name_def_worrk_with_sql: str,
 
 
 
-    except sql3.Error as err:
+    except sqlite3.Error as err:
         print(f"Ошибка: {err}")
         logger.error("work_with_slq(): Упс!!!", exc_info=err)
 
