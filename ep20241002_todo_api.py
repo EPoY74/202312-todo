@@ -8,6 +8,7 @@
 
 from fastapi import FastAPI
 
+from cfg_working import search_config_and_db
 import db_working_api
 
 from logging_cfg import logger
@@ -18,9 +19,8 @@ print("""\nAPI: Консольное приложение для ведения 
         \nАвтор: Евгений Б. Петров, p174@mail.ru\n""")
 
 
-# Использую имя БД явно для тестирования.
-# Позже надо будет прикрутить файл конфигурации для API тоже
-db_name: str = "ep20231204_todo_cli.db"
+# Получаю имя базы данных из файла с конфигурацией
+db_name: str = search_config_and_db()
 
 logger.info("API: Старт консольного ToDo приложения.")
 
