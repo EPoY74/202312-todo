@@ -8,11 +8,7 @@ import sqlite3
 import json
 
 from fastapi import Response
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
-from prettytable import PrettyTable
 
-from db_working import get_all_records, get_last_record, get_record_by_id
 from logging_cfg import logger
 
 
@@ -33,9 +29,7 @@ def list_of_tasks_json(db_name: str,
     logger.info("API: list_of_tasks_json(): Запуск")
 
     # Формируем SQL запрос на одну запись, на последнюю или на все.
-    # На различный функцилнал требуются различные выводы таблицы
-
-   # check all_or_last for valid value
+    # check all_or_last for valid value
     if all_or_last != "all" and all_or_last != "last" and all_or_last != "one":
         logger.error("list_of_tasks(): Передан некорректный параметр all_or_last")
         print("Передан некорректный параметр all_or_last")
@@ -68,7 +62,6 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
                   is_one: str,
                   db_sql_query: str,
                   db_sql_data: tuple = () ) -> List[sqlite3.Row]:
-    
     """
     API: Выполняе запрос в базу данных. Если указаана только БД 
     и запрос - то выполняем только его
@@ -106,7 +99,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
                 db_return = db_return_temp.fetchone()
                 # Получаем название столбцов из курсора
                 columns = [col[0] for col in db_cursor.description]
-                    
+
                 # Объединяем оба массива (это zip) и создаем из него словарь (это dict),
                 # чтобы получиль пары ключ: значение
                 data = [dict(zip(columns, row)) for row in db_return]
@@ -117,7 +110,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
 
                 # Получаем название столбцов из курсора
                 columns = [col[0] for col in db_cursor.description]
-                    
+
                 # Объединяем оба массива (это zip) и создаем из него словарь (это dict),
                 # чтобы получиль пары ключ: значение
                 data = [dict(zip(columns, row)) for row in db_return]
@@ -127,14 +120,13 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
                 print("API: Запись с таким номером в БД отсутсвует.")
                 logger.error("API: work_with_slq(): Запись с таким номером в БД отсутствует.")
                 return []
-            
 
             if type_of_sql == "write":
                 db_connection.commit()
 
     except sqlite3.Error as err:
         print(f"Ошибка: {err}")
-        logger.error("work_with_slq(): Упс!!!", exc_info=err)
+        logger.error("API: work_with_slq(): Упс!!!", exc_info=err)
 
     # Этот вариант тоже рабочий, но он выводитвозвращает не отформатированный код 
     # return JSONResponse(content=data)
@@ -147,7 +139,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
     # Возврящает отформатированный код
     return Response(content=to_json, media_type='application/json')
 
-    
+
 def get_last_record_api(db_name):
     """
     Автор: Евгений Петров, Челябинск,
@@ -179,6 +171,7 @@ def get_record_by_id_api(db_name, id_row):
     Автор: Евгений Петров, Челябинск,
     Возвращает запись с номером id_row из БД
     """
-    db_sql_query = "SELECT * FROM  my_todo_list WHERE id=" + str(id_row)
-    executed_sql_query = work_with_slq_api(db_name, "read", "many", db_sql_query)
+    db_sql_query = "SELECT * FROM  my_todo_list WHERE id=?"
+    db_sql_parametr =  str(id_row)
+    executed_sql_query = work_with_slq_api(db_name, "read", "many", db_sql_query, db_sql_parametr)
     return executed_sql_query
