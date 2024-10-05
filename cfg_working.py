@@ -20,21 +20,27 @@ def search_config_and_db(name_exicting_db: str = None ):
     #TODO А правильно написал? Спросить у Славы
     """
 
-    # Исспользую переменнут чтобы линтер не ругался.
+    # Использую переменнут чтобы линтер не ругался.
     # Не учел, что можно использовать БД с другим именем
     print(name_exicting_db)
-    full_prog_name: str = str(sys.argv[0])  # Читаю полное имя файла
+    # Читаю полное имя файла
+    full_prog_name: str = str(sys.argv[0])
 
     # Получаю имя скрипта без точки
     prog_name: str = full_prog_name[0:full_prog_name.rfind(".")]
 
     # Формирую имя файла конфигурации
-    inner_for_search_ini_file_name = str(prog_name + ".ini")
+   
+    # старая версия
+    # inner_for_search_ini_file_name = str(prog_name + ".ini")
+    
+    #Новая версия - жесткое имя конфгурационного файла
+    inner_for_search_ini_file_name = "todo_config.ini"
 
     # Формирую имя БД
     inner_for_search_db_file_name = str(prog_name + ".db")
 
-    inner_for_search_todo_config_obj = cfg_par.ConfigParser()  # Сот
+    inner_for_search_todo_config_obj = cfg_par.ConfigParser()
 
     # задаю объект парсера конфигурации
     # Читаю конфигурацию
