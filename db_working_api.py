@@ -3,6 +3,7 @@
 Почта: p174@ mail.ru
 Since: 05.10.2024
 """
+import os
 from typing import List
 import sqlite3
 import json
@@ -12,7 +13,17 @@ from fastapi import Response
 from logging_cfg import logger
 
 
-
+def get_db_name(todo_config_obj_def):
+    """
+    Получает имя базы из переменной окружения TODO_DB_NAME.
+    Если такой переменной нет, то имя базы будет eo20231206sql.db.
+    """
+    #TODO Проверить, так ли я понял документацию.
+    # Понял, что todo_config - должен содержать содержимое файла конфигурации
+    dbname = os.getenv("TODO_DB_NAME")
+    if dbname is not None:
+        print(f"Используем имя базы из переменной TODO_DB_NAME - {dbname}")
+    return dbname if dbname is not None else str(todo_config_obj_def["db_cfg"]["db_name"])
 
 
 def list_of_tasks_json(db_name: str,
@@ -63,7 +74,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
                   db_sql_query: str,
                   db_sql_data: tuple = () ) -> List[sqlite3.Row]:
     """
-    API: Выполняе запрос в базу данных. Если указаана только БД 
+    API: Выполняет запрос в базу данных. Если указаана только БД 
     и запрос - то выполняем только его
     Если укзазан БД, запрос и данные - то выполняем и данные и запрос.
     Если записи не существует - то выводим сообщение
