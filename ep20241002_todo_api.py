@@ -20,7 +20,7 @@ print("""\nAPI: Консольное приложение для ведения 
 
 
 # Получаю имя базы данных из файла с конфигурацией
-db_name: str = search_config_and_db()
+db_name: str = db_working_api.get_db_name(search_config_and_db())
 
 logger.info("API: Старт консольного ToDo приложения.")
 
