@@ -362,9 +362,9 @@ def work_with_slq(db_name_def_worrk_with_sql: str,
 
     db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode = rw"
 
-    logger.debug("work_with_slq(): Имя БД: {DB_NAME_RW}")
-    logger.debug("work_with_slq(): SQL запрос: {db_sql_query}")
-    logger.debug("work_with_slq(): SQL данные: {db_sql_data}")
+    logger.debug(f"work_with_slq(): Имя БД: {db_name_rw}")
+    logger.debug(f"work_with_slq(): SQL запрос: {db_sql_query}")
+    logger.debug(f"work_with_slq(): SQL данные: {db_sql_data}")
 
     try:
         with sqlite3.connect(db_name_rw, uri = True) as db_connection:
@@ -389,13 +389,9 @@ def work_with_slq(db_name_def_worrk_with_sql: str,
             if type_of_sql == "write":
                 db_connection.commit()
            # else:
-
-
-
     except sqlite3.Error as err:
         print(f"Ошибка: {err}")
         logger.error("work_with_slq(): Упс!!!", exc_info=err)
-
     return db_return
 
 
