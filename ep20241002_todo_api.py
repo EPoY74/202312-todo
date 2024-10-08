@@ -18,14 +18,16 @@ from logging_cfg import logger
 colorama.init()
 app_todo = FastAPI()
 
-# Получаем объект дата время
-date_time_now_obj = datetime.now()
+# # Получаем объект дата время
+# date_time_now_obj = datetime.now()
 
-# Преобразовываем его как нам надо
-date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')
+# # Преобразовываем его как нам надо
+# date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')
+
+# Оказывается можно и так, что бы не плодить переменные
 date_time_now_new = datetime.now().strftime('%d.%m.%Y %H:%M')
 
-print(colorama.Fore.YELLOW + "\nЗапeщено в " + date_time_now)
+print(colorama.Fore.YELLOW + "\nЗапeщено в " + date_time_now_new)
 print("API: Консольное приложение для ведения задач.")
 print("Автор: Евгений Б. Петров, p174@mail.ru\n")
 
