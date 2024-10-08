@@ -3,10 +3,10 @@
 Почта: p174@ mail.ru
 Since: 05.10.2024
 """
-import os
 from typing import List
 import sqlite3
 import json
+import os
 
 from fastapi import Response
 
@@ -36,7 +36,7 @@ def list_of_tasks_json(db_name: str,
     Если задан переметр one  - выводим одну запись, номер задаем третьим пареметром
     """
 
-    #выводим списк дел.
+    # выводим списк дел.
     logger.info("API: list_of_tasks_json(): Запуск")
 
     # Формируем SQL запрос на одну запись, на последнюю или на все.
@@ -93,9 +93,9 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
 
     db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode = rw"
 
-    logger.debug("API: work_with_slq_api(): Имя БД: {DB_NAME_RW}")
-    logger.debug("API: work_with_slq_api(): SQL запрос: {db_sql_query}")
-    logger.debug("API: work_with_slq_api(): SQL данные: {db_sql_data}")
+    logger.debug(f"API: work_with_slq_api(): Имя БД: {db_name_rw}")
+    logger.debug(f"API: work_with_slq_api(): SQL запрос: {db_sql_query}")
+    logger.debug(f"API: work_with_slq_api(): SQL данные: {db_sql_data}")
 
     try:
         with sqlite3.connect(db_name_rw, uri = True) as db_connection:
@@ -112,7 +112,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
                 columns = [col[0] for col in db_cursor.description]
 
                 # Объединяем оба массива (это zip) и создаем из него словарь (это dict),
-                # чтобы получиль пары ключ: значение
+                # чтобы получить пары ключ: значение
                 data = [dict(zip(columns, row)) for row in db_return]
 
             if is_one == "many":
@@ -123,9 +123,8 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
                 columns = [col[0] for col in db_cursor.description]
 
                 # Объединяем оба массива (это zip) и создаем из него словарь (это dict),
-                # чтобы получиль пары ключ: значение
+                # чтобы получить пары ключ: значение
                 data = [dict(zip(columns, row)) for row in db_return]
-
 
             if type_of_sql == "read" and len(db_return) == 0:
                 print("API: Запись с таким номером в БД отсутсвует.")
@@ -139,7 +138,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
         print(f"Ошибка: {err}")
         logger.error("API: work_with_slq(): Упс!!!", exc_info=err)
 
-    # Этот вариант тоже рабочий, но он выводитвозвращает не отформатированный код
+    # Этот вариант тоже рабочий, но он выводит возвращает не отформатированный код
     # return JSONResponse(content=data)
 
     # Преобразовываем все дело в json.
@@ -147,7 +146,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
     # так как fastAPI автоматически ПРЕОБРАЗОВВАЕТ ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ в json
     to_json = json.dumps(data, ensure_ascii=False, indent=4, sort_keys=True, default=str)
 
-    # Возврящает отформатированный код
+    # Возвращает отформатированный код
     return Response(content=to_json, media_type='application/json')
 
 
