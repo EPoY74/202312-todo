@@ -1,3 +1,14 @@
-data_access/__pycache__/
-__pycache__
+#20241003
+.env
+
+#20240713
+.venv/
 .idea/
+
+#20240527
+#Virtual environtment folder
+todo_venv/
+
+#20241004 cash temp folder
+__pycache__/
+todo_cli.log
