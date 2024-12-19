@@ -28,7 +28,7 @@ def get_db_name(todo_config_obj_def):
 
 def list_of_tasks_json(db_name: str,
                   all_or_last: str = "all",
-                  id_row : int = None):
+                  id_row : int = 0):
     """
     Выводим список дел из SQLite в виде json.
     Если задан параметр all - выводим все записи, указана по умолчанию.
@@ -91,11 +91,13 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
 
     logger.info("API: work_with_slq_api(): Запуск")
 
+    db_return: List = []
+
     db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode = rw"
 
-    logger.debug(f"API: work_with_slq_api(): Имя БД: {db_name_rw}")
-    logger.debug(f"API: work_with_slq_api(): SQL запрос: {db_sql_query}")
-    logger.debug(f"API: work_with_slq_api(): SQL данные: {db_sql_data}")
+    logger.debug("API: work_with_slq_api(): Имя БД: %s ", db_name_rw)
+    logger.debug("API: work_with_slq_api(): SQL запрос: %s", db_sql_query)
+    logger.debug("API: work_with_slq_api(): SQL данные: %s", db_sql_data)
 
     try:
         with sqlite3.connect(db_name_rw, uri = True) as db_connection:
