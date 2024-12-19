@@ -183,13 +183,18 @@ def set_tasks_deadline(DB_NAME : str, task_deadline_id : int):  # isGone Уст�
             logging.debug("set_tasks_deadline(): Позьзователь ввел корректное значение")
             break
         except ValueError:
-            print("Введенно значение некорректно, введите значение в формате ДД.ММ.ГГГГ ЧЧ:ММ")
-            logging.error("set_tasks_deadline(): Пользователь ввел некорректное знначение даты и времени")
+            print("""Введенно значение некорректно,
+             введите значение в формате ДД.ММ.ГГГГ ЧЧ:ММ""")
+            logging.error("""set_tasks_deadline():
+             Пользователь ввел некорректное знначение даты и времени""")
             continue
 
-    select_id_sql_deadline ='''UPDATE my_todo_list SET date_max=\"''' + str(date_time_deadline) + '''\" WHERE id=''' + str(task_deadline_id)
+    select_id_sql_deadline =(
+        '''UPDATE my_todo_list SET date_max=\"''' 
+        + str(date_time_deadline) + '''\" WHERE id=''' + str(task_deadline_id)
+    )
         
-    if confirm_action("установка срока исполнения задания", task_deadline_id):
+    if confirm_action("установка срока исполнения задания", str(task_deadline_id)):
         logging.debug("set_tasks_deadline(): Запись значения в БД, Пользователь подтвердил")
         work_with_slq(DB_NAME, "write", "many", select_id_sql_deadline)
         print(f"\n\nЗапись номер {task_deadline_id} изменена. Срок исполнения установлен")
