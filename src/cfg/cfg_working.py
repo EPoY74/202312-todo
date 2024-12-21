@@ -8,7 +8,7 @@ Returns:
 import os
 
 import configparser as cfg_par
-from src.dbw.db_working import make_db
+from src.db_access.db_working import make_db
 
 
 def search_config_and_db(name_exicting_db: str = "" ):
