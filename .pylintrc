@@ -1,0 +1,2 @@
+[TYPECHECK]
+const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__))$
