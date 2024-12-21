@@ -13,15 +13,15 @@ import argparse as ap
 # import data_access.json as data  # TODO: finish DAL and start using it
 import dotenv
 
-from cfg_working import search_config_and_db
-from db_working import (delete_task,
+from src.cfg.cfg_working import search_config_and_db
+from src.dbw.db_working import (delete_task,
                         get_db_name,
                         list_of_tasks,
                         set_tasks_deadline,
                         task_done,
                         make_db,
                         make_task)
-from logging_cfg import logger
+from src.cfg.logging_cfg import logger
 
 
 def main_body(db_name_main_def: str):
