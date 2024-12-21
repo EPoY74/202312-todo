@@ -11,7 +11,7 @@ from fastapi import FastAPI
 import colorama
 
 from src.cfg.cfg_working import search_config_and_db
-import src.dbw.db_working_api as db_working_api
+import src.db_access.db_working_api as db_working_api
 
 from src.cfg.logging_cfg import logger
 
@@ -40,10 +40,9 @@ logger.info("API: Старт консольного ToDo приложения.")
 
 @app_todo.get('/')
 async def root_async():
-    """_summary_ Слушает эндпоит "/" и выдает общею информацию об API
-
+    """Слушает эндпоит "/" и выдает общюю информацию об API
     Returns:
-        _type_: _description_
+        Возвращает общую информацию о данном API
     """
     logger.info("API: Обращние с API по роуту '/'")
 
@@ -77,10 +76,10 @@ async def show_one_task_async(task_id: int):
     return db_working_api.list_of_tasks_json(db_name, all_or_last="one", id_row = task_id)
 
 
-def main_execute():
+def main():
     """_summary_ Основное тело программы
     """
 
 
 if __name__ == "__main__":
-    main_execute()
+    main()
