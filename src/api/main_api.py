@@ -10,10 +10,10 @@ from datetime import datetime
 from fastapi import FastAPI
 import colorama
 
-from cfg_working import search_config_and_db
-import db_working_api
+from src.cfg.cfg_working import search_config_and_db
+import src.dbw.db_working_api as db_working_api
 
-from logging_cfg import logger
+from src.cfg.logging_cfg import logger
 
 colorama.init()
 app_todo = FastAPI()
