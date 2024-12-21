@@ -13,7 +13,7 @@ from typing import List
 
 from prettytable import PrettyTable
 
-from src.cfg.logging_cfg import logger
+from src.cfg.logger_config import logger
 from table_working import table_header
 
 
