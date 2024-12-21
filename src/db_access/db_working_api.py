@@ -10,7 +10,7 @@ import os
 
 from fastapi import Response
 
-from logging_cfg import logger
+from src.cfg.logging_cfg import logger
 
 
 def get_db_name(todo_config_obj_def):
