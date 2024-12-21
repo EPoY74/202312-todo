@@ -8,7 +8,7 @@
 
 from datetime import datetime
 from fastapi import FastAPI
-import colorama 
+import colorama
 
 from cfg_working import search_config_and_db
 import db_working_api
