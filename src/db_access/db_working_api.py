@@ -10,7 +10,7 @@ import os
 
 from fastapi import Response
 
-from src.cfg.logging_cfg import logger
+from src.cfg.logger_config import logger
 
 
 def get_db_name(todo_config_obj_def):
@@ -18,8 +18,6 @@ def get_db_name(todo_config_obj_def):
     Получает имя базы из переменной окружения TODO_DB_NAME.
     Если такой переменной нет, то имя базы будет eo20231206sql.db.
     """
-    #TODO Проверить, так ли я понял документацию.
-    # Понял, что todo_config - должен содержать содержимое файла конфигурации
     dbname = os.getenv("TODO_DB_NAME")
     if dbname is not None:
         print(f"Используем имя базы из переменной TODO_DB_NAME - {dbname}")
@@ -46,7 +44,7 @@ def list_of_tasks_json(db_name: str,
         print("Передан некорректный параметр all_or_last")
         exit(1)
 
-    data_of_todo: List[sqlite3.Row] = []
+    data_of_todo: Response = Response(content="", media_type="application/json")
 
     try:
         if all_or_last == "last":
@@ -72,7 +70,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
                   type_of_sql: str,
                   is_one: str,
                   db_sql_query: str,
-                  db_sql_data: tuple = () ) -> List[sqlite3.Row]:
+                  db_sql_data: tuple = () ) -> Response:
     """
     API: Выполняет запрос в базу данных. Если указаана только БД 
     и запрос - то выполняем только его
@@ -92,6 +90,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
     logger.info("API: work_with_slq_api(): Запуск")
 
     db_return: List = []
+    data: List =[]
 
     db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode = rw"
 
@@ -131,7 +130,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
             if type_of_sql == "read" and len(db_return) == 0:
                 print("API: Запись с таким номером в БД отсутсвует.")
                 logger.error("API: work_with_slq(): Запись с таким номером в БД отсутствует.")
-                return []
+                data = list("None")
 
             if type_of_sql == "write":
                 db_connection.commit()
@@ -145,7 +144,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
 
     # Преобразовываем все дело в json.
     # Оказалось преобразоваывать в json не нужно,
-    # так как fastAPI автоматически ПРЕОБРАЗОВВАЕТ ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ в json
+    # так как fastAPI автоматически ПРЕОБРАЗОВЫВАЕТ ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ в json
     to_json = json.dumps(data, ensure_ascii=False, indent=4, sort_keys=True, default=str)
 
     # Возвращает отформатированный код
@@ -184,6 +183,6 @@ def get_record_by_id_api(db_name, id_row):
     Возвращает запись с номером id_row из БД
     """
     db_sql_query = "SELECT * FROM  my_todo_list WHERE id=?"
-    db_sql_parametr =  str(id_row)
+    db_sql_parametr =  tuple(id_row)
     executed_sql_query = work_with_slq_api(db_name, "read", "many", db_sql_query, db_sql_parametr)
     return executed_sql_query
