@@ -7,11 +7,9 @@ Raises:
 Returns:
     _type_: _description_
 """
-import sys, os
-
+# import sys
+import os
 import argparse as ap
-
-# import data_access.json as data  # TODO: finish DAL and start using it
 import dotenv
 
 from src.cfg.cfg_working import search_config_and_db
@@ -84,9 +82,13 @@ def printing_help():
     print("--task_del_id: Удаляет запись с номером: --task_del_id номер_записи\n" )
 
 def main():
+    """
+    Для запуска через имя модуля
+    """
      #Загружаю переменные окружения из локального окружение текущего проекта
     dotenv.load_dotenv()
 
+    logger.info("Запуск приложения.")
     print("""\nКонсольное приложение для ведения задач.
           \nАвтор: Евгений Б. Петров, p174@mail.ru\n""")
     #  Принимаю объект с файлом конфигурации, что бы избавится от глобальной переменной
@@ -101,16 +103,14 @@ def main():
         'src', 'data', db_name_main_read
     )
     print("cli: ", db_file_name_path)
-    
+
 
     logger.info("Старт консольного ToDo приложения.")
     printing_help()
     main_body(db_file_name_path)
 
-    # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
-
-    FULL_PROG_NAME = str(sys.argv[0])
-    PROG_NAME = FULL_PROG_NAME[0:FULL_PROG_NAME.find(".")]
+    # FULL_PROG_NAME = str(sys.argv[0])  # pylint: disable=invalid-name
+    # PROG_NAME = FULL_PROG_NAME[0:FULL_PROG_NAME.find(".")]  # pylint: disable=invalid-name
     logger.info("Конец выполнения консольного ToDo приложения.")
 
 
