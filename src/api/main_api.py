@@ -13,7 +13,7 @@ import colorama
 from src.cfg.cfg_working import search_config_and_db
 import src.db_access.db_working_api as db_working_api
 
-from src.cfg.logging_cfg import logger
+from src.cfg.logger_config import logger
 
 colorama.init()
 app_todo = FastAPI()
