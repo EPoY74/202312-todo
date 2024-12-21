@@ -29,7 +29,7 @@ date_time_now_new = datetime.now().strftime('%d.%m.%Y %H:%M')
 
 print(colorama.Fore.YELLOW + "\nЗапущено в " + date_time_now_new)
 print("API: Консольное приложение для ведения задач.")
-print("Запуск необходим через команду: uvicorn main:app --reload")
+print("Запуск необходим через команду: uvicorn main_api:app_todo --reload")
 print("Автор: Евгений Б. Петров, p174@mail.ru\n")
 
 
