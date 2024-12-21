@@ -12,7 +12,7 @@ import configparser as cfg_par
 from db_working import make_db
 
 
-def search_config_and_db(name_exicting_db: str = None ):
+def search_config_and_db(name_exicting_db: str = "" ):
     """
     Функция ищет файл конфигурации и файл БД, если отсутствует(первый запуск,допустим),
     то создает их.
@@ -24,17 +24,12 @@ def search_config_and_db(name_exicting_db: str = None ):
     # Не учел, что можно использовать БД с другим именем
     print(name_exicting_db)
     # Читаю полное имя файла
-    full_prog_name: str = str(sys.argv[0])
+    # full_prog_name: str = str(sys.argv[0])
 
     # Получаю имя скрипта без точки
-    prog_name: str = full_prog_name[0:full_prog_name.rfind(".")]
+    prog_name: str = "todo_main" #full_prog_name[0:full_prog_name.rfind(".")]
 
     # Формирую имя файла конфигурации
-
-    # старая версия
-    # inner_for_search_ini_file_name = str(prog_name + ".ini")
-
-    #Новая версия - жесткое имя конфгурационного файла
     inner_for_search_ini_file_name = "todo_config.ini"
 
     # Формирую имя БД
