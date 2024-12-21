@@ -7,7 +7,7 @@ Raises:
 Returns:
     _type_: _description_
 """
-import sys
+import sys, os
 
 import argparse as ap
 
@@ -93,10 +93,19 @@ def main():
     todo_config_obj =  search_config_and_db()
 
     db_name_main_read: str = get_db_name(todo_config_obj)
+    # inner_for_search_db_file_name = str(prog_name + ".db")
+    file_directory:str = os.path.dirname(__file__)
+    db_file_name_path:str = os.path.join(
+        file_directory,
+        '..', '..',
+        'src', 'data', db_name_main_read
+    )
+    print("cli: ", db_file_name_path)
+    
 
     logger.info("Старт консольного ToDo приложения.")
     printing_help()
-    main_body(db_name_main_read)
+    main_body(db_file_name_path)
 
     # TODO: использовать ORM взаимодействия с базой, например http://docs.peewee-orm.com/en/latest/#
 
