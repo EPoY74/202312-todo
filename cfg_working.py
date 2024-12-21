@@ -6,7 +6,6 @@ Returns:
 
 
 import os
-import sys
 
 import configparser as cfg_par
 from db_working import make_db
