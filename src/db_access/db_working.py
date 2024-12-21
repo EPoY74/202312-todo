@@ -13,8 +13,9 @@ from typing import List
 
 from prettytable import PrettyTable
 
-from src.cfg.logger_config import logger
 from table_working import table_header
+from src.cfg.logger_config import logger
+
 
 
 def get_db_name(todo_config_obj_def):
@@ -154,7 +155,7 @@ def set_tasks_deadline(db_name : str,
 
 def list_of_tasks(db_name: str,
                   all_or_last: str = "all",
-                  id_row : int = None):
+                  id_row : int = 0):
     """
     Выводим список дел из таблицы на экран.
     Если задан параметр all - выводим все записи по 10 шт, указана по умолчанию.
@@ -360,6 +361,9 @@ def work_with_slq(db_name_def_worrk_with_sql: str,
 
     logger.info("work_with_slq(): Запуск")
 
+    db_return: List = []
+    data: List =[]
+
     db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode = rw"
 
     logger.debug("work_with_slq(): Имя БД: %s", db_name_rw)
@@ -395,7 +399,7 @@ def work_with_slq(db_name_def_worrk_with_sql: str,
     return db_return
 
 
-def confirm_action(confirm_text : str = "---Текст---", other_text : str = None):
+def confirm_action(confirm_text : str = "---Текст---", other_text : str = ""):
     """
     Автор: Евгений Петров, Челябинск, p174@mail.ru
     Функция выполняет запрос подтверждения какой-либо операции у пользователя.
