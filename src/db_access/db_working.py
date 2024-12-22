@@ -15,13 +15,14 @@ from prettytable import PrettyTable
 
 from table_working import table_header
 from src.cfg.logger_config import logger
+from configparser import ConfigParser
 
 
 
-def get_db_name(todo_config_obj_def):
+def get_db_name(todo_config_obj_def:ConfigParser):
     """
     Получает имя базы из переменной окружения TODO_DB_NAME.
-    Если такой переменной нет, то имя базы будет eo20231206sql.db.
+    Если такой переменной нет, то имя базы будет todo_main.db.
     """
     #TODO Проверить, так ли я понял документацию.
     # Понял, что todo_config - должен содержать содержимое файла конфигурации
