@@ -202,29 +202,34 @@ def list_of_tasks(db_name: str,
         elif all_or_last == "one":
             data_of_todo = get_record_by_id(db_name, id_row)
 
-        counter = 1
+####================
+        # COMMENT: можно использовать enumerate и вести отдельный счетчик самостоятельно
         # Преобразую значение в таблице в удобоваримый вид для КЛ
-        for row in data_of_todo:
-            row_insert = [row_ins for row_ins in row]
-            if not row_insert[2]:
-                row_insert[2]   = "Отсутсвует"
-            if row_insert[5] == 0:
-                row_insert[5]  = "Не выполнено"
-            if row_insert[4]:
-                row_insert[4] = "Исполнено"
-            elif not row_insert[4]:
-                row_insert[4] = "Нет"
-            else:
-                row_insert[4] = "Странно..."
+        for counter, row in enumerate(data_of_todo):
+            # COMMENT: лучше не модифицировать кортеж in-place, такой код сложно читать.
+            # COMMENT: и лучше не использовать индексы, а обращаться к полям по имени.
+            # Для этого устанавливаем row_factory = sql3.Row (см. выше)
+            # COMMENT: лучше так
+            # Создать кортеж из строки, полученной из БД, и добавить его в таблицу
+            row_insert = (
+                row["id"],
+                row["data_of_creation"],
+                row["date_max"] or "Отсутсвует",
+                row["todo_text"],
+                "Исполнено" if row["is_gone"] else "Нет",
+                row["date_of_gone"] or "Не установлено"
+            )
             todo_table.add_row(row_insert)
-            if counter == 10:
+            if counter > 0 and counter % 10 == 0:
                 print(todo_table)  #  тут выводим, если блок из 10 штук
                 todo_table.clear_rows()
                 input("\nДля продолжения нажмите Enter: ")
-                counter = 1
+                # counter = 1  # больше не нужен, т.к. используем enumerate
                 table_header(todo_table)
-            counter += 1
+            # counter += 1  # больше не нужен, т.к. используем enumerate
         print(todo_table)  # а тут выводим, если меньше 10
+####==========================
+
     except sqlite3.Error as err:
         logger.error("Ой!", exc_info=err)
         print(f"Ошибка: \n{str(err)}")
