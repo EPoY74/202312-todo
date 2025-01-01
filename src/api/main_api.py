@@ -10,10 +10,14 @@ from datetime import datetime
 from fastapi import FastAPI
 import colorama
 
-from src.cfg.cfg_working import search_config_and_db
+# from src.cfg.cfg_working import search_config_and_db
+from src.cfg import cfg_working
+
+# from src.db_access import db_working_api
 import src.db_access.db_working_api as db_working_api
 
 from src.cfg.logger_config import logger
+# import src.cfg.logger_config
 
 colorama.init()
 app_todo = FastAPI()
@@ -34,7 +38,7 @@ print("Автор: Евгений Б. Петров, p174@mail.ru\n")
 
 
 # Получаю имя базы данных из файла с конфигурацией
-db_name: str = db_working_api.get_db_name(search_config_and_db())
+db_name: str = db_working_api.get_db_name(cfg_working.search_config_and_db())
 
 logger.info("API: Старт консольного ToDo приложения.")
 
@@ -76,9 +80,10 @@ async def show_one_task_async(task_id: int):
     return db_working_api.list_of_tasks_json(db_name, all_or_last="one", id_row = task_id)
 
 
-def main():
+async def main():
     """_summary_ Основное тело программы
     """
+    print("Запуск api в")
 
 
 if __name__ == "__main__":
