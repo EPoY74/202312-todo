@@ -10,6 +10,8 @@ from datetime import datetime
 from fastapi import FastAPI
 import colorama
 
+import uvicorn
+
 # from src.cfg.cfg_working import search_config_and_db
 from src.cfg import cfg_working
 
@@ -75,16 +77,17 @@ async def show_last_tasks_async():
 async def show_one_task_async(task_id: int):
     """Выводит запись в БД c номером task_id
     """
+    # 
     logger.info("API: Обращение с API по роуту '/task/{task_id}'")
 
     return db_working_api.list_of_tasks_json(db_name, all_or_last="one", id_row = task_id)
 
 
-async def main():
-    """_summary_ Основное тело программы
-    """
-    print("Запуск api в")
+# def start_todo_api_app():
+#     """Запуск API для проложения todo
+#     """
+#     # uvicorn.run("main:app_todo", host="127.0.0.1", port=8000, reload=True)
+#     # uvicorn.run(app_todo, reload=True)
 
-
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     start_todo_api_app()
