@@ -4,6 +4,8 @@
 import os
 import sys
 import uvicorn
+
+#from src.api.main_api import start_todo_api_app
 # from src.api.main_api import app_todo
 
 if not __package__:
@@ -19,3 +21,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # start_todo_api_app()
