@@ -10,7 +10,7 @@ Returns:
 # import sys
 import os
 import argparse as ap
-import dotenv
+# import dotenv
 
 from src.cfg.cfg_working import search_config_and_db
 from src.db_access.db_working import (delete_task,
@@ -86,7 +86,7 @@ def main():
     Для запуска через имя модуля
     """
      #Загружаю переменные окружения из локального окружение текущего проекта
-    dotenv.load_dotenv()
+    # dotenv.load_dotenv()
 
     logger.info("Запуск приложения.")
     print("""\nКонсольное приложение для ведения задач.
