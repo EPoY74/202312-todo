@@ -10,6 +10,7 @@ from datetime import datetime
 import os
 import sqlite3
 from typing import List
+from typing import Optional
 from configparser import ConfigParser
 
 from prettytable import PrettyTable
@@ -25,6 +26,8 @@ def get_db_name(todo_config_obj_def:ConfigParser):
     Получает имя базы из переменной окружения TODO_DB_NAME.
     Если такой переменной нет, то имя базы будет todo_main.db.
     """
+    logger.info("Запуск get_db_name()")
+    dbname: Optional[str] = None
     #TODO Проверить, так ли я понял документацию.
     # Понял, что todo_config - должен содержать содержимое файла конфигурации
     dbname = os.getenv("TODO_DB_NAME")
@@ -39,20 +42,26 @@ def make_db(db_name_new: str):
     Создаем основную таблицу для работы приложения
     """
     #создаем БД
+    logger.info("Запуск  make_db()")
     if not db_name_new:
-        raise ValueError("Надо передать db_new_new")
+        logger.error("Ошибка в make_db(): Надо передать db_new_new")
+        raise ValueError("make_db(): Надо передать db_new_new")
 
     try:
         print("\n\nСоздаю базу данных...")
         with sqlite3.connect(db_name_new) as db_connection:
             print("База данных создана\n")
+            logger.info("make_db(): База данных %s создана", db_name_new)
     except sqlite3.Error as err:
-        print(f"Ошибка:\n {str(err)}")
+        logger.info(f"Ошибка в make_db(): %s", str(err))
+        print(f"Ошибка в make_db():\n {str(err)}")
+        raise
 
     # Записываем таблицу, если не создана
     try:
         with sqlite3.connect(db_name_new) as db_connection:
             print("Создаю таблицу для ToDo заданий в Базе Даннах")
+            logger.info("make_db(): Создаю таблицу в БД")
             db_cursor = db_connection.cursor()
             db_cursor.execute('''
             CREATE TABLE IF NOT EXISTS my_todo_list(
@@ -66,9 +75,11 @@ def make_db(db_name_new: str):
             ''')
         print("Таблица в базе данных создана успешно\n")
         print("База данных создана и подготовлена к работа.")
+        logger.info("make_db(): БД создана")
     except sqlite3.Error as error:
-        print(f"Ошибка:\n  {str(error)}")
-
+        logger.error("make_db(): Ошибка %s", str(error) )
+        print(f"make_db(): Ошибка:\n  {str(error)}")
+        raise
 
 def make_task(db_name: str,
               text_of_task : str):  # Создаю таск в БД
@@ -77,9 +88,12 @@ def make_task(db_name: str,
     Создаем новую задачу в таблице my_todo_list в БД
     выводим последнюю созданную запись на экран
     """
-
+    logger.info("make_task(): Запуск")
+    logger.info("make_task(): DB name is: %s", db_name)
+    logger.info("make_task(): Task for execute is:  %s", text_of_task)
     # Открываем БД на Read-Write. Создавать - не будем.
-    db_name_rw = "file:"+db_name + "?mode=rw"
+    db_name_rw:str = "file:"+db_name + "?mode=rw"
+    logger.info("make_task():DB name for writeng is: %s", db_name_rw)
 
     # Получаем объект дата время
     date_time_now_obj = datetime.now()
