@@ -14,6 +14,8 @@ from src.cfg.logger_config import logger
 
 
 def get_db_name(todo_config_obj_def):
+
+    # TODO РАзобраться с путями и подключением к БД в api части
     """
     Получает имя базы из переменной окружения TODO_DB_NAME.
     Если такой переменной нет, то имя базы будет eo20231206sql.db.
@@ -56,7 +58,7 @@ def list_of_tasks_json(db_name: str,
             data_of_todo = get_all_records_api(db_name)
 
         elif all_or_last == "one":
-            logger.debug("API: list_of_tasks_json() Получаю одну запись из БД")
+            logger.debug("API: list_of_tasks_json() Получаю одну запись из БД # %d", id_row)
             data_of_todo = get_record_by_id_api(db_name, id_row)
 
         return data_of_todo #todo_table
@@ -137,7 +139,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
 
     except sqlite3.Error as err:
         print(f"Ошибка: {err}")
-        logger.error("API: work_with_slq(): Упс!!!", exc_info=err)
+        logger.error("API: work_with_slq(): Упс!!! %s", exc_info=err)
 
     # Этот вариант тоже рабочий, но он выводит возвращает не отформатированный код
     # return JSONResponse(content=data)
@@ -182,7 +184,8 @@ def get_record_by_id_api(db_name, id_row):
     Автор: Евгений Петров, Челябинск,
     Возвращает запись с номером id_row из БД
     """
+    logger.info("API: get_record_by_id_api(): Get one record #%d from DB", id_row)
     db_sql_query = "SELECT * FROM  my_todo_list WHERE id=?"
-    db_sql_parametr =  tuple(id_row)
+    db_sql_parametr =  (id_row,)
     executed_sql_query = work_with_slq_api(db_name, "read", "many", db_sql_query, db_sql_parametr)
     return executed_sql_query
