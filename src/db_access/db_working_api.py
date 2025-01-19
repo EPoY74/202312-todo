@@ -158,6 +158,7 @@ def get_last_record_api(db_name):
     Автор: Евгений Петров, Челябинск,
     Возвращает последнюю запись из БД
     """
+    logger.info("API get_last_record_api(): Get last record from DB")
     db_sql_query = """SELECT *
                       FROM  my_todo_list
                       ORDER BY id 
