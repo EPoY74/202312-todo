@@ -92,7 +92,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
     logger.info("API: work_with_slq_api(): Запуск")
 
     db_return: List = []
-    data: List =[]
+    data: List|dict =[]
 
     db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode = rw"
 
@@ -110,6 +110,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
             db_return_temp = db_cursor.execute(db_sql_query, db_sql_data)
 
             if is_one == "one":
+                logger.info("API work_with_slq(): Get one record")
                 db_return = db_return_temp.fetchone()
                 # Получаем название столбцов из курсора
                 columns = [col[0] for col in db_cursor.description]
@@ -119,6 +120,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
                 data = [dict(zip(columns, row)) for row in db_return]
 
             if is_one == "many":
+                logger.info("API work_with_slq(): Get many records")
                 # Получаем все данные из таблицы
                 db_return = db_return_temp.fetchall()
 
@@ -132,7 +134,7 @@ def work_with_slq_api(db_name_def_worrk_with_sql: str,
             if type_of_sql == "read" and len(db_return) == 0:
                 print("API: Запись с таким номером в БД отсутсвует.")
                 logger.error("API: work_with_slq(): Запись с таким номером в БД отсутствует.")
-                data = list("None")
+                data = {"id":"Record not found in the database"}
 
             if type_of_sql == "write":
                 db_connection.commit()
