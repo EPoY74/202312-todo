@@ -10,12 +10,13 @@ from datetime import datetime
 import os
 import sqlite3
 from typing import List
+from configparser import ConfigParser
 
 from prettytable import PrettyTable
 
 from table_working import table_header
 from src.cfg.logger_config import logger
-from configparser import ConfigParser
+
 
 
 
