@@ -60,7 +60,7 @@ def make_db(db_name_new: str):
     # Записываем таблицу, если не создана
     try:
         with sqlite3.connect(db_name_new) as db_connection:
-            print("Создаю таблицу для ToDo заданий в Базе Даннах")
+            print("Создаю таблицу для ToDo заданий в Базе Данных")
             logger.info("make_db(): Создаю таблицу в БД")
             db_cursor = db_connection.cursor()
             db_cursor.execute('''
@@ -101,6 +101,7 @@ def make_task(db_name: str,
     # Преобразовываем его как нам надо
     date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')
     print("Добавляю задачу в БД...\n")
+    logger.info("make_task(): add task to BD")
     try:
         with sqlite3.connect(db_name_rw, uri=True) as db_connection:
             db_cursor = db_connection.cursor()
@@ -383,7 +384,7 @@ def work_with_slq(db_name_def_worrk_with_sql: str,
     logger.info("work_with_slq(): Запуск")
 
     db_return: List = []
-    data: List =[]
+    # data: List =[]
 
     db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode = rw"
 
