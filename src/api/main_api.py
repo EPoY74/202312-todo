@@ -74,13 +74,12 @@ async def show_last_tasks_async():
 
 
 @app_todo.get("/task/{task_id}")
-async def show_one_task_async(task_id: int):
+async def show_one_task_async(task_id: str):
     """Выводит запись в БД c номером task_id
     """
-    # 
-    logger.info("API: Обращение с API по роуту '/task/{task_id}'")
+    logger.info("API: Обращение с API по роуту '/task/{task_id}', где task_id = %s", task_id)
 
-    return db_working_api.list_of_tasks_json(db_name, all_or_last="one", id_row = task_id)
+    return db_working_api.list_of_tasks_json(db_name, all_or_last="one", id_row = int(task_id))
 
 
 # def start_todo_api_app():
