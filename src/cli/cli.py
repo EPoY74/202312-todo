@@ -88,13 +88,14 @@ def main():
      #Загружаю переменные окружения из локального окружение текущего проекта
     # dotenv.load_dotenv()
 
-    logger.info("Запуск приложения.")
+    logger.info("main(): Запуск src.cli приложения.")
     print("""\nКонсольное приложение для ведения задач.
           \nАвтор: Евгений Б. Петров, p174@mail.ru\n""")
     #  Принимаю объект с файлом конфигурации, что бы избавится от глобальной переменной
     todo_config_obj =  search_config_and_db()
 
     db_name_main_read: str = get_db_name(todo_config_obj)
+    logger.info("main(): DB name from config in variable db_name_main_read: %s ", db_name_main_read)
     # inner_for_search_db_file_name = str(prog_name + ".db")
     file_directory:str = os.path.dirname(__file__)
     db_file_name_path:str = os.path.join(
@@ -102,6 +103,7 @@ def main():
         '..', '..',
         'src', 'data', db_name_main_read
     )
+    logger.info("main(): DB name for working in cli app in variable db_file_name_path: %s ", db_file_name_path)
     print("cli: ", db_file_name_path)
 
 
