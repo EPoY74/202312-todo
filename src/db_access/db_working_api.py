@@ -174,6 +174,7 @@ def get_all_records_api(db_name):
     Parameters: db_name - имя базы данных, с которой работаем
 
     """
+    logger.info("API get_all_records_api(): Get all records from DB")
     db_sql_query = "SELECT * FROM  my_todo_list"
     executed_sql_query = work_with_slq_api(db_name, "read", "many", db_sql_query)
     return executed_sql_query
