@@ -12,3 +12,6 @@ todo_venv/
 #20241004 cash temp folder
 __pycache__/
 todo_cli.log
+
+#20250120
+.vscode/
