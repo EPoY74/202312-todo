@@ -15,10 +15,8 @@ from configparser import ConfigParser
 
 from prettytable import PrettyTable
 
-from table_working import table_header
+from src.db_access.table_working import table_header
 from src.cfg.logger_config import logger
-
-
 
 
 def get_db_name(todo_config_obj_def:ConfigParser):
