@@ -115,8 +115,9 @@ def main():
 
     # FULL_PROG_NAME = str(sys.argv[0])  # pylint: disable=invalid-name
     # PROG_NAME = FULL_PROG_NAME[0:FULL_PROG_NAME.find(".")]  # pylint: disable=invalid-name
-    logger.info("Конец выполнения консольного ToDo приложения.")
+    
 
 
 if __name__ == "__main__":
     main()
+    logger.info("Конец выполнения консольного ToDo приложения.")
