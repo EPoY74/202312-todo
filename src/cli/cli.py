@@ -7,7 +7,6 @@ Raises:
 Returns:
     _type_: _description_
 """
-# import sys
 import os
 import argparse as ap
 # import dotenv
@@ -30,6 +29,7 @@ def main_body(db_name_main_def: str):
     и вызывает соответствующую процедуру.
     Ничего не возвращает.
     """
+    logger.info("CLI main_body(): Запуск")
     parser = ap.ArgumentParser()
     parser.description = "Програма создает ToDo список дел в текстовом консольном режиме."
     parser.add_argument("--create_db",
@@ -55,6 +55,7 @@ def main_body(db_name_main_def: str):
     args = parser.parse_args()
 
     if args.create_db:
+        logger.warning("CLI main_body: Пользователь запросил создание БД")
         make_db("test.db")
     elif args.task_add:
         make_task(db_name_main_def, args.task_add)
@@ -71,6 +72,7 @@ def main_body(db_name_main_def: str):
 def printing_help():
     """_summary_ Выводит доступные команды на экран, так как мне надо, а не так как придетс я
     """
+    logger.info("CLI printing_help(): Запуск. Вывод помощи на экран")
     print("Основные команды консольного ToDo приложения:")
     print("--create_db: Создаем базу данных для списка задач")
     print("--task_add: Описание задачи, которую заводим: --task_add \"Это запись\" ")
@@ -88,14 +90,14 @@ def main():
      #Загружаю переменные окружения из локального окружение текущего проекта
     # dotenv.load_dotenv()
 
-    logger.info("main(): Запуск src.cli приложения.")
+    logger.info("CLI main(): Запуск src.cli приложения.")
     print("""\nКонсольное приложение для ведения задач.
           \nАвтор: Евгений Б. Петров, p174@mail.ru\n""")
     #  Принимаю объект с файлом конфигурации, что бы избавится от глобальной переменной
     todo_config_obj =  search_config_and_db()
 
     db_name_main_read: str = get_db_name(todo_config_obj)
-    logger.info("main(): DB name from config in variable db_name_main_read: %s ", db_name_main_read)
+    logger.info("CLI main(): DB name from config in variable db_name_main_read: %s ", db_name_main_read)
     # inner_for_search_db_file_name = str(prog_name + ".db")
     file_directory:str = os.path.dirname(__file__)
     db_file_name_path:str = os.path.join(
@@ -103,11 +105,11 @@ def main():
         '..', '..',
         'src', 'data', db_name_main_read
     )
-    logger.info("main(): DB name for working in cli app in variable db_file_name_path: %s ", db_file_name_path)
+    logger.info("CLI main(): DB name for working in cli app in variable db_file_name_path: %s ", db_file_name_path)
     print("cli: ", db_file_name_path)
 
 
-    logger.info("Старт консольного ToDo приложения.")
+    # logger.info("Старт консольного ToDo приложения.")
     printing_help()
     main_body(db_file_name_path)
 
