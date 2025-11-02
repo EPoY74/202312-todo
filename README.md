@@ -86,8 +86,8 @@
 
 -**-task_list**: Выводит список задач
 
-**--task_done_date**: Помечает задание с номером № завершенным:
-    Пример: python -m src.cli --task_done_date номер_записи
+**--completed_at**: Помечает задание с номером № завершенным:
+    Пример: python -m src.cli --completed_at номер_записи
 
 **--task_del_id**: Удаляет запись с указанным номером:
     Пример: python -m src.cli--task_del_id номер_записи
