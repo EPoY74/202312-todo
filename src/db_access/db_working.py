@@ -323,11 +323,11 @@ def task_completed(db_name: str, complited_id: int) -> None:
     Автор: Евгений Петров, Челябинск, p174@mail.ru
     Помечаем задание с номером ask_done_id помеченным и исполненным.
     Пометка осуществляется текущим временем
-    DB_NAME - имя БД, с которой работаем
+    db_name - имя БД, с которой работаем
     task_gone_id - id записи, с которой работаем
     """
 
-    logger.info("task_done(): запуск")
+    logger.info("task_completed(): запуск")
 
     date_time_now_obj = datetime.now()  # Получаем объект дата время
     date_time_now = date_time_now_obj.strftime(
@@ -352,12 +352,12 @@ def task_completed(db_name: str, complited_id: int) -> None:
     list_of_tasks(db_name, "one", complited_id)  # Показываеи запись до их изменения
 
     if confirm_action("пометить исполненным задание ", id_and_date):
-        logger.debug("task_gone(): Записываем пометку исполнения задания в БД")
+        logger.debug("task_completed(): Записываем пометку исполнения задания в БД")
         work_with_slq(
             db_name, "write", "one", select_id_sql_gone
         )  # Помечаем запись выполненой
 
-        logger.debug("task_gone(): Записываем дату исполнения задания в БД")
+        logger.debug("task_completed(): Записываем дату исполнения задания в БД")
         work_with_slq(db_name, "write", "one", select_id_sql_date_gone)
         list_of_tasks(db_name, "one", complited_id)  # Показываем запись с изменениями
         print(f'\n\nЗапись номер {complited_id} изменена на "Исполенно"')
@@ -366,7 +366,7 @@ def task_completed(db_name: str, complited_id: int) -> None:
             f'\n\nОтменяем изменение статуса задания № {complited_id}  на "Исполенно"'
         )
         logger.debug(
-            "task_gone(): Пользователь не подтвердил изменение записи на исполнено"
+            "task_completed(): Пользователь не подтвердил изменение записи на исполнено"
         )
         exit(1)
 
