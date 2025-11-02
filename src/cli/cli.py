@@ -18,7 +18,7 @@ from src.db_access.db_working import (
     get_db_name,
     list_of_tasks,
     set_tasks_deadline,
-    task_done,
+    task_complited,
     make_db,
     make_task,
 )
@@ -78,7 +78,7 @@ def main_body(db_full_path: str):
     elif args.task_list:
         list_of_tasks(db_full_path, "all")
     elif args.task_done_date:
-        task_done(db_full_path, args.task_done_date)
+        task_complited(db_full_path, args.task_done_date)
     elif args.task_del_id:
         delete_task(db_full_path, args.task_del_id)
     else:
