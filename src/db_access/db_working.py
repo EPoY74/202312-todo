@@ -318,7 +318,7 @@ def delete_task(db_name_for_delete_task: str, deleting_task: int):
         exit(1)
 
 
-def task_done(db_name: str, task_gone_id: int) -> None:
+def task_done(db_name: str, complited_id: int) -> None:
     """
     Автор: Евгений Петров, Челябинск, p174@mail.ru
     Помечаем задание с номером ask_done_id помеченным и исполненным.
@@ -337,7 +337,7 @@ def task_done(db_name: str, task_gone_id: int) -> None:
     # Формирую sql запрос на пометку задания исполненным
     select_id_sql_gone = """UPDATE my_todo_list
                             SET is_gone = 1 
-                            WHERE id=""" + str(task_gone_id)
+                            WHERE id=""" + str(complited_id)
 
     # Формирую SQL запрос на установку даты исполнения
     select_id_sql_date_gone = (
@@ -345,11 +345,11 @@ def task_done(db_name: str, task_gone_id: int) -> None:
     SET date_of_gone=\""""
         + str(date_time_now)
         + """\" WHERE id="""
-        + str(task_gone_id)
+        + str(complited_id)
     )
 
-    id_and_date = "# " + str(task_gone_id) + ", дата выполнения " + date_time_now
-    list_of_tasks(db_name, "one", task_gone_id)  # Показываеи запись до их изменения
+    id_and_date = "# " + str(complited_id) + ", дата выполнения " + date_time_now
+    list_of_tasks(db_name, "one", complited_id)  # Показываеи запись до их изменения
 
     if confirm_action("пометить исполненным задание ", id_and_date):
         logger.debug("task_gone(): Записываем пометку исполнения задания в БД")
@@ -359,11 +359,11 @@ def task_done(db_name: str, task_gone_id: int) -> None:
 
         logger.debug("task_gone(): Записываем дату исполнения задания в БД")
         work_with_slq(db_name, "write", "one", select_id_sql_date_gone)
-        list_of_tasks(db_name, "one", task_gone_id)  # Показываем запись с изменениями
-        print(f'\n\nЗапись номер {task_gone_id} изменена на "Исполенно"')
+        list_of_tasks(db_name, "one", complited_id)  # Показываем запись с изменениями
+        print(f'\n\nЗапись номер {complited_id} изменена на "Исполенно"')
     else:
         print(
-            f'\n\nОтменяем изменение статуса задания № {task_gone_id}  на "Исполенно"'
+            f'\n\nОтменяем изменение статуса задания № {complited_id}  на "Исполенно"'
         )
         logger.debug(
             "task_gone(): Пользователь не подтвердил изменение записи на исполнено"
@@ -399,7 +399,7 @@ def work_with_slq(
     db_return: List = []
     # data: List =[]
 
-    db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode = rw"
+    db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode=rw"
 
     logger.debug("work_with_slq(): Имя БД: %s", db_name_rw)
     logger.debug("work_with_slq(): SQL запрос: %s", db_sql_query)
