@@ -240,7 +240,7 @@ def list_of_tasks(db_name: str, all_or_last: str = "all", id_row: int = 0):
                 "Исполнено" if row["is_gone"] else "Нет",
                 row["date_of_gone"] or "Не установлено",
             )
-            todo_table.add_row(row_insert)
+            todo_table.add_row(list(row_insert))
             if counter > 0 and counter % 10 == 0:
                 print(todo_table)  #  тут выводим, если блок из 10 штук
                 todo_table.clear_rows()
