@@ -1,0 +1,10 @@
+[project]
+name = "202312-todo"
+version = "0.1.0"
+description = "A program for creating ToDo tasks."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "prettytable>=3.16.0",
+    "ruff>=0.14.3",
+]
