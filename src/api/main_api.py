@@ -10,8 +10,6 @@ from datetime import datetime
 from fastapi import FastAPI
 import colorama
 
-import uvicorn
-
 # from src.cfg.cfg_working import search_config_and_db
 from src.cfg import cfg_working
 
