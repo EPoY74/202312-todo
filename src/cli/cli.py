@@ -55,7 +55,7 @@ def main_body(db_full_path: str):
         "--task_list", help="Выводит список задач", action="store_true"
     )  # И где написано про action интересно?
     parser.add_argument(
-        "--task_done_date",
+        "--completed_at",
         type=int,
         help="""Помечает задание с номером № завершенным:
                         --task_done_date номер_записи""",
@@ -77,8 +77,8 @@ def main_body(db_full_path: str):
         set_tasks_deadline(db_full_path, args.task_deadline)
     elif args.task_list:
         list_of_tasks(db_full_path, "all")
-    elif args.task_done_date:
-        task_completed(db_full_path, args.task_done_date)
+    elif args.completed_at:
+        task_completed(db_full_path, args.completed_at)
     elif args.task_del_id:
         delete_task(db_full_path, args.task_del_id)
     else:
@@ -96,8 +96,8 @@ def printing_help():
     print("""--task_deadline: Устанавлявает дату, до которой
     надо выполнить задание: --task_deadline номер_записи""")
     print("--task_list: Выводит список задач")
-    print("""--task_done_date: Помечает задание с номером № завершенным:
-    --task_done_date номер_записи""")
+    print("""--completed_at: Помечает задание с номером № завершенным:
+    --completed_at номер_записи""")
     print("--task_del_id: Удаляет запись с номером: --task_del_id номер_записи\n")
 
 
