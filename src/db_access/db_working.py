@@ -51,7 +51,7 @@ def make_db(db_name_new: str):
             print("База данных создана\n")
             logger.info("make_db(): База данных %s создана", db_name_new)
     except sqlite3.Error as err:
-        logger.info(f"Ошибка в make_db(): %s", str(err))
+        logger.info("Ошибка в make_db(): %s", str(err))
         print(f"Ошибка в make_db():\n {str(err)}")
         raise
 
