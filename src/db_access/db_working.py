@@ -318,7 +318,7 @@ def delete_task(db_name_for_delete_task: str, deleting_task: int):
         exit(1)
 
 
-def task_complited(db_name: str, complited_id: int) -> None:
+def task_completed(db_name: str, complited_id: int) -> None:
     """
     Автор: Евгений Петров, Челябинск, p174@mail.ru
     Помечаем задание с номером ask_done_id помеченным и исполненным.
