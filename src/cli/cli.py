@@ -57,7 +57,7 @@ def main_body(db_full_path: str):
     parser.add_argument(
         "--completed_at",
         type=int,
-        help="""Помечает задание с номером № завершенным:
+        help="""Помечает задание с номером № завершенным. Дата и время завершения - текущие:
                         --completed_at номер_записи""",
     )
     parser.add_argument(
@@ -96,7 +96,7 @@ def printing_help():
     print("""--deadline_at: Устанавлявает дату, до которой
     надо выполнить задание: --deadline_at номер_записи""")
     print("--tasks_list: Выводит список задач")
-    print("""--completed_at: Помечает задание с номером № завершенным:
+    print("""--completed_at: Помечает задание с номером № завершенным. Дата и время завершения - текущие:
     --completed_at номер_записи""")
     print("--task_del_id: Удаляет запись с номером: --task_del_id номер_записи\n")
 
