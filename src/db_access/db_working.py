@@ -34,22 +34,22 @@ def get_db_name(cli_config_obj: ConfigParser):
     return dbname if dbname is not None else str(cli_config_obj["db_cfg"]["db_name"])
 
 
-def make_db(db_name_new: str):
+def make_db(db_name: str):
     """
     Создаем основную базу данных для работы приложения.
     Создаем основную таблицу для работы приложения
     """
     # создаем БД
     logger.info("Запуск  make_db()")
-    if not db_name_new:
-        logger.error("Ошибка в make_db(): Надо передать db_new_new")
-        raise ValueError("make_db(): Надо передать db_new_new")
+    if not db_name:
+        logger.error("Ошибка в make_db(): Надо передать db_new")
+        raise ValueError("make_db(): Надо передать db_new")
 
     try:
         print("\n\nСоздаю базу данных...")
-        with sqlite3.connect(db_name_new) as db_connection:
+        with sqlite3.connect(db_name) as db_connection:
             print("База данных создана\n")
-            logger.info("make_db(): База данных %s создана", db_name_new)
+            logger.info("make_db(): База данных %s создана", db_name)
     except sqlite3.Error as err:
         logger.info("Ошибка в make_db(): %s", str(err))
         print(f"Ошибка в make_db():\n {str(err)}")
@@ -57,7 +57,7 @@ def make_db(db_name_new: str):
 
     # Записываем таблицу, если не создана
     try:
-        with sqlite3.connect(db_name_new) as db_connection:
+        with sqlite3.connect(db_name) as db_connection:
             print("Создаю таблицу для ToDo заданий в Базе Данных")
             logger.info("make_db(): Создаю таблицу в БД")
             db_cursor = db_connection.cursor()
@@ -88,8 +88,11 @@ def make_task(db_name: str, text_of_task: str):  # Создаю таск в БД
     logger.info("make_task(): Запуск")
     logger.info("make_task(): DB name is: %s", db_name)
     logger.info("make_task(): Task for execute is:  %s", text_of_task)
+    
     # Открываем БД на Read-Write. Создавать - не будем.
-    db_name_rw: str = "file:" + db_name + "?mode=rw"
+    # Строка подключения к БД
+    db_name_rw: str = "file:" + db_name + "?mode=rw&uri=True"
+    
     logger.info("make_task():DB name for writeng is: %s", db_name_rw)
 
     # Получаем объект дата время
@@ -190,7 +193,6 @@ def list_of_tasks(db_name: str, all_or_last: str = "all", id_row: int = 0):
     logger.info("list_of_tasks(): Запуск")
 
     # Такой синтаксис для открытия БД - что бы открыть её только на чтение/запись, без создания
-    # говорит, что не используется db_name_rw = "file:" + db_name + "?mode=rw"
     row = None
     row_insert = None
 
@@ -290,7 +292,7 @@ def get_record_by_id(db_name, id_row):
     return data_of_todo
 
 
-def delete_task(db_name_for_delete_task: str, deleting_task: int):
+def delete_task(db_name: str, delete_task: int):
     """
     Автор: Евгений Петров, Челябинск, p174@mail.ru
     Удаляем одно задание, номер которого получаем в параметре
@@ -299,18 +301,17 @@ def delete_task(db_name_for_delete_task: str, deleting_task: int):
     """
 
     logger.info("delete_task(): Запуск процедуры")
-    # DB_NAME_RW = "file:" + db_name_for_delete_task + "?mode=rw"
     select_id_sql_for_delete_task: str = """DELETE FROM  my_todo_list
-                                            WHERE id=""" + str(deleting_task)
+                                            WHERE id=""" + str(delete_task)
 
-    list_of_tasks(db_name_for_delete_task, "one", deleting_task)
+    list_of_tasks(db_name, "one", delete_task)
     print("Вы хотите удалить данную запись.\n")
 
-    if confirm_action(" удаление записи #", str(deleting_task)):
+    if confirm_action(" удаление записи #", str(delete_task)):
         logger.debug("""delete_task():
                       Пользователь подтвердил удаление записи #{deleting_task}""")
         work_with_slq(
-            db_name_for_delete_task, "write", "one", select_id_sql_for_delete_task
+            db_name, "write", "one", select_id_sql_for_delete_task
         )
     else:
         logger.debug("""delete_task():
@@ -399,7 +400,7 @@ def work_with_slq(
     db_return: List = []
     # data: List =[]
 
-    db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode=rw"
+    db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode=rw&uri=True"
 
     logger.debug("work_with_slq(): Имя БД: %s", db_name_rw)
     logger.debug("work_with_slq(): SQL запрос: %s", db_sql_query)
