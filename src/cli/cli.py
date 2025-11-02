@@ -46,10 +46,10 @@ def main_body(db_full_path: str):
         help="""Описание задачи, которую заводим: --task_add \"Это запись\" """,
     )
     parser.add_argument(
-        "--task_deadline",
+        "--deadline_at",
         type=int,
         help="""Устанавлявает дату, до которой надо выполнить задание:
-                        --task_deadline номер_записи""",
+                        --deadline_at номер_записи""",
     )
     parser.add_argument(
         "--task_list", help="Выводит список задач", action="store_true"
@@ -58,7 +58,7 @@ def main_body(db_full_path: str):
         "--completed_at",
         type=int,
         help="""Помечает задание с номером № завершенным:
-                        --task_done_date номер_записи""",
+                        --completed_at номер_записи""",
     )
     parser.add_argument(
         "--task_del_id",
@@ -73,8 +73,8 @@ def main_body(db_full_path: str):
         make_db(db_full_path)
     elif args.task_add:
         make_task(db_full_path, args.task_add)
-    elif args.task_deadline:
-        set_tasks_deadline(db_full_path, args.task_deadline)
+    elif args.deadline_at:
+        set_tasks_deadline(db_full_path, args.deadline_at)
     elif args.task_list:
         list_of_tasks(db_full_path, "all")
     elif args.completed_at:
@@ -93,8 +93,8 @@ def printing_help():
     print("Основные команды консольного ToDo приложения:")
     print("--create_db: Создаем базу данных для списка задач")
     print('--task_add: Описание задачи, которую заводим: --task_add "Это запись" ')
-    print("""--task_deadline: Устанавлявает дату, до которой
-    надо выполнить задание: --task_deadline номер_записи""")
+    print("""--deadline_at: Устанавлявает дату, до которой
+    надо выполнить задание: --deadline_at номер_записи""")
     print("--task_list: Выводит список задач")
     print("""--completed_at: Помечает задание с номером № завершенным:
     --completed_at номер_записи""")
