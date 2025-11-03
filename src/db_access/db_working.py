@@ -88,11 +88,11 @@ def make_task(db_name: str, text_of_task: str):  # Создаю таск в БД
     logger.info("make_task(): Запуск")
     logger.info("make_task(): DB name is: %s", db_name)
     logger.info("make_task(): Task for execute is:  %s", text_of_task)
-    
+
     # Открываем БД на Read-Write. Создавать - не будем.
     # Строка подключения к БД
-    db_name_rw: str = "file:" + db_name + "?mode=rw&uri=True"
-    
+    db_name_rw: str = "file:" + db_name + "?mode=rw"
+
     logger.info("make_task():DB name for writeng is: %s", db_name_rw)
 
     # Получаем объект дата время
@@ -310,9 +310,7 @@ def delete_task(db_name: str, delete_task: int):
     if confirm_action(" удаление записи #", str(delete_task)):
         logger.debug("""delete_task():
                       Пользователь подтвердил удаление записи #{deleting_task}""")
-        work_with_slq(
-            db_name, "write", "one", select_id_sql_for_delete_task
-        )
+        work_with_slq(db_name, "write", "one", select_id_sql_for_delete_task)
     else:
         logger.debug("""delete_task():
                       Пользователь не подтвердил удаление записи #{deleting_task}""")
@@ -373,67 +371,70 @@ def task_completed(db_name: str, complited_id: int) -> None:
 
 
 def work_with_slq(
-    db_name_def_worrk_with_sql: str,
-    type_of_sql: str,
+    db_name: str,
+    request_type: str,
     is_one: str,
-    db_sql_query: str,
+    sql_query: str,
     db_sql_data: tuple = (),
 ) -> List[sqlite3.Row]:  # isDone Далаем запись в БД
     """
     Выполняе запрос в базу данных. Если указаана только БД
     и запрос - то выполняем только его
     Если укзазан БД, запрос и данные - то выполняем и данные и запрос.
-    Если записи не существует - то выводим сообщение
-    DB_NAME - Имя базы данных
-    db_sql_query - SQL запоос к базе данных
-    db_slq_data - передаваемые параметры в SQL запрос (необязательный)
-    type_of_SQL - тип SQL ,запись или чтение (read, write),
+    Если записи не существует - возвращается ппутой список
+    db_name - Имя базы данных
+    sql_query - SQL запрос к базе данных
+    slq_data - передаваемые параметры в SQL запрос (необязательный)
+    request_type - тип SQL ,запись или чтение (read, write),
     если нужно закомитить в БД,то выбирть write
 
     Возвращает результат запроса, если он есть
-    Если запись отсутствует,то выход с кодом одит и return -1
-    Возвращает результат запроса
+    Если запись отсутствует то возврящается пустой список
     """
 
     logger.info("work_with_slq(): Запуск")
 
     db_return: List = []
-    # data: List =[]
 
-    db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode=rw&uri=True"
+    # Строка подключения к БД
+    db_name_rw = "file:" + db_name + "?mode=rw"
+
 
     logger.debug("work_with_slq(): Имя БД: %s", db_name_rw)
-    logger.debug("work_with_slq(): SQL запрос: %s", db_sql_query)
+    logger.debug("work_with_slq(): SQL запрос: %s", sql_query)
     logger.debug("work_with_slq(): SQL данные: %s", db_sql_data)
 
-    try:
-        with sqlite3.connect(db_name_rw, uri=True) as db_connection:
+   
+    with sqlite3.connect(db_name_rw, uri=True) as db_connection:
+        try:
             db_connection.row_factory = sqlite3.Row
             db_cursor = db_connection.cursor()
 
             logger.debug("""work_with_slq(): Подключился к БД,
-                          Получил курсор, Выполняю SQL запрос""")
-            db_return_temp = db_cursor.execute(db_sql_query, db_sql_data)
+                        Получил курсор, Выполняю SQL запрос""")
+            db_response = db_cursor.execute(sql_query, db_sql_data)
 
             if is_one == "one":
-                db_return = db_return_temp.fetchone()
+                    row = db_response.fetchone()
+                    db_return = (
+                        [row] if row is not None else []
+                    )
+            elif is_one == "many":
+                db_return = db_response.fetchall()
 
-            if is_one == "many":
-                db_return = db_return_temp.fetchall()
-
-            if type_of_sql == "read" and len(db_return) == 0:
-                print("Запись с таким номером в БД отсутсвует.")
-                logger.error(
-                    "work_with_slq(): Запись с таким номером в БД отсутствует."
-                )
-                return []
-
-            if type_of_sql == "write":
-                db_connection.commit()
-    # else:
-    except sqlite3.Error as err:
-        print(f"Ошибка: {err}")
-        logger.error("work_with_slq(): Упс!!!", exc_info=err)
+        except sqlite3.DatabaseError as e:
+            db_connection.rollback()  # на любой DB-ошибке — откат
+            # exception() автоматически добавит traceback
+            logger.warning("sqlite database error: %s", str(e))
+            logger.exception("sqlite write failed: sql=%r params=%r", sql_query, db_sql_data)
+            raise    
+    
+        except sqlite3.Error as err:
+            print(f"Ошибка номер {str(err.sqlite_errorcode)} в работе с БД:\n ")
+            print(f"Описание ошибки:\n {str(err.sqlite_errorname)}")
+            logger.error("work_with_slq(): Упс!!!", exc_info=err)
+            raise err
+   
     return db_return
 
 
