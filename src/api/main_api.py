@@ -29,7 +29,7 @@ app_todo = FastAPI()
 # date_time_now = date_time_now_obj.strftime('%d.%m.%Y %H:%M')
 
 # Оказывается можно и так, что бы не плодить переменные
-date_time_now_new = datetime.now().strftime('%d.%m.%Y %H:%M')
+date_time_now_new = datetime.now().strftime("%d.%m.%Y %H:%M")
 
 print(colorama.Fore.YELLOW + "\nЗапущено в " + date_time_now_new)
 print("API: Консольное приложение для ведения задач.")
@@ -42,7 +42,8 @@ db_name: str = db_working_api.get_db_name(cfg_working.search_config_and_db())
 
 logger.info("API: Старт консольного ToDo приложения.")
 
-@app_todo.get('/')
+
+@app_todo.get("/")
 async def root_async():
     """Слушает эндпоит "/" и выдает общюю информацию об API
     Returns:
@@ -50,13 +51,12 @@ async def root_async():
     """
     logger.info("API: Обращние с API по роуту '/'")
 
-    return {"mеssage" : "This is API for EPoY's todo app. Since 2023."}
+    return {"mеssage": "This is API for EPoY's todo app. Since 2023."}
 
 
 @app_todo.get("/all")
 async def show_all_tasks_async():
-    """Выводит все записи, которые есть в БД
-    """
+    """Выводит все записи, которые есть в БД"""
     logger.info("API: Обращение с API по роуту '/all'")
 
     return db_working_api.list_of_tasks_json(db_name)
@@ -64,8 +64,7 @@ async def show_all_tasks_async():
 
 @app_todo.get("/last")
 async def show_last_tasks_async():
-    """Выводит последнюю запись в БД
-    """
+    """Выводит последнюю запись в БД"""
     logger.info("API: Обращение с API по роуту '/last'")
 
     return db_working_api.list_of_tasks_json(db_name, all_or_last="last")
@@ -73,11 +72,14 @@ async def show_last_tasks_async():
 
 @app_todo.get("/task/{task_id}")
 async def show_one_task_async(task_id: str):
-    """Выводит запись в БД c номером task_id
-    """
-    logger.info("API: Обращение с API по роуту '/task/{task_id}', где task_id = %s", task_id)
+    """Выводит запись в БД c номером task_id"""
+    logger.info(
+        "API: Обращение с API по роуту '/task/{task_id}', где task_id = %s", task_id
+    )
 
-    return db_working_api.list_of_tasks_json(db_name, all_or_last="one", id_row = int(task_id))
+    return db_working_api.list_of_tasks_json(
+        db_name, all_or_last="one", id_row=int(task_id)
+    )
 
 
 # def start_todo_api_app():

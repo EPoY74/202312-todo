@@ -4,14 +4,13 @@ Returns:
     _type_: _description_
 """
 
-
 import os
 
 import configparser as cfg_par
 from src.db_access.db_working import make_db
 
 
-def search_config_and_db(name_exicting_db: str = "" ):
+def search_config_and_db(name_exicting_db: str = ""):
     """
     Функция ищет файл конфигурации и файл БД, если отсутствует(первый запуск,допустим),
     то создает их.
@@ -26,31 +25,22 @@ def search_config_and_db(name_exicting_db: str = "" ):
 
     # Формирую имя файла конфигурации
     ini_config_name = "todo_config.ini"
-    file_directory:str = os.path.dirname(__file__)
-    config_file_path:str = os.path.join(
-        file_directory,
-        '..', '..',
-        'src', 'cfg', ini_config_name
+    file_directory: str = os.path.dirname(__file__)
+    config_file_path: str = os.path.join(
+        file_directory, "..", "..", "src", "cfg", ini_config_name
     )
     print("cfg_working: ", config_file_path)
 
-
     # Формирую имя БД
     db_name = str(prog_name + ".db")
-    db_path:str = os.path.join(
-        file_directory,
-        '..', '..',
-        'src', 'data', db_name
-    )
-    print("cfg_working: ",  db_path)
+    db_path: str = os.path.join(file_directory, "..", "..", "src", "data", db_name)
+    print("cfg_working: ", db_path)
 
     config_obj = cfg_par.ConfigParser()
 
     # задаю объект парсера конфигурации
     # Читаю конфигурацию
-    todo_config = config_obj.read(
-        config_file_path
-        )
+    todo_config = config_obj.read(config_file_path)
 
     if len(todo_config) == 0:
         if not os.path.isfile(db_path):
@@ -69,9 +59,7 @@ def search_config_and_db(name_exicting_db: str = "" ):
         print(f"\nфайл конфигурации {ini_config_name} не найден")
         is_confirm = input(f"Создать файл конфигурации {ini_config_name}? y/n ")
         if is_confirm.upper() == "y" or is_confirm == "Y":
-            create_config_file(
-                config_file_path,
-                db_name)
+            create_config_file(config_file_path, db_name)
         elif is_confirm.upper() == "n":
             print("Отменяю создание файла конфигурации")
             exit(1)
@@ -81,9 +69,7 @@ def search_config_and_db(name_exicting_db: str = "" ):
     return config_obj
 
 
-
-def create_config_file(ini_file_name: str,
-                       db_name: str):  # Создаю файл конфигурации
+def create_config_file(ini_file_name: str, db_name: str):  # Создаю файл конфигурации
     """Создает файл конфигурации
 
     Args:

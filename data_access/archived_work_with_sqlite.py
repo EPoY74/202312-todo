@@ -13,7 +13,9 @@ from typing import List
 
 import configparser as cfg_par
 
-from src.cfg.logger_config import logger  # переместил настройки логирования в отдельный файл
+from src.cfg.logger_config import (
+    logger,
+)  # переместил настройки логирования в отдельный файл
 
 
 def search_config_and_db():  # Ищем конфигурацию и БД,если нет - создаем
@@ -25,10 +27,14 @@ def search_config_and_db():  # Ищем конфигурацию и БД,есл�
 
     logger.info("search_config_and_db(): Запуск")
     full_prog_name = str(sys.argv[0])  # Читаю полное имя файла
-    prog_name = full_prog_name[0:full_prog_name.rfind(".")]  # Получаю имя скрипта без точки
+    prog_name = full_prog_name[
+        0 : full_prog_name.rfind(".")
+    ]  # Получаю имя скрипта без точки
     ini_file_name = str(prog_name + ".ini")  # Формирую имя файла конфигурации
     db_file_name = str(prog_name + ".db")  # Формирую имя БД
-    todo_config_obj = cfg_par.ConfigParser()  # Сoздаю объект класса парсера конфигурации
+    todo_config_obj = (
+        cfg_par.ConfigParser()
+    )  # Сoздаю объект класса парсера конфигурации
     todo_config = todo_config_obj.read(ini_file_name)  # Читаю конфигурацию
 
     if len(todo_config) == 0:
@@ -48,7 +54,6 @@ def search_config_and_db():  # Ищем конфигурацию и БД,есл�
         print(f"\nфайл конфигурации {ini_file_name} не найден")
         is_confirm = input(f"Создать файл конфигурации {ini_file_name}? y/n ")
         if is_confirm.upper() == "y" or is_confirm == "Y":
-
             create_config_file(ini_file_name, db_file_name)
         elif is_confirm.upper() == "n":
             print("Отменяю создание файла конфигурации")
@@ -60,7 +65,6 @@ def search_config_and_db():  # Ищем конфигурацию и БД,есл�
 
 
 def create_config_file(ini_file_name: str, db_name: str):  # Создаю файл конфигурации
-
     print("\n\nСоздаю файл конфигурации...")
     todo_config = cfg_par.ConfigParser()
     todo_config.add_section("db_cfg")
@@ -95,7 +99,7 @@ def make_db(db_name_new: str):  # Создаю БД, если её нет
         with sql3.connect(db_name_new) as db_connection:
             print("Создаю таблицу для ToDo заданий в Базе Даннах")
             db_cursor = db_connection.cursor()
-            db_cursor.execute('''
+            db_cursor.execute("""
             CREATE TABLE IF NOT EXISTS my_todo_list(
             id INTEGER PRIMARY KEY,
             data_of_creation,
@@ -104,14 +108,16 @@ def make_db(db_name_new: str):  # Создаю БД, если её нет
             is_gone integer,
             date_of_gone TEXT
             )
-            ''')
+            """)
         print("Таблица в базе данных создана успешно\n")
         print("База данных создана и подготовлена к работа.")
     except sql3.Error as error:
         print(f"Ошибка:\n  {str(error)}")
 
 
-def get_db_name(config_obj):  # Беру имя БД из переменной окружения TODO_DB_NAME, если она есть
+def get_db_name(
+    config_obj,
+):  # Беру имя БД из переменной окружения TODO_DB_NAME, если она есть
     """
     Получает имя базы из переменной окружения TODO_DB_NAME.
     Если такой переменной нет, то имя базы будет eo20231206sql.db.
@@ -123,10 +129,9 @@ def get_db_name(config_obj):  # Беру имя БД из переменной �
     return dbname if dbname is not None else str(config_obj["db_cfg"]["db_name"])
 
 
-def work_with_data(type_of_sql: str,
-                   is_one: str,
-                   db_sql_query: str,
-                   db_sql_data: tuple = ()) -> List[sql3.Row]:
+def work_with_data(
+    type_of_sql: str, is_one: str, db_sql_query: str, db_sql_data: tuple = ()
+) -> List[sql3.Row]:
     """
     Выполняет запрос в базу данных. Если указана только БД и запрос - то выполняем только его
     Если указан БД, запрос и данные - то выполняем и данные и запрос.
@@ -156,7 +161,9 @@ def work_with_data(type_of_sql: str,
             db_connection.row_factory = sql3.Row
             db_cursor = db_connection.cursor()
 
-            logger.debug("work_with_slq(): Подключился к БД, Получил курсор, Выполняю SQL запрос ")
+            logger.debug(
+                "work_with_slq(): Подключился к БД, Получил курсор, Выполняю SQL запрос "
+            )
             db_return_temp = db_cursor.execute(db_sql_query, db_sql_data)
 
             if is_one == "one":
@@ -167,7 +174,9 @@ def work_with_data(type_of_sql: str,
 
             if type_of_sql == "read" and len(db_return) == 0:
                 print("Запись с таким номером в БД отсутствует.")
-                logger.error("work_with_slq(): Запись с таким номером в БД отсутствует.")
+                logger.error(
+                    "work_with_slq(): Запись с таким номером в БД отсутствует."
+                )
                 return []
 
             if type_of_sql == "write":
@@ -183,20 +192,20 @@ def work_with_data(type_of_sql: str,
 def query_for_data(name_of_foo: str) -> str:
     logger.info("query_for_data(): Запуск")
 
-    if name_of_foo == 'delete_task':
-        return '''DELETE FROM  my_todo_list WHERE id='''
+    if name_of_foo == "delete_task":
+        return """DELETE FROM  my_todo_list WHERE id="""
 
-    elif name_of_foo == 'is_can_edit':
-        return '''SELECT is_gone, date_of_gone FROM  my_todo_list WHERE id=?'''
+    elif name_of_foo == "is_can_edit":
+        return """SELECT is_gone, date_of_gone FROM  my_todo_list WHERE id=?"""
 
-    elif name_of_foo == 'make_task':
+    elif name_of_foo == "make_task":
         # Этот вариант рабочий
-        return '''INSERT INTO my_todo_list (data_of_creation, todo_text, is_gone)
-         VALUES (?, ?, ?)'''
+        return """INSERT INTO my_todo_list (data_of_creation, todo_text, is_gone)
+         VALUES (?, ?, ?)"""
         # Просто я решил попробовать так - и взлетело upd: не взлетело - перезаписало всю таблицу!
 
     elif name_of_foo == "set_tasks_deadline":
-        return '''UPDATE my_todo_list SET date_max=? WHERE id=?'''
+        return """UPDATE my_todo_list SET date_max=? WHERE id=?"""
 
     else:
         print("Запрос не может быть сформирован")

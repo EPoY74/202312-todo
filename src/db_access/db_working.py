@@ -399,12 +399,10 @@ def work_with_slq(
     # Строка подключения к БД
     db_name_rw = "file:" + db_name + "?mode=rw"
 
-
     logger.debug("work_with_slq(): Имя БД: %s", db_name_rw)
     logger.debug("work_with_slq(): SQL запрос: %s", sql_query)
     logger.debug("work_with_slq(): SQL данные: %s", db_sql_data)
 
-   
     with sqlite3.connect(db_name_rw, uri=True) as db_connection:
         try:
             db_connection.row_factory = sqlite3.Row
@@ -415,10 +413,8 @@ def work_with_slq(
             db_response = db_cursor.execute(sql_query, db_sql_data)
 
             if is_one == "one":
-                    row = db_response.fetchone()
-                    db_return = (
-                        [row] if row is not None else []
-                    )
+                row = db_response.fetchone()
+                db_return = [row] if row is not None else []
             elif is_one == "many":
                 db_return = db_response.fetchall()
 
@@ -426,15 +422,17 @@ def work_with_slq(
             db_connection.rollback()  # на любой DB-ошибке — откат
             # exception() автоматически добавит traceback
             logger.warning("sqlite database error: %s", str(e))
-            logger.exception("sqlite write failed: sql=%r params=%r", sql_query, db_sql_data)
-            raise    
-    
+            logger.exception(
+                "sqlite write failed: sql=%r params=%r", sql_query, db_sql_data
+            )
+            raise
+
         except sqlite3.Error as err:
             print(f"Ошибка номер {str(err.sqlite_errorcode)} в работе с БД:\n ")
             print(f"Описание ошибки:\n {str(err.sqlite_errorname)}")
             logger.error("work_with_slq(): Упс!!!", exc_info=err)
             raise err
-   
+
     return db_return
 
 

@@ -1,5 +1,5 @@
-"""Запускает cli интерфейс
-"""
+"""Запускает cli интерфейс"""
+
 import sys
 import os
 # from src.cli.cli import main
@@ -12,4 +12,5 @@ if not __package__:
 
 if __name__ == "__main__":
     from src.cli.cli import main
+
     main()
