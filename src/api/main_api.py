@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Цель проекта: API оболочка для todo приложения.
 Использованые библиотеки: FastApi
@@ -74,7 +75,8 @@ async def show_last_tasks_async():
 async def show_one_task_async(task_id: str):
     """Выводит запись в БД c номером task_id"""
     logger.info(
-        "API: Обращение с API по роуту '/task/{task_id}', где task_id = %s", task_id
+        "API: Обращение с API по роуту"
+        + " '/task/{task_id}', где task_id = %s", task_id
     )
 
     return db_working_api.list_of_tasks_json(
