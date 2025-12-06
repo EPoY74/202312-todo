@@ -1,4 +1,5 @@
 [Русский](README.md)|[English](README.en.md)
+<br>
 ![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)
 # Проект 202312-todo: систама управления списком задач
 
