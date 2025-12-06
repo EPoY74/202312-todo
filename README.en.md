@@ -1,5 +1,6 @@
-# Project 202312-todo: Task List Management System
 [Русский](README.md)|[English](README.en.md)
+![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)
+# Project 202312-todo: Task List Management System
 
  A program for creating ToDo tasks.
  202312-todo is a feature-rich task management application developed in Python. 
