@@ -24,7 +24,9 @@ def get_db_name(todo_config_obj_def):
     if dbname is not None:
         print(f"Используем имя базы из переменной TODO_DB_NAME - {dbname}")
     return (
-        dbname if dbname is not None else str(todo_config_obj_def["db_cfg"]["db_name"])
+        dbname
+        if dbname is not None
+        else str(todo_config_obj_def["db_cfg"]["db_name"])
     )
 
 
@@ -42,7 +44,9 @@ def list_of_tasks_json(db_name: str, all_or_last: str = "all", id_row: int = 0):
     # Формируем SQL запрос на одну запись, на последнюю или на все.
     # check all_or_last for valid value
     if all_or_last != "all" and all_or_last != "last" and all_or_last != "one":
-        logger.error("list_of_tasks(): Передан некорректный параметр all_or_last")
+        logger.error(
+            "list_of_tasks(): Передан некорректный параметр all_or_last"
+        )
         print("Передан некорректный параметр all_or_last")
         exit(1)
 
@@ -50,7 +54,9 @@ def list_of_tasks_json(db_name: str, all_or_last: str = "all", id_row: int = 0):
 
     try:
         if all_or_last == "last":
-            logger.debug("API: list_of_tasks_json() Получаю последнюю запись из БД")
+            logger.debug(
+                "API: list_of_tasks_json() Получаю последнюю запись из БД"
+            )
             data_of_todo = get_last_record_api(db_name)
 
         elif all_or_last == "all":
@@ -59,7 +65,8 @@ def list_of_tasks_json(db_name: str, all_or_last: str = "all", id_row: int = 0):
 
         elif all_or_last == "one":
             logger.debug(
-                "API: list_of_tasks_json() Получаю одну запись из БД # %d", id_row
+                "API: list_of_tasks_json() Получаю одну запись из БД # %d",
+                id_row,
             )
             data_of_todo = get_record_by_id_api(db_name, id_row)
 
@@ -189,7 +196,9 @@ def get_all_records_api(db_name):
     """
     logger.info("API get_all_records_api(): Get all records from DB")
     db_sql_query = "SELECT * FROM  my_todo_list"
-    executed_sql_query = work_with_slq_api(db_name, "read", "many", db_sql_query)
+    executed_sql_query = work_with_slq_api(
+        db_name, "read", "many", db_sql_query
+    )
     return executed_sql_query
 
 
@@ -198,7 +207,9 @@ def get_record_by_id_api(db_name, id_row):
     Автор: Евгений Петров, Челябинск,
     Возвращает запись с номером id_row из БД
     """
-    logger.info("API: get_record_by_id_api(): Get one record #%d from DB", id_row)
+    logger.info(
+        "API: get_record_by_id_api(): Get one record #%d from DB", id_row
+    )
     db_sql_query = "SELECT * FROM  my_todo_list WHERE id=?"
     db_sql_parametr = (id_row,)
     executed_sql_query = work_with_slq_api(
