@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Реализация CLI интерфейса для todo листа
 
@@ -28,7 +29,8 @@ from src.cfg.logger_config import logger
 def main_body(db_full_path: str):
     """
     Автор: Евгений Б. Петров, Челябинск, p174@mail.ru
-    Выполняет основную логику консольного приложения: считывает параметры из командной строки
+    Выполняет основную логику консольного приложения:
+      считывает параметры из командной строки
     и вызывает соответствующую процедуру.
     Ничего не возвращает.
     """
@@ -38,12 +40,14 @@ def main_body(db_full_path: str):
         "Програма создает ToDo список дел в текстовом консольном режиме."
     )
     parser.add_argument(
-        "--create_db", help="Создаем базу данных для списка задач", action="store_true"
+        "--create_db",
+        help="Создаем базу данных для списка задач",
+        action="store_true",
     )
     parser.add_argument(
         "--task_add",
         type=str,
-        help="""Описание задачи, которую заводим: --task_add \"Это запись\" """,
+        help="""Описание задачи, которую заводим: --task_add \"Это запись\" """,  # noqa
     )
     parser.add_argument(
         "--deadline_at",
@@ -58,7 +62,7 @@ def main_body(db_full_path: str):
         "--completed_at",
         type=int,
         help="""Помечает задание с номером № завершенным. Дата и время завершения - текущие:
-                        --completed_at номер_записи""",
+                        --completed_at номер_записи""",  # noqa
     )
     parser.add_argument(
         "--task_del_id",
@@ -83,25 +87,44 @@ def main_body(db_full_path: str):
         delete_task(db_full_path, args.task_del_id)
     else:
         printing_help()
-        logger.warning("CLI main_body: Пользователь не указал ни одной команды.")
+        logger.warning(
+            "CLI main_body: Пользователь не указал ни одной команды."
+        )
         exit(0)
 
 
 def printing_help():
-    """_summary_ Выводит доступные команды на экран, так как мне надо, а не так как придетс я"""
+    # _summary_ Выводит доступные команды на экран,
+    #  так как мне надо, а не так как придется
     logger.info("CLI printing_help(): Запуск. Вывод помощи на экран")
     print("Основные команды консольного ToDo приложения:")
-    print("--create_db: Создаем базу данных для списка задач")
-    print('--task_add: Описание задачи, которую заводим: --task_add "Это запись" ')
-    print("""--deadline_at: Устанавлявает дату, до которой
-    надо выполнить задание: --deadline_at номер_записи""")
-    print("--tasks_list: Выводит список задач")
-    print("""--completed_at: Помечает задание с номером № завершенным. Дата и время завершения - текущие:
-    --completed_at номер_записи""")
-    print("--task_del_id: Удаляет запись с номером: --task_del_id номер_записи\n")
+    print("--create_db:\n" + "\t Создаем базу данных для списка задач")
+    print(
+        "--task_add: \n"
+        + "\tОписание задачи, которую заводим:\n"
+        + '\t --task_add "Это запись" '
+    )
+    print(
+        "--deadline_at: \n"
+        + "\tУстанавлявает дату, до которой надо выполнить задание:\n"
+        + "\t--deadline_at номер_записи"
+    )
+    print("--tasks_list:\n"
+          + "\tВыводит список задач")
+    print(
+        "--completed_at:\n"
+        + "\tпечает задание с номером № завершенным. "
+        + "Дата и время завершения - текущие:\n"
+        + "\t--completed_at номер_записи"""
+    )  # noqa
+    print(
+        "--task_del_id:\n"
+        + "\tУдаляет запись с номером:\n"
+        + "\t --task_del_id номер_записи\n"
+    )
 
 
-def main():
+def main() -> None:
     """
     Для запуска через имя модуля
     """
@@ -109,7 +132,8 @@ def main():
     logger.info("CLI main(): Запуск src.cli приложения.")
     print("""\nКонсольное приложение для ведения задач.
           \nАвтор: Евгений Б. Петров, p174@mail.ru\n""")
-    #  Принимаю объект с файлом конфигурации, что бы избавится от глобальной переменной
+    #  Принимаю объект с файлом конфигурации,
+    # что бы избавится от глобальной переменной
     todo_config_obj = search_config_and_db()
 
     db_name_from_config: str = get_db_name(todo_config_obj)
@@ -122,7 +146,8 @@ def main():
         file_directory, "..", "..", "src", "data", db_name_from_config
     )
     logger.info(
-        "CLI main(): DB name for working in cli app in variable db_file_name_path: %s ",
+        "CLI main(): DB name for working  "
+        + "  cli app in variable db_file_name_path: %s ",
         db_full_path,
     )
     print("cli: ", db_full_path)
