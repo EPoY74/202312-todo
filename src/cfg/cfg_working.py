@@ -30,14 +30,14 @@ def search_config_and_db(name_exicting_db: str = "") -> cfg_par.ConfigParser:
     config_file_path: str = os.path.join(
         file_directory, "..", "..", "src", "cfg", ini_config_name
     )
-    logger.debug("cfg_working: ", config_file_path)
+    logger.debug("cfg_working: %s", config_file_path)
 
     # Формирую имя БД
     db_name = str(prog_name + ".db")
     db_path: str = os.path.join(
         file_directory, "..", "..", "src", "data", db_name
     )
-    logger.debug("cfg_working: ", db_path)
+    logger.debug("cfg_working: %s", db_path)
 
     config_obj = cfg_par.ConfigParser()
 
