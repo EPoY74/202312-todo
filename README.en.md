@@ -163,3 +163,7 @@ The API server is stopped with `Ctrl + C` in the terminal where it was started:
 ```
 Ctrl + C
 ```
+
+
+## License
+License: Apache-2.0 – see [License: Apache-2.0](./LICENSE-en)
