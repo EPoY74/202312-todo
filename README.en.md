@@ -82,6 +82,17 @@ uv run python -m src.cli --create_db
 
 After successful execution, this command will create the database file (by default it is located in the `src/data` directory).
 
+#### Loading test data
+
+In the src/data/ directory, there is a script init_db.py that loads the sqlite-example-data-db-utf-8.sql dump
+into the todo_main.db database. If the todo_main.db file does not exist, it will be created automatically.
+
+```
+# Load test data into the database
+
+uv run python src/data/init_db.py
+```
+
 ---
 
 ### 5. Running the CLI version (console application)
