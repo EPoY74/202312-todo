@@ -150,7 +150,7 @@ def main() -> None:
         + "  cli app in variable db_file_name_path: %s ",
         db_full_path,
     )
-    logger.debug("cli: ", db_full_path)
+    logger.debug("cli: %s", db_full_path)
 
     main_body(db_full_path)
 
