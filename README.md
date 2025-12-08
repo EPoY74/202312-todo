@@ -133,3 +133,6 @@ API-сервер останавливается по Ctrl + C в том терм
 Ctrl + C
 ```
 
+
+## License
+License: Apache-2.0 – see [License: Apache-2.0](./LICENSE-ru)
