@@ -43,7 +43,7 @@ def search_config_and_db(name_exicting_db: str = "") -> cfg_par.ConfigParser:
 
     # задаю объект парсера конфигурации
     # Читаю конфигурацию
-    todo_config = config_obj.read(config_file_path)
+    todo_config = config_obj.read(config_file_path, encoding="UTF-8")
 
     if len(todo_config) == 0:
         if not os.path.isfile(db_path):
