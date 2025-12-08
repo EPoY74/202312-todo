@@ -1,13 +1,13 @@
 """Модуль работы с SQLite ри обрабтке запросов через API
 Автор: Евгений Петров
-Почта: p174@ mail.ru
+Почта: p174@mail.ru
 Since: 05.10.2024
 """
 
-from typing import List
-import sqlite3
 import json
 import os
+import sqlite3
+from tkinter import TRUE
 
 from fastapi import Response
 
@@ -22,7 +22,9 @@ def get_db_name(todo_config_obj_def):
     """
     dbname = os.getenv("TODO_DB_NAME")
     if dbname is not None:
-        print(f"Используем имя базы из переменной TODO_DB_NAME - {dbname}")
+        logger.debug(
+            f"Используем имя базы из переменной TODO_DB_NAME - {dbname}"
+        )
     return (
         dbname
         if dbname is not None
@@ -30,12 +32,16 @@ def get_db_name(todo_config_obj_def):
     )
 
 
-def list_of_tasks_json(db_name: str, all_or_last: str = "all", id_row: int = 0):
+def list_of_tasks_json(
+        db_name: str, 
+        all_or_last: str = "all", 
+        id_row: int = 0) :
     """
     Выводим список дел из SQLite в виде json.
     Если задан параметр all - выводим все записи, указана по умолчанию.
     ЕСли задан параметр last - то только последнюю запись
-    Если задан переметр one  - выводим одну запись, номер задаем третьим пареметром
+    Если задан переметр one  - выводим одну запись, номер задаем 
+    третьим пареметром
     """
 
     # выводим списк дел.
@@ -47,7 +53,7 @@ def list_of_tasks_json(db_name: str, all_or_last: str = "all", id_row: int = 0):
         logger.error(
             "list_of_tasks(): Передан некорректный параметр all_or_last"
         )
-        print("Передан некорректный параметр all_or_last")
+        logger.error("Передан некорректный параметр all_or_last")
         exit(1)
 
     data_of_todo: Response = Response(content="", media_type="application/json")
@@ -74,7 +80,7 @@ def list_of_tasks_json(db_name: str, all_or_last: str = "all", id_row: int = 0):
 
     except sqlite3.Error as err:
         logger.error("Ой!", exc_info=err)
-        print(f"Ошибка: \n{str(err)}")
+        logger.error(f"Ошибка: \n{str(err)}")
 
 
 def work_with_slq_api(
@@ -102,8 +108,8 @@ def work_with_slq_api(
 
     logger.info("API: work_with_slq_api(): Запуск")
 
-    db_return: List = []
-    data: List | dict = []
+    db_return: list = []
+    data: list | dict = []
 
     db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode = rw"
 
@@ -126,7 +132,8 @@ def work_with_slq_api(
                 # Получаем название столбцов из курсора
                 columns = [col[0] for col in db_cursor.description]
 
-                # Объединяем оба массива (это zip) и создаем из него словарь (это dict),
+                # Объединяем оба массива (это zip) и создаем 
+                # из него словарь (это dict),
                 # чтобы получить пары ключ: значение
                 data = [dict(zip(columns, row)) for row in db_return]
 
@@ -138,14 +145,16 @@ def work_with_slq_api(
                 # Получаем название столбцов из курсора
                 columns = [col[0] for col in db_cursor.description]
 
-                # Объединяем оба массива (это zip) и создаем из него словарь (это dict),
+                # Объединяем оба массива (это zip) и создаем 
+                # из него словарь (это dict),
                 # чтобы получить пары ключ: значение
-                data = [dict(zip(columns, row)) for row in db_return]
+                data = [dict(zip(columns, row, strict=True)) for row in db_return]
 
             if type_of_sql == "read" and len(db_return) == 0:
-                print("API: Запись с таким номером в БД отсутсвует.")
+                logger.error("API: Запись с таким номером в БД отсутсвует.")
                 logger.error(
-                    "API: work_with_slq(): Запись с таким номером в БД отсутствует."
+                    "API: work_with_slq(): Запись с таким номером "
+                    + "в БД отсутствует."
                 )
                 data = {"id": "Record not found in the database"}
 
@@ -153,7 +162,7 @@ def work_with_slq_api(
                 db_connection.commit()
 
     except sqlite3.Error as err:
-        print(f"Ошибка: {err}")
+        logger.error(f"Ошибка: {err}")
         logger.error("API: work_with_slq(): Упс!!! %s", exc_info=err)
 
     # Этот вариант тоже рабочий, но он выводит возвращает не отформатированный код
