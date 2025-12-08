@@ -15,3 +15,10 @@ todo_cli.log
 
 #20250120
 .vscode/
+
+#20251206
+*.db
+*.db
+*.sqlite
+*.sqlite3
+
