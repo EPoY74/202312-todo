@@ -8,16 +8,17 @@
 """
 
 from datetime import datetime
-from fastapi import FastAPI
-import colorama
 
-# from src.cfg.cfg_working import search_config_and_db
-from src.cfg import cfg_working
+import colorama
+from fastapi import FastAPI
 
 # from src.db_access import db_working_api
 import src.db_access.db_working_api as db_working_api
 
+# from src.cfg.cfg_working import search_config_and_db
+from src.cfg import cfg_working
 from src.cfg.logger_config import logger
+
 # import src.cfg.logger_config
 
 colorama.init()
@@ -32,10 +33,9 @@ app_todo = FastAPI()
 # Оказывается можно и так, что бы не плодить переменные
 date_time_now_new = datetime.now().strftime("%d.%m.%Y %H:%M")
 
-print(colorama.Fore.YELLOW + "\nЗапущено в " + date_time_now_new)
-print("API: Консольное приложение для ведения задач.")
-print("Запуск необходим через команду: uvicorn main_api:app_todo --reload")
-print("Автор: Евгений Б. Петров, p174@mail.ru\n")
+print(colorama.Fore.YELLOW + "\nЗапущено в " + date_time_now_new)  # noqa
+print("API: Консольное приложение для ведения задач.")  # noqa
+print("Автор: Евгений Б. Петров, p174@mail.ru\n")  # noqa
 
 
 # Получаю имя базы данных из файла с конфигурацией
