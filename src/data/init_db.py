@@ -1,8 +1,8 @@
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path(".todo_main.db")
-DUMP_PATH = Path(".sqlite-example-data-db-utf-8.sql")
+DB_PATH = Path("todo_main.db")
+DUMP_PATH = Path("sqlite-example-data-db-utf-8.sql")
 
 def init_db() -> None:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
