@@ -13,4 +13,4 @@ def init_db() -> None:
 
 if __name__ == "__main__":
     init_db()
-    print(f"Database initialized at {DB_PATH}")
+    print(f"Database initialized at {DB_PATH}")  # noqa T201
