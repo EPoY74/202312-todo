@@ -2,6 +2,7 @@
 
 import os
 import sys
+
 import uvicorn
 
 # from src.api.main_api import start_todo_api_app
@@ -16,7 +17,12 @@ if not __package__:
 
 def main():
     """пробую запускать api приложение"""
-    uvicorn.run("src.api.main_api:app_todo", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run(
+        "src.api.main_api:app_todo",
+         host="127.0.0.1",
+         port=8000,
+         reload=True
+    )
 
 
 if __name__ == "__main__":

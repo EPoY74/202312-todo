@@ -528,5 +528,6 @@ def confirm_action(confirm_text: str = "---Текст---", other_text: str = "")
             logger.error(
                 "confirm_action():\n"
                 + "\tПользователь ввел некорректное значение. "
-                + " Можно только Y,y или N,n """)
+                + " Можно только Y,y или N,n "
+            )
     return return_value

@@ -9,24 +9,23 @@ Returns:
     _type_: _description_
 """
 
-import os
 import argparse as ap
-# import dotenv
+import os
 
 from src.cfg.cfg_working import search_config_and_db
+from src.cfg.logger_config import logger
 from src.db_access.db_working import (
     delete_task,
     get_db_name,
     list_of_tasks,
-    set_tasks_deadline,
-    task_completed,
     make_db,
     make_task,
+    set_tasks_deadline,
+    task_completed,
 )
-from src.cfg.logger_config import logger
 
 
-def main_body(db_full_path: str):
+def main_body(db_full_path: str) -> None:
     """
     Автор: Евгений Б. Петров, Челябинск, p174@mail.ru
     Выполняет основную логику консольного приложения:
@@ -97,27 +96,28 @@ def printing_help():
     # _summary_ Выводит доступные команды на экран,
     #  так как мне надо, а не так как придется
     logger.info("CLI printing_help(): Запуск. Вывод помощи на экран")
-    print("Основные команды консольного ToDo приложения:")
-    print("--create_db:\n" + "\t Создаем базу данных для списка задач")
-    print(
+    print("Основные команды консольного ToDo приложения:")  # noqa
+    print("--create_db:\n" + "\t Создаем базу данных для списка задач")  # noqa
+    print("--tasks_list:\n" + "\tВыводит список задач")  # noqa
+    print(  # noqa
         "--task_add: \n"
         + "\tОписание задачи, которую заводим:\n"
         + '\t --task_add "Это запись" '
     )
-    print(
+    print(  # noqa
         "--deadline_at: \n"
         + "\tУстанавлявает дату, до которой надо выполнить задание:\n"
         + "\t--deadline_at номер_записи"
     )
-    print("--tasks_list:\n"
-          + "\tВыводит список задач")
-    print(
+    print("--tasks_list:\n" + "\tВыводит список задач")  # noqa
+    print(  # noqa
         "--completed_at:\n"
         + "\tпечает задание с номером № завершенным. "
         + "Дата и время завершения - текущие:\n"
-        + "\t--completed_at номер_записи"""
-    )  # noqa
-    print(
+        + "\t--completed_at номер_записи"
+        ""
+    )
+    print(  # noqa
         "--task_del_id:\n"
         + "\tУдаляет запись с номером:\n"
         + "\t --task_del_id номер_записи\n"
@@ -131,7 +131,7 @@ def main() -> None:
 
     logger.info("CLI main(): Запуск src.cli приложения.")
     print("""\nКонсольное приложение для ведения задач.
-          \nАвтор: Евгений Б. Петров, p174@mail.ru\n""")
+          \nАвтор: Евгений Б. Петров, p174@mail.ru\n""")  # noqa
     #  Принимаю объект с файлом конфигурации,
     # что бы избавится от глобальной переменной
     todo_config_obj = search_config_and_db()
@@ -150,7 +150,7 @@ def main() -> None:
         + "  cli app in variable db_file_name_path: %s ",
         db_full_path,
     )
-    print("cli: ", db_full_path)
+    logger.debug("cli: %s", db_full_path)
 
     main_body(db_full_path)
 
