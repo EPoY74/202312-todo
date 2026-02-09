@@ -1,180 +1,150 @@
-[Русский](README.md)|[English](README.en.md)
-<br>
+[Русский](README.md) | [English](README.en.md)  
 ![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)
-<br>
 
-# Project 202312-todo: task list management system
+# 202312-todo — Python ToDo / To-Do / TODO app (task manager / task tracker) — CLI + REST API + SQLite (CRUD)
 
+**202312-todo** is an open-source **ToDo app / To-Do list / task manager** written in **Python**. It ships with a productivity-friendly **CLI** (command line interface) and an experimental **HTTP REST API** for integrations (web UI, bots, automation, other services).  
+The project focuses on core **CRUD** operations (Create / Read / Update / Delete) and persists tasks in a local **SQLite** database.
 
+## Features
 
-A program for creating ToDo tasks. 202312-todo is a multifunctional task management application written in Python.
+- ✅ **ToDo / Task management**: add, list, update, delete tasks; mark tasks as completed.
+- ✅ **CLI (Command Line)**: manage your todo list from the terminal.
+- 🧪 **REST API (optional, in progress)**: read tasks over HTTP.
+- ✅ **SQLite storage**: simple local persistence for tasks.
+- ✅ **Logging**: CLI logs are written to a file.
 
-It provides two convenient interfaces: a console application for working from the command line and a REST API (partially implemented, currently under development) for integration with web applications and other systems.
+## Tech stack / Keywords
 
-With todoapp, users can easily add, view, update, and delete tasks, while keeping all changes in a shared database. It is a flexible solution for efficient time and task management.
+- **Python**, **SQLite**, **CLI**, **REST API**, **HTTP API**, **CRUD**
+- Dependency & environment management via **uv** (`pyproject.toml` + `uv.lock`)
 
-The application was developed and tested in the following environments:
-- Windows 10 and Windows 11
+**GitHub topics (SEO):** `python`, `todo`, `to-do`, `todo-app`, `todolist`, `task-manager`, `task-tracker`, `cli`, `command-line`, `rest-api`, `http-api`, `sqlite`, `crud`, `open-source`
+
+## Supported environments
+
+Developed and tested on:
+
+- Windows 10 / Windows 11
 - Windows 10/11 with WSL (Windows Subsystem for Linux)
 - Ubuntu Linux
 
----
+## Quick start
 
-## Preparing to run
+> Run all commands from the repository root (where `README.en.md`, `pyproject.toml`, and `uv.lock` are located).
 
-### 1. Prerequisites
+### 1) Prerequisites
 
-To run the project, you will need:
+- **Git**
+- **uv** — Python project manager that creates a virtual environment and installs dependencies from `pyproject.toml` and `uv.lock`
 
-* Git installed;
-* `uv` installed — a Python project manager that automatically creates a virtual environment and installs dependencies based on `pyproject.toml` and `uv.lock`.
+Check `uv`:
 
-Check that `uv` is available:
-
-```
+```bash
 uv --version
 ```
 
-If the command is not found, install `uv` following the instructions on the developer’s (Astral) website for your operating system.
+If the command is not found, install `uv` from the official Astral documentation.
 
----
+### 2) Clone the repository
 
-### 2. Cloning the repository
-
-Clone the repository to the desired location and go to the project folder:
-
-```
+```bash
 git clone https://github.com/EPoY74/202312-todo.git
 cd 202312-todo
 ```
 
-All subsequent commands are executed from the project root (where `README.md`, `pyproject.toml`, and `uv.lock` are located).
+### 3) Install dependencies (uv)
 
----
-
-### 3. Installing dependencies with uv
-
-Install the project dependencies:
-
-```
+```bash
 uv sync
 ```
 
-This command:
+This will:
 
-* creates a virtual environment in `.venv` (if it does not already exist);
-* installs the dependencies listed in `pyproject.toml`;
-* brings the environment to the exact state recorded in `uv.lock` (reproducible and predictable set of versions).
+- create a virtual environment (typically `.venv`) if needed
+- install dependencies from `pyproject.toml`
+- sync exact locked versions from `uv.lock` (reproducible installs)
 
-The Python interpreter will be selected automatically by `uv`; if a suitable version is not available, `uv` will suggest installing it.
+## Run the project
 
----
+### 4) Initialize the SQLite database
 
-## Running the project
+Before first use, create the SQLite database file and tables:
 
-### 4. Database initialization
-
-Before first use, you need to create the SQLite database file and the tables. To do this, run:
-
-```
+```bash
 uv run python -m src.cli --create_db
 ```
 
-After successful execution, this command will create the database file (by default it is located in the `src/data` directory).
+The database file will be created (default location: `src/data/`).
 
-#### Loading test data
+#### Load test data (optional)
 
-In the src/data/ directory, there is a script init_db.py that loads the sqlite-example-data-db-utf-8.sql dump
-into the todo_main.db database. If the todo_main.db file does not exist, it will be created automatically.
+`src/data/init_db.py` loads the `sqlite-example-data-db-utf-8.sql` dump into the `todo_main.db` database.  
+If `todo_main.db` does not exist, it will be created automatically.
 
-```
-# Load test data into the database
-
+```bash
 uv run python src/data/init_db.py
 ```
 
----
+### 5) Run the CLI (console app)
 
-### 5. Running the CLI version (console application)
+Show CLI help:
 
-To view a short help for the CLI:
-
-```
+```bash
 uv run python -m src.cli
 ```
 
-Typical usage examples:
+Typical commands:
 
-```
-# Show the task list
+```bash
+# Show task list
 uv run python -m src.cli --tasks_list
 ```
 
-```
+```bash
 # Add a new task
 uv run python -m src.cli --task_add "Buy milk"
 ```
 
-```
-# Mark a task as completed (by ID)
+```bash
+# Mark task as completed (by ID)
 uv run python -m src.cli --completed_at 1
 ```
 
-```
-# Delete a task (by ID)
+```bash
+# Delete task (by ID)
 uv run python -m src.cli --task_del_id 1
 ```
 
-The up-to-date list of options and flags can be obtained via:
+### 6) Run the REST API (optional, experimental)
 
-```
-uv run python -m src.cli
-```
+Start the API server:
 
-or in the section describing CLI commands further down in the README.
-
----
-
-### 6. Running the API version (optional)
-
-The project also includes an API interface for working with tasks over HTTP.
-
-To start it:
-
-```
+```bash
 uv run python -m src.api
 ```
 
-After startup, the terminal will show the address and port of the server (typically something like `http://127.0.0.1:8000`).
+After startup, the terminal will show the server address (typically `http://127.0.0.1:8000`).
 
-Main endpoints:
+Example endpoints:
 
-* `GET /` — project information / service health;
-* `GET /all` — list of all tasks;
-* `GET /last` — the most recently added task;
-* `GET /task/{id}` — get a task by its identifier.
+- `GET /` — project info / health check
+- `GET /all` — list all tasks
+- `GET /last` — most recently added task
+- `GET /task/{id}` — get a task by id
 
-The exact list and the request/response formats are available in the API description (OpenAPI/Swagger) and in the corresponding API section of the README.
+> If OpenAPI/Swagger is enabled in your API module, use it as the source of truth for request/response formats.
 
----
+### 7) Data and logs
 
-### 7. Where data and logs are stored
+- **Database (SQLite):** `src/data/`
+- **Logs:** `src/log/` (`todo_cli.log` is created automatically on first run)
 
-* Database: directory `src/data/` (main SQLite file with tasks).
-* Application logs: directory `src/log/`, the `todo_cli.log` file is created automatically on first run.
+### 8) Stop the application
 
----
-
-### 8. Stopping the application
-
-CLI commands exit automatically after they finish their work.
-
-The API server is stopped with `Ctrl + C` in the terminal where it was started:
-
-```
-Ctrl + C
-```
-
+- CLI commands exit automatically after completion.
+- Stop the API server with `Ctrl + C` in the terminal where it is running.
 
 ## License
-License: Apache-2.0 – see [License: Apache-2.0](./LICENSE-en)
+
+Apache-2.0 — see [LICENSE-en](./LICENSE-en)
