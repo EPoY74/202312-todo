@@ -131,7 +131,7 @@ def work_with_slq_api(
                 # Объединяем оба массива (это zip) и создаем
                 # из него словарь (это dict),
                 # чтобы получить пары ключ: значение
-                data = [dict(zip(columns, row)) for row in db_return]
+                data = [dict(zip(columns, row, strict=True)) for row in db_return]
 
             if is_one == "many":
                 logger.info("API work_with_slq(): Get many records")
