@@ -86,7 +86,7 @@ async def show_one_task_async(task_id: str):
     )
 
     return db_working_api.list_of_tasks_json(
-        db_name, all_or_last="one", id_row=int(task_id)
+        db_full_path, all_or_last="one", id_row=int(task_id)
     )
 
 
