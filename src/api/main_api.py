@@ -6,7 +6,7 @@
 Почта: epoy@gmail.com
 Дата начала: 02.10.2024
 """
-
+import os
 from datetime import datetime
 
 import colorama
@@ -40,8 +40,13 @@ print("Автор: Евгений Б. Петров, p174@mail.ru\n")  # noqa
 
 # Получаю имя базы данных из файла с конфигурацией
 db_name: str = db_working_api.get_db_name(cfg_working.search_config_and_db())
+file_directory: str = os.path.dirname(__file__)
+db_full_path: str = os.path.join(
+        file_directory, "..", "..", "src", "data", db_name
+    )
 
 logger.info("API: Старт консольного ToDo приложения.")
+logger.info("API: Имя БД: %s", db_name)
 
 
 @app_todo.get("/")
@@ -60,7 +65,7 @@ async def show_all_tasks_async():
     """Выводит все записи, которые есть в БД"""
     logger.info("API: Обращение с API по роуту '/all'")
 
-    return db_working_api.list_of_tasks_json(db_name)
+    return db_working_api.list_of_tasks_json(db_full_path)
 
 
 @app_todo.get("/last")
@@ -68,7 +73,7 @@ async def show_last_tasks_async():
     """Выводит последнюю запись в БД"""
     logger.info("API: Обращение с API по роуту '/last'")
 
-    return db_working_api.list_of_tasks_json(db_name, all_or_last="last")
+    return db_working_api.list_of_tasks_json(db_full_path, all_or_last="last")
 
 
 @app_todo.get("/task/{task_id}")
@@ -76,7 +81,8 @@ async def show_one_task_async(task_id: str):
     """Выводит запись в БД c номером task_id"""
     logger.info(
         "API: Обращение с API по роуту"
-        + " '/task/{task_id}', где task_id = %s", task_id
+        + " '/task/{task_id}', где task_id = %s",
+        task_id,
     )
 
     return db_working_api.list_of_tasks_json(
