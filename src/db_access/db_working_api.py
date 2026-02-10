@@ -163,8 +163,8 @@ def work_with_slq_api(
         logger.error(f"Ошибка: {err}")
         logger.error("API: work_with_slq(): Упс!!! %s", exc_info=err)
 
-    # Этот вариант тоже рабочий, но он выводит возвращает не отформатированный код
-    # return JSONResponse(content=data)
+    # Этот вариант тоже рабочий, но он выводит возвращает не отформатированный
+    # код return JSONResponse(content=data)
 
     # Преобразовываем все дело в json.
     # Оказалось преобразоваывать в json не нужно,
