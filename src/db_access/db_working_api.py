@@ -7,7 +7,6 @@ Since: 05.10.2024
 import json
 import os
 import sqlite3
-from tkinter import TRUE
 
 from fastapi import Response
 
@@ -32,15 +31,12 @@ def get_db_name(todo_config_obj_def):
     )
 
 
-def list_of_tasks_json(
-        db_name: str, 
-        all_or_last: str = "all", 
-        id_row: int = 0) :
+def list_of_tasks_json(db_name: str, all_or_last: str = "all", id_row: int = 0):
     """
     Выводим список дел из SQLite в виде json.
     Если задан параметр all - выводим все записи, указана по умолчанию.
     ЕСли задан параметр last - то только последнюю запись
-    Если задан переметр one  - выводим одну запись, номер задаем 
+    Если задан переметр one  - выводим одну запись, номер задаем
     третьим пареметром
     """
 
@@ -132,7 +128,7 @@ def work_with_slq_api(
                 # Получаем название столбцов из курсора
                 columns = [col[0] for col in db_cursor.description]
 
-                # Объединяем оба массива (это zip) и создаем 
+                # Объединяем оба массива (это zip) и создаем
                 # из него словарь (это dict),
                 # чтобы получить пары ключ: значение
                 data = [dict(zip(columns, row)) for row in db_return]
@@ -145,10 +141,12 @@ def work_with_slq_api(
                 # Получаем название столбцов из курсора
                 columns = [col[0] for col in db_cursor.description]
 
-                # Объединяем оба массива (это zip) и создаем 
+                # Объединяем оба массива (это zip) и создаем
                 # из него словарь (это dict),
                 # чтобы получить пары ключ: значение
-                data = [dict(zip(columns, row, strict=True)) for row in db_return]
+                data = [
+                    dict(zip(columns, row, strict=True)) for row in db_return
+                ]
 
             if type_of_sql == "read" and len(db_return) == 0:
                 logger.error("API: Запись с таким номером в БД отсутсвует.")
