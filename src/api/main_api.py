@@ -6,6 +6,7 @@
 Почта: epoy@gmail.com
 Дата начала: 02.10.2024
 """
+
 import os
 from datetime import datetime
 
@@ -42,8 +43,8 @@ print("Автор: Евгений Б. Петров, p174@mail.ru\n")  # noqa
 db_name: str = db_working_api.get_db_name(cfg_working.search_config_and_db())
 file_directory: str = os.path.dirname(__file__)
 db_full_path: str = os.path.join(
-        file_directory, "..", "..", "src", "data", db_name
-    )
+    file_directory, "..", "..", "src", "data", db_name
+)
 
 logger.info("API: Старт консольного ToDo приложения.")
 logger.info("API: Имя БД: %s", db_name)
@@ -88,13 +89,3 @@ async def show_one_task_async(task_id: str):
     return db_working_api.list_of_tasks_json(
         db_full_path, all_or_last="one", id_row=int(task_id)
     )
-
-
-# def start_todo_api_app():
-#     """Запуск API для проложения todo
-#     """
-#     # uvicorn.run("main:app_todo", host="127.0.0.1", port=8000, reload=True)
-#     # uvicorn.run(app_todo, reload=True)
-
-# if __name__ == "__main__":
-#     start_todo_api_app()
