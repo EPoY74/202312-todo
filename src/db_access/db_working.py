@@ -172,14 +172,9 @@ def set_tasks_deadline(db_name: str, task_deadline_id: int):
             )
             continue
 
-    select_id_sql_deadline = (
-        """UPDATE my_todo_list
-                               SET date_max=\""""
-        + str(date_time_deadline)
-        + """\"
-                               WHERE id="""
-        + str(task_deadline_id)
-    )
+    select_id_sql_deadline = """UPDATE my_todo_list
+                               SET date_max=?
+                               WHERE id=?"""
 
     if confirm_action(
         "установка срока исполнения задания", str(task_deadline_id)
@@ -188,7 +183,13 @@ def set_tasks_deadline(db_name: str, task_deadline_id: int):
             "set_tasks_deadline():"
             + " Запись значения в БД, Пользователь подтвердил"
         )
-        work_with_slq(db_name, "write", "many", select_id_sql_deadline)
+        work_with_slq(
+            db_name,
+            "write",
+            "many",
+            select_id_sql_deadline,
+            (date_time_deadline, task_deadline_id),
+        )
         print(
             f"\n\nЗапись номер {task_deadline_id} изменена."
             + " Срок исполнения установлен"
@@ -319,8 +320,8 @@ def get_record_by_id(db_name, id_row):
     Автор: Евгений Петров, Челябинск,
     Возвращает запись с номером id_row из БД
     """
-    db_sql_query = "SELECT * FROM  my_todo_list WHERE id=" + str(id_row)
-    data_of_todo = work_with_slq(db_name, "read", "many", db_sql_query)
+    db_sql_query = "SELECT * FROM  my_todo_list WHERE id=?"
+    data_of_todo = work_with_slq(db_name, "read", "many", db_sql_query, (id_row,))
     return data_of_todo
 
 
@@ -334,7 +335,7 @@ def delete_task(db_name: str, delete_task: int):
 
     logger.info("delete_task(): Запуск процедуры")
     select_id_sql_for_delete_task: str = """DELETE FROM  my_todo_list
-                                            WHERE id=""" + str(delete_task)
+                                            WHERE id=?"""
 
     list_of_tasks(db_name, "one", delete_task)
     print("Вы хотите удалить данную запись.\n")
@@ -344,7 +345,13 @@ def delete_task(db_name: str, delete_task: int):
             """delete_task():
              Пользователь подтвердил удаление записи #{deleting_task}"""
         )
-        work_with_slq(db_name, "write", "one", select_id_sql_for_delete_task)
+        work_with_slq(
+            db_name,
+            "write",
+            "one",
+            select_id_sql_for_delete_task,
+            (delete_task,),
+        )
     else:
         logger.debug(
             """delete_task():
@@ -372,16 +379,11 @@ def task_completed(db_name: str, complited_id: int) -> None:
     # Формирую sql запрос на пометку задания исполненным
     select_id_sql_gone = """UPDATE my_todo_list
                             SET is_gone = 1
-                             WHERE id=""" + str(complited_id)
+                             WHERE id=?"""
 
     # Формирую SQL запрос на установку даты исполнения
-    select_id_sql_date_gone = (
-        """UPDATE my_todo_list
-    SET date_of_gone=\""""
-        + str(date_time_now)
-        + """\" WHERE id="""
-        + str(complited_id)
-    )
+    select_id_sql_date_gone = """UPDATE my_todo_list
+    SET date_of_gone=? WHERE id=?"""
 
     id_and_date = (
         "# " + str(complited_id) + ", дата выполнения " + date_time_now
@@ -395,13 +397,23 @@ def task_completed(db_name: str, complited_id: int) -> None:
             "task_completed(): Записываем пометку исполнения задания в БД"
         )
         work_with_slq(
-            db_name, "write", "one", select_id_sql_gone
+        db_name,
+        "write",
+        "one",
+        select_id_sql_gone,
+        (complited_id,),
         )  # Помечаем запись выполненой
 
         logger.debug(
             "task_completed(): Записываем дату исполнения задания в БД"
         )
-        work_with_slq(db_name, "write", "one", select_id_sql_date_gone)
+        work_with_slq(
+            db_name,
+            "write",
+            "one",
+            select_id_sql_date_gone,
+            (date_time_now, complited_id),
+        )
         list_of_tasks(
             db_name, "one", complited_id
         )  # Показываем запись с изменениями
