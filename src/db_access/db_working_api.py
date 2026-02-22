@@ -92,7 +92,7 @@ def work_with_slq_api(
     Если укзазан БД, запрос и данные - то выполняем и данные и запрос.
     Если записи не существует - то выводим сообщение
     DB_NAME - Имя базы данных
-    db_sql_query - SQL запоос к базе данных
+    db_sql_query - SQL запрос к базе данных
     db_slq_data - передаваемые параметры в SQL запрос (необязательный)
     type_of_SQL - тип SQL ,запись или чтение (read, write),
     если нужно закомитить в БД,то выбирть write
@@ -107,7 +107,7 @@ def work_with_slq_api(
     db_return: list = []
     data: list | dict = []
 
-    db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode = rw"
+    db_name_rw = "file:" + db_name_def_worrk_with_sql + "?mode=rw"
 
     logger.debug("API: work_with_slq_api(): Имя БД: %s ", db_name_rw)
     logger.debug("API: work_with_slq_api(): SQL запрос: %s", db_sql_query)
@@ -131,7 +131,7 @@ def work_with_slq_api(
                 # Объединяем оба массива (это zip) и создаем
                 # из него словарь (это dict),
                 # чтобы получить пары ключ: значение
-                data = dict(zip (columns, db_return, strict=True))
+                data = dict(zip(columns, db_return, strict=True))
                 # data = [dict(
                 #     zip(columns, row, strict=True)
                 #     ) for row in db_return]
